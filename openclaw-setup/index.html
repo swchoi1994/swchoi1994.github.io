@@ -1,0 +1,1356 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OpenClaw Settings and Monitoring Dashboard</title>
+    <meta name="description" content="OpenClaw settings, health checks, Telegram channel setup, model routing, and monitoring commands for swchoi1994's local agent.">
+    <style>
+        :root {
+            --bg: #eef1f6;
+            --surface: #ffffff;
+            --surface-soft: #f6f8fb;
+            --surface-strong: #e7edf5;
+            --border: #d7dee9;
+            --border-strong: #b9c5d6;
+            --text: #1e2a3a;
+            --text-secondary: #4a5568;
+            --text-muted: #718096;
+            --code-bg: #111827;
+            --code-text: #d9e2f1;
+            --accent: #2f6f9f;
+            --accent-strong: #1d557d;
+            --green: #0f7b57;
+            --green-bg: #e4f6ee;
+            --amber: #a76207;
+            --amber-bg: #fff4dc;
+            --red: #b42318;
+            --red-bg: #fee7e4;
+            --blue-bg: #e7f0fb;
+            --cyan: #087c8f;
+            --shadow: 0 18px 42px rgba(20, 35, 55, 0.12);
+            --radius: 8px;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            margin: 0;
+            background: var(--bg);
+            color: var(--text);
+            font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+            line-height: 1.55;
+        }
+
+        a {
+            color: var(--accent-strong);
+            text-decoration: none;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+
+        .shell {
+            width: min(1180px, calc(100% - 32px));
+            margin: 0 auto;
+        }
+
+        .topbar {
+            position: sticky;
+            top: 0;
+            z-index: 10;
+            border-bottom: 1px solid rgba(185, 197, 214, 0.8);
+            background: rgba(238, 241, 246, 0.92);
+            backdrop-filter: blur(14px);
+        }
+
+        .topbar-inner {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 18px;
+            min-height: 66px;
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            min-width: 0;
+        }
+
+        .mark {
+            display: grid;
+            place-items: center;
+            width: 38px;
+            height: 38px;
+            border-radius: 8px;
+            background: #d93636;
+            color: #fff;
+            font-weight: 800;
+            letter-spacing: 0;
+            box-shadow: 0 8px 18px rgba(217, 54, 54, 0.25);
+            flex: 0 0 auto;
+        }
+
+        .brand-text {
+            min-width: 0;
+        }
+
+        .brand-text strong {
+            display: block;
+            font-size: 0.98rem;
+            letter-spacing: 0;
+            white-space: nowrap;
+        }
+
+        .brand-text span {
+            display: block;
+            color: var(--text-muted);
+            font-size: 0.82rem;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .nav {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+            justify-content: flex-end;
+        }
+
+        .nav a {
+            color: var(--text-secondary);
+            font-size: 0.88rem;
+            font-weight: 650;
+            padding: 8px 10px;
+            border-radius: 7px;
+        }
+
+        .nav a:hover {
+            background: var(--surface);
+            text-decoration: none;
+            color: var(--accent-strong);
+        }
+
+        .page-header {
+            display: grid;
+            grid-template-columns: minmax(0, 1.35fr) minmax(320px, 0.65fr);
+            gap: 24px;
+            padding: 32px 0 18px;
+            align-items: stretch;
+        }
+
+        .title-block h1 {
+            margin: 0;
+            font-size: clamp(2rem, 4vw, 3.6rem);
+            line-height: 1.02;
+            letter-spacing: 0;
+        }
+
+        .title-block p {
+            max-width: 760px;
+            margin: 16px 0 0;
+            color: var(--text-secondary);
+            font-size: 1.02rem;
+        }
+
+        .meta-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .pill {
+            display: inline-flex;
+            align-items: center;
+            min-height: 32px;
+            padding: 6px 10px;
+            border: 1px solid var(--border);
+            border-radius: 999px;
+            background: var(--surface);
+            color: var(--text-secondary);
+            font-size: 0.84rem;
+            font-weight: 650;
+            white-space: nowrap;
+        }
+
+        .summary-panel,
+        .panel,
+        .metric-card,
+        .command-card,
+        .skill-row,
+        .check-row,
+        .trouble-row {
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            background: var(--surface);
+            box-shadow: 0 8px 22px rgba(20, 35, 55, 0.06);
+        }
+
+        .summary-panel {
+            padding: 18px;
+            align-self: stretch;
+        }
+
+        .summary-panel h2 {
+            margin: 0 0 12px;
+            font-size: 1rem;
+        }
+
+        .status-list {
+            display: grid;
+            gap: 10px;
+        }
+
+        .status-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            padding: 9px 0;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .status-item:last-child {
+            border-bottom: 0;
+        }
+
+        .status-item span:first-child {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 26px;
+            padding: 4px 9px;
+            border-radius: 999px;
+            font-size: 0.76rem;
+            font-weight: 800;
+            letter-spacing: 0;
+            white-space: nowrap;
+        }
+
+        .badge.ok {
+            color: var(--green);
+            background: var(--green-bg);
+        }
+
+        .badge.warn {
+            color: var(--amber);
+            background: var(--amber-bg);
+        }
+
+        .badge.info {
+            color: var(--accent-strong);
+            background: var(--blue-bg);
+        }
+
+        .badge.danger {
+            color: var(--red);
+            background: var(--red-bg);
+        }
+
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            gap: 14px;
+            margin: 12px 0 24px;
+        }
+
+        .metric-card {
+            min-height: 146px;
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            gap: 12px;
+        }
+
+        .metric-label {
+            color: var(--text-muted);
+            font-size: 0.82rem;
+            font-weight: 750;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+        }
+
+        .metric-value {
+            font-size: 1.35rem;
+            font-weight: 800;
+            line-height: 1.1;
+            overflow-wrap: anywhere;
+        }
+
+        .metric-note {
+            color: var(--text-secondary);
+            font-size: 0.86rem;
+        }
+
+        .section {
+            padding: 14px 0 20px;
+        }
+
+        .section-heading {
+            display: flex;
+            align-items: flex-end;
+            justify-content: space-between;
+            gap: 18px;
+            margin: 0 0 12px;
+        }
+
+        .section-heading h2 {
+            margin: 0;
+            font-size: 1.42rem;
+            line-height: 1.15;
+        }
+
+        .section-heading p {
+            max-width: 620px;
+            margin: 0;
+            color: var(--text-muted);
+            font-size: 0.95rem;
+        }
+
+        .panel {
+            padding: 18px;
+        }
+
+        .two-col {
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+            gap: 16px;
+        }
+
+        .three-col {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 16px;
+        }
+
+        .probe-form {
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) auto;
+            gap: 10px;
+            align-items: center;
+            margin-top: 12px;
+        }
+
+        label {
+            display: block;
+            color: var(--text-secondary);
+            font-size: 0.86rem;
+            font-weight: 750;
+            margin-bottom: 6px;
+        }
+
+        input,
+        select {
+            width: 100%;
+            min-height: 42px;
+            border: 1px solid var(--border-strong);
+            border-radius: 7px;
+            background: #fff;
+            color: var(--text);
+            padding: 9px 11px;
+            font: inherit;
+            font-size: 0.92rem;
+        }
+
+        input:focus,
+        select:focus {
+            outline: 3px solid rgba(47, 111, 159, 0.18);
+            border-color: var(--accent);
+        }
+
+        button,
+        .button-link {
+            min-height: 42px;
+            border: 1px solid transparent;
+            border-radius: 7px;
+            background: var(--accent);
+            color: #fff;
+            cursor: pointer;
+            font: inherit;
+            font-size: 0.9rem;
+            font-weight: 800;
+            padding: 9px 13px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            text-decoration: none;
+            white-space: nowrap;
+        }
+
+        button:hover,
+        .button-link:hover {
+            background: var(--accent-strong);
+            text-decoration: none;
+        }
+
+        button.secondary {
+            background: var(--surface-soft);
+            border-color: var(--border);
+            color: var(--text-secondary);
+        }
+
+        button.secondary:hover {
+            background: var(--surface-strong);
+            color: var(--text);
+        }
+
+        .probe-output {
+            margin-top: 12px;
+            display: grid;
+            gap: 8px;
+            color: var(--text-secondary);
+            font-size: 0.92rem;
+        }
+
+        .probe-line {
+            display: flex;
+            justify-content: space-between;
+            gap: 12px;
+            padding: 9px 10px;
+            border-radius: 7px;
+            background: var(--surface-soft);
+        }
+
+        .commands-grid {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 14px;
+        }
+
+        .command-card {
+            overflow: hidden;
+        }
+
+        .command-card header {
+            padding: 12px 14px;
+            border-bottom: 1px solid var(--border);
+            background: var(--surface-soft);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+        }
+
+        .command-card h3 {
+            margin: 0;
+            font-size: 0.95rem;
+        }
+
+        .command-card p {
+            margin: 0;
+            color: var(--text-muted);
+            font-size: 0.82rem;
+        }
+
+        .command-body {
+            padding: 14px;
+        }
+
+        pre {
+            margin: 0;
+            padding: 13px;
+            border-radius: 7px;
+            background: var(--code-bg);
+            color: var(--code-text);
+            overflow-x: auto;
+            font-size: 0.86rem;
+            line-height: 1.45;
+        }
+
+        code {
+            font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+        }
+
+        .table {
+            width: 100%;
+            border-collapse: collapse;
+            overflow: hidden;
+            border-radius: var(--radius);
+            border: 1px solid var(--border);
+            background: var(--surface);
+        }
+
+        .table th,
+        .table td {
+            padding: 11px 12px;
+            border-bottom: 1px solid var(--border);
+            text-align: left;
+            vertical-align: top;
+            font-size: 0.92rem;
+        }
+
+        .table th {
+            background: var(--surface-soft);
+            color: var(--text-secondary);
+            font-size: 0.78rem;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+        }
+
+        .table tr:last-child td {
+            border-bottom: 0;
+        }
+
+        .skill-tools {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            margin-bottom: 12px;
+        }
+
+        .skill-tools input {
+            max-width: 360px;
+        }
+
+        .skill-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 10px;
+        }
+
+        .skill-row {
+            padding: 13px;
+            display: grid;
+            gap: 5px;
+        }
+
+        .skill-row strong {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            font-size: 0.96rem;
+        }
+
+        .skill-row span {
+            color: var(--text-secondary);
+            font-size: 0.88rem;
+        }
+
+        .arch {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+            align-items: center;
+        }
+
+        .diagram {
+            width: 100%;
+            min-height: 260px;
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            background: linear-gradient(180deg, #ffffff 0%, #f5f8fc 100%);
+        }
+
+        .diagram text {
+            fill: var(--text);
+            font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+            letter-spacing: 0;
+        }
+
+        .diagram .box {
+            fill: #fff;
+            stroke: #bac6d6;
+            stroke-width: 1.4;
+            rx: 8;
+        }
+
+        .diagram .box-strong {
+            fill: #e7f0fb;
+            stroke: #2f6f9f;
+        }
+
+        .diagram .box-warn {
+            fill: #fff4dc;
+            stroke: #a76207;
+        }
+
+        .diagram .line {
+            stroke: #6d7a8c;
+            stroke-width: 1.5;
+            marker-end: url(#arrow);
+        }
+
+        .check-list,
+        .trouble-list {
+            display: grid;
+            gap: 10px;
+        }
+
+        .check-row,
+        .trouble-row {
+            padding: 14px;
+            display: grid;
+            grid-template-columns: auto minmax(0, 1fr);
+            gap: 12px;
+            align-items: start;
+        }
+
+        .check-row input {
+            width: 18px;
+            min-height: 18px;
+            margin-top: 3px;
+            accent-color: var(--accent);
+        }
+
+        .check-row strong,
+        .trouble-row strong {
+            display: block;
+            margin-bottom: 4px;
+            font-size: 0.96rem;
+        }
+
+        .check-row span,
+        .trouble-row span {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        .footer {
+            padding: 30px 0 46px;
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+
+        .notice {
+            border-left: 4px solid var(--amber);
+            background: var(--amber-bg);
+            padding: 12px 14px;
+            border-radius: 7px;
+            color: #604000;
+            font-size: 0.92rem;
+        }
+
+        @media (max-width: 980px) {
+            .page-header,
+            .two-col,
+            .three-col,
+            .arch {
+                grid-template-columns: 1fr;
+            }
+
+            .dashboard-grid,
+            .commands-grid,
+            .skill-grid {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+        }
+
+        @media (max-width: 720px) {
+            .shell {
+                width: min(100% - 20px, 1180px);
+            }
+
+            .topbar {
+                position: static;
+            }
+
+            .topbar-inner {
+                align-items: flex-start;
+                flex-direction: column;
+                padding: 12px 0;
+            }
+
+            .nav {
+                justify-content: flex-start;
+            }
+
+            .page-header {
+                padding-top: 22px;
+            }
+
+            .dashboard-grid,
+            .commands-grid,
+            .skill-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .section-heading {
+                align-items: flex-start;
+                flex-direction: column;
+            }
+
+            .probe-form {
+                grid-template-columns: 1fr;
+            }
+
+            .skill-tools {
+                align-items: stretch;
+                flex-direction: column;
+            }
+
+            .skill-tools input {
+                max-width: none;
+            }
+
+            .table {
+                display: block;
+                overflow-x: auto;
+                white-space: nowrap;
+            }
+
+            .brand-text strong,
+            .brand-text span {
+                white-space: normal;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="topbar">
+        <div class="shell topbar-inner">
+            <a class="brand" href="/">
+                <span class="mark">OC</span>
+                <span class="brand-text">
+                    <strong>OpenClaw Operations</strong>
+                    <span>Settings, Telegram access, models, and health checks</span>
+                </span>
+            </a>
+            <nav class="nav" aria-label="Page navigation">
+                <a href="#dashboard">Dashboard</a>
+                <a href="#commands">Commands</a>
+                <a href="#skills">Skills</a>
+                <a href="#troubleshooting">Troubleshooting</a>
+                <a href="/">Home</a>
+            </nav>
+        </div>
+    </div>
+
+    <main class="shell">
+        <section class="page-header">
+            <div class="title-block">
+                <h1>OpenClaw Settings and Monitoring Dashboard</h1>
+                <p>
+                    A static control page for the local OpenClaw agent running on A8MAX. It documents the working Telegram setup,
+                    the OpenAI Codex primary model, the Gemma fallback, and the commands used to verify health.
+                </p>
+                <div class="meta-row" aria-label="Current setup summary">
+                    <span class="pill">Verified: 2026-05-11 20:48 KST</span>
+                    <span class="pill">Gateway: ws://127.0.0.1:18789</span>
+                    <span class="pill">Bot: @swc_openclawbot</span>
+                    <span class="pill">Model: gpt-5.5</span>
+                </div>
+            </div>
+
+            <aside class="summary-panel" aria-label="Status summary">
+                <h2>Current Snapshot</h2>
+                <div class="status-list">
+                    <div class="status-item">
+                        <span>Gateway health</span>
+                        <span class="badge ok">OK</span>
+                    </div>
+                    <div class="status-item">
+                        <span>Telegram channel</span>
+                        <span class="badge ok">ON</span>
+                    </div>
+                    <div class="status-item">
+                        <span>Ready skills</span>
+                        <span class="badge info">12</span>
+                    </div>
+                    <div class="status-item">
+                        <span>Public exposure</span>
+                        <span class="badge warn">Loopback only</span>
+                    </div>
+                    <div class="status-item">
+                        <span>Fallback model</span>
+                        <span class="badge info">Gemma4</span>
+                    </div>
+                </div>
+            </aside>
+        </section>
+
+        <section id="dashboard" class="section" aria-labelledby="dashboard-title">
+            <div class="section-heading">
+                <div>
+                    <h2 id="dashboard-title">Live Operations View</h2>
+                    <p>Use this as the first screen when checking whether the local agent is available from Telegram.</p>
+                </div>
+            </div>
+
+            <div class="dashboard-grid">
+                <article class="metric-card">
+                    <div>
+                        <div class="metric-label">Gateway</div>
+                        <div class="metric-value">Reachable</div>
+                    </div>
+                    <div class="metric-note">Local dashboard at <code>http://127.0.0.1:18789/</code>.</div>
+                </article>
+
+                <article class="metric-card">
+                    <div>
+                        <div class="metric-label">Telegram</div>
+                        <div class="metric-value">Configured</div>
+                    </div>
+                    <div class="metric-note">Direct messages are paired to account <code>7400509226</code>.</div>
+                </article>
+
+                <article class="metric-card">
+                    <div>
+                        <div class="metric-label">Model Router</div>
+                        <div class="metric-value">gpt-5.5</div>
+                    </div>
+                    <div class="metric-note">Fallback: <code>ollama/gemma4:latest</code>.</div>
+                </article>
+
+                <article class="metric-card">
+                    <div>
+                        <div class="metric-label">Tool Profile</div>
+                        <div class="metric-value">Coding</div>
+                    </div>
+                    <div class="metric-note">Shell, filesystem editing, gateway, browser, and web tools are allowed.</div>
+                </article>
+            </div>
+
+            <div class="two-col">
+                <div class="panel">
+                    <div class="section-heading">
+                        <div>
+                            <h2>Gateway Probe</h2>
+                            <p>Optional browser-side test. GitHub Pages may block local WebSocket checks in some browsers.</p>
+                        </div>
+                    </div>
+                    <label for="wsUrl">WebSocket URL</label>
+                    <div class="probe-form">
+                        <input id="wsUrl" value="ws://127.0.0.1:18789" autocomplete="off">
+                        <button id="probeButton" type="button">Test Gateway</button>
+                    </div>
+                    <div class="probe-output" aria-live="polite">
+                        <div class="probe-line">
+                            <span>Probe state</span>
+                            <strong id="probeState">Not tested</strong>
+                        </div>
+                        <div class="probe-line">
+                            <span>Last checked</span>
+                            <strong id="probeTime">Never</strong>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="panel">
+                    <div class="section-heading">
+                        <div>
+                            <h2>Session Health</h2>
+                            <p>Most failures should be checked in this order before changing configuration.</p>
+                        </div>
+                    </div>
+                    <div class="check-list">
+                        <label class="check-row">
+                            <input type="checkbox" checked>
+                            <span>
+                                <strong>Gateway process is running</strong>
+                                <span><code>openclaw status</code> reports reachable loopback gateway and active sessions.</span>
+                            </span>
+                        </label>
+                        <label class="check-row">
+                            <input type="checkbox" checked>
+                            <span>
+                                <strong>Telegram delivery is single-path</strong>
+                                <span>The custom delivery bridge is stopped, so duplicate replies should not reappear.</span>
+                            </span>
+                        </label>
+                        <label class="check-row">
+                            <input type="checkbox" checked>
+                            <span>
+                                <strong>Fallback model is installed</strong>
+                                <span>Gemma4 is available through Ollama if the OpenAI subscription quota is limited.</span>
+                            </span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="section" aria-labelledby="settings-title">
+            <div class="section-heading">
+                <div>
+                    <h2 id="settings-title">Settings Snapshot</h2>
+                    <p>Redacted operational settings from the local OpenClaw host. Tokens are intentionally not published.</p>
+                </div>
+            </div>
+
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Area</th>
+                        <th>Value</th>
+                        <th>Notes</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Config file</td>
+                        <td><code>~/.openclaw/openclaw.json</code></td>
+                        <td>Contains channel, model, tool, and plugin configuration.</td>
+                    </tr>
+                    <tr>
+                        <td>Gateway</td>
+                        <td><code>ws://127.0.0.1:18789</code></td>
+                        <td>Local loopback only. Tailscale exposure is off.</td>
+                    </tr>
+                    <tr>
+                        <td>Dashboard</td>
+                        <td><code>http://127.0.0.1:18789/</code></td>
+                        <td>If the browser reports an expired device signature, reload the dashboard from a fresh OpenClaw URL.</td>
+                    </tr>
+                    <tr>
+                        <td>Telegram</td>
+                        <td><code>@swc_openclawbot</code></td>
+                        <td>Enabled with pairing policy and progress streaming.</td>
+                    </tr>
+                    <tr>
+                        <td>Primary model</td>
+                        <td><code>openai-codex/gpt-5.5</code></td>
+                        <td>Uses the Codex login profile rather than a pay-as-you-go API key.</td>
+                    </tr>
+                    <tr>
+                        <td>Fallback model</td>
+                        <td><code>ollama/gemma4:latest</code></td>
+                        <td>Used when primary routing is unavailable or quota constrained.</td>
+                    </tr>
+                    <tr>
+                        <td>Tool profile</td>
+                        <td><code>coding</code></td>
+                        <td>Restores shell, filesystem editing, browser, gateway, and web fetch/search tools.</td>
+                    </tr>
+                    <tr>
+                        <td>Memory</td>
+                        <td><code>memory-lancedb</code></td>
+                        <td>Enabled. Status reports memory as not checked in fast mode.</td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+
+        <section id="commands" class="section" aria-labelledby="commands-title">
+            <div class="section-heading">
+                <div>
+                    <h2 id="commands-title">Monitoring Commands</h2>
+                    <p>Run these on the host PC. Copy buttons store only the command text, not credentials.</p>
+                </div>
+            </div>
+
+            <div class="commands-grid">
+                <article class="command-card">
+                    <header>
+                        <div>
+                            <h3>Fast Status</h3>
+                            <p>Overall agent, channels, sessions</p>
+                        </div>
+                        <button class="secondary copy" type="button" data-copy="openclaw status">Copy</button>
+                    </header>
+                    <div class="command-body">
+                        <pre><code>openclaw status</code></pre>
+                    </div>
+                </article>
+
+                <article class="command-card">
+                    <header>
+                        <div>
+                            <h3>Deep Probe</h3>
+                            <p>Channel and environment checks</p>
+                        </div>
+                        <button class="secondary copy" type="button" data-copy="openclaw status --deep">Copy</button>
+                    </header>
+                    <div class="command-body">
+                        <pre><code>openclaw status --deep</code></pre>
+                    </div>
+                </article>
+
+                <article class="command-card">
+                    <header>
+                        <div>
+                            <h3>Gateway Health</h3>
+                            <p>Local gateway and Telegram</p>
+                        </div>
+                        <button class="secondary copy" type="button" data-copy="openclaw gateway health">Copy</button>
+                    </header>
+                    <div class="command-body">
+                        <pre><code>openclaw gateway health</code></pre>
+                    </div>
+                </article>
+
+                <article class="command-card">
+                    <header>
+                        <div>
+                            <h3>Eligible Skills</h3>
+                            <p>Ready-to-use skill list</p>
+                        </div>
+                        <button class="secondary copy" type="button" data-copy="openclaw skills list --eligible">Copy</button>
+                    </header>
+                    <div class="command-body">
+                        <pre><code>openclaw skills list --eligible</code></pre>
+                    </div>
+                </article>
+
+                <article class="command-card">
+                    <header>
+                        <div>
+                            <h3>Model Status</h3>
+                            <p>Primary model route</p>
+                        </div>
+                        <button class="secondary copy" type="button" data-copy="openclaw models status --plain">Copy</button>
+                    </header>
+                    <div class="command-body">
+                        <pre><code>openclaw models status --plain</code></pre>
+                    </div>
+                </article>
+
+                <article class="command-card">
+                    <header>
+                        <div>
+                            <h3>Fallbacks</h3>
+                            <p>Backup model chain</p>
+                        </div>
+                        <button class="secondary copy" type="button" data-copy="openclaw models fallbacks list">Copy</button>
+                    </header>
+                    <div class="command-body">
+                        <pre><code>openclaw models fallbacks list</code></pre>
+                    </div>
+                </article>
+
+                <article class="command-card">
+                    <header>
+                        <div>
+                            <h3>Live Logs</h3>
+                            <p>Debug message flow</p>
+                        </div>
+                        <button class="secondary copy" type="button" data-copy="openclaw logs --follow">Copy</button>
+                    </header>
+                    <div class="command-body">
+                        <pre><code>openclaw logs --follow</code></pre>
+                    </div>
+                </article>
+
+                <article class="command-card">
+                    <header>
+                        <div>
+                            <h3>Dashboard URL</h3>
+                            <p>Fresh local dashboard link</p>
+                        </div>
+                        <button class="secondary copy" type="button" data-copy="openclaw dashboard">Copy</button>
+                    </header>
+                    <div class="command-body">
+                        <pre><code>openclaw dashboard</code></pre>
+                    </div>
+                </article>
+
+                <article class="command-card">
+                    <header>
+                        <div>
+                            <h3>Restart Gateway</h3>
+                            <p>Use after config changes</p>
+                        </div>
+                        <button class="secondary copy" type="button" data-copy="openclaw gateway run">Copy</button>
+                    </header>
+                    <div class="command-body">
+                        <pre><code>openclaw gateway run</code></pre>
+                    </div>
+                </article>
+            </div>
+        </section>
+
+        <section id="skills" class="section" aria-labelledby="skills-title">
+            <div class="section-heading">
+                <div>
+                    <h2 id="skills-title">Ready Skills</h2>
+                    <p>After installing and authenticating GitHub CLI, the GitHub skills are ready too.</p>
+                </div>
+            </div>
+
+            <div class="skill-tools">
+                <input id="skillFilter" placeholder="Filter skills by name or purpose" autocomplete="off">
+                <span class="badge info" id="skillCount">12 skills shown</span>
+            </div>
+
+            <div class="skill-grid" id="skillGrid">
+                <article class="skill-row" data-skill="browser automation browser multi-step login tab stale refs">
+                    <strong>browser-automation <span class="badge ok">ready</span></strong>
+                    <span>Controls web pages with the OpenClaw browser tool for multi-step flows.</span>
+                </article>
+                <article class="skill-row" data-skill="gh issues github pull requests reviews subagents">
+                    <strong>gh-issues <span class="badge ok">ready</span></strong>
+                    <span>Fetches issues, delegates fixes, opens pull requests, and watches reviews.</span>
+                </article>
+                <article class="skill-row" data-skill="github gh cli issues pr status ci logs comments releases api">
+                    <strong>github <span class="badge ok">ready</span></strong>
+                    <span>Uses <code>gh</code> for issues, PRs, CI logs, reviews, releases, and API queries.</span>
+                </article>
+                <article class="skill-row" data-skill="healthcheck ssh firewall updates exposure cron risk">
+                    <strong>healthcheck <span class="badge ok">ready</span></strong>
+                    <span>Audits and hardens hosts running OpenClaw.</span>
+                </article>
+                <article class="skill-row" data-skill="node connect android ios macos pairing qr route auth">
+                    <strong>node-connect <span class="badge ok">ready</span></strong>
+                    <span>Diagnoses node pairing, QR/setup codes, routes, and auth failures.</span>
+                </article>
+                <article class="skill-row" data-skill="skill creator skill.md agentskills create edit audit restructure">
+                    <strong>skill-creator <span class="badge ok">ready</span></strong>
+                    <span>Creates, edits, improves, reviews, and audits AgentSkills.</span>
+                </article>
+                <article class="skill-row" data-skill="taskflow durable tasks owner context state waits child tasks">
+                    <strong>taskflow <span class="badge ok">ready</span></strong>
+                    <span>Coordinates multi-step detached tasks as durable jobs.</span>
+                </article>
+                <article class="skill-row" data-skill="taskflow inbox triage email replies summaries">
+                    <strong>taskflow-inbox-triage <span class="badge ok">ready</span></strong>
+                    <span>Example pattern for inbox triage, intent routing, replies, and summaries.</span>
+                </article>
+                <article class="skill-row" data-skill="tmux terminal sessions interactive cli keystrokes pane output">
+                    <strong>tmux <span class="badge ok">ready</span></strong>
+                    <span>Remote-controls tmux sessions for interactive CLIs.</span>
+                </article>
+                <article class="skill-row" data-skill="video frames clips ffmpeg">
+                    <strong>video-frames <span class="badge ok">ready</span></strong>
+                    <span>Extracts frames or short clips from videos using ffmpeg.</span>
+                </article>
+                <article class="skill-row" data-skill="voice call audio talk mode">
+                    <strong>voice-call <span class="badge ok">ready</span></strong>
+                    <span>Starts voice calls through the OpenClaw voice-call plugin.</span>
+                </article>
+                <article class="skill-row" data-skill="weather rain temperature forecast travel">
+                    <strong>weather <span class="badge ok">ready</span></strong>
+                    <span>Gets current weather, rain, temperature, and forecasts.</span>
+                </article>
+            </div>
+        </section>
+
+        <section class="section" aria-labelledby="architecture-title">
+            <div class="section-heading">
+                <div>
+                    <h2 id="architecture-title">Message Flow</h2>
+                    <p>The Telegram bot is the remote control surface. The PC remains the execution host.</p>
+                </div>
+            </div>
+
+            <div class="panel arch">
+                <svg class="diagram" viewBox="0 0 620 300" role="img" aria-labelledby="diagramTitle diagramDesc">
+                    <title id="diagramTitle">OpenClaw message flow diagram</title>
+                    <desc id="diagramDesc">Telegram sends messages to the local gateway, which routes them to the OpenClaw agent, tools, skills, and fallback models.</desc>
+                    <defs>
+                        <marker id="arrow" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto">
+                            <path d="M0,0 L8,4 L0,8 Z" fill="#6d7a8c"></path>
+                        </marker>
+                    </defs>
+                    <rect class="box" x="34" y="38" width="142" height="58"></rect>
+                    <text x="105" y="63" text-anchor="middle" font-size="15" font-weight="800">Telegram</text>
+                    <text x="105" y="82" text-anchor="middle" font-size="12">@swc_openclawbot</text>
+
+                    <rect class="box-strong" x="238" y="38" width="150" height="58"></rect>
+                    <text x="313" y="63" text-anchor="middle" font-size="15" font-weight="800">Gateway</text>
+                    <text x="313" y="82" text-anchor="middle" font-size="12">127.0.0.1:18789</text>
+
+                    <rect class="box" x="448" y="38" width="142" height="58"></rect>
+                    <text x="519" y="63" text-anchor="middle" font-size="15" font-weight="800">Agent</text>
+                    <text x="519" y="82" text-anchor="middle" font-size="12">main session</text>
+
+                    <rect class="box" x="88" y="188" width="142" height="58"></rect>
+                    <text x="159" y="213" text-anchor="middle" font-size="15" font-weight="800">Tools</text>
+                    <text x="159" y="232" text-anchor="middle" font-size="12">exec, files, web</text>
+
+                    <rect class="box" x="272" y="188" width="142" height="58"></rect>
+                    <text x="343" y="213" text-anchor="middle" font-size="15" font-weight="800">Skills</text>
+                    <text x="343" y="232" text-anchor="middle" font-size="12">12 ready</text>
+
+                    <rect class="box-warn" x="456" y="188" width="142" height="58"></rect>
+                    <text x="527" y="213" text-anchor="middle" font-size="15" font-weight="800">Fallback</text>
+                    <text x="527" y="232" text-anchor="middle" font-size="12">Gemma4 via Ollama</text>
+
+                    <line class="line" x1="176" y1="67" x2="238" y2="67"></line>
+                    <line class="line" x1="388" y1="67" x2="448" y2="67"></line>
+                    <line class="line" x1="493" y1="96" x2="185" y2="188"></line>
+                    <line class="line" x1="519" y1="96" x2="365" y2="188"></line>
+                    <line class="line" x1="533" y1="96" x2="533" y2="188"></line>
+                </svg>
+
+                <div>
+                    <h2>Remote Conversation Model</h2>
+                    <p>
+                        You can talk to the PC from a walk as long as the host stays awake, the OpenClaw gateway is running,
+                        the Telegram bot is reachable, and the network connection is alive. The phone is only the message client;
+                        shell commands and file edits still execute on the PC.
+                    </p>
+                    <div class="notice">
+                        Do not publish gateway tokens, Telegram bot tokens, or OAuth files. This page records only redacted
+                        settings and operational commands.
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="troubleshooting" class="section" aria-labelledby="troubleshooting-title">
+            <div class="section-heading">
+                <div>
+                    <h2 id="troubleshooting-title">Troubleshooting</h2>
+                    <p>Known symptoms from this setup and the shortest useful checks.</p>
+                </div>
+            </div>
+
+            <div class="trouble-list">
+                <article class="trouble-row">
+                    <span class="badge danger">No reply</span>
+                    <span>
+                        <strong>Check the gateway and Telegram channel first.</strong>
+                        <span>Run <code>openclaw gateway health</code>, then <code>openclaw logs --follow</code>. If the gateway is not running, start it again with <code>openclaw gateway run</code>.</span>
+                    </span>
+                </article>
+                <article class="trouble-row">
+                    <span class="badge warn">Double reply</span>
+                    <span>
+                        <strong>Look for duplicate Telegram senders.</strong>
+                        <span>The built-in Telegram provider should be the only delivery path. Stop any custom bridge process before retesting.</span>
+                    </span>
+                </article>
+                <article class="trouble-row">
+                    <span class="badge warn">Dashboard auth</span>
+                    <span>
+                        <strong>Expired device signatures are local dashboard auth issues.</strong>
+                        <span>Use <code>openclaw dashboard</code> to generate a fresh URL. This does not necessarily mean Telegram is broken.</span>
+                    </span>
+                </article>
+                <article class="trouble-row">
+                    <span class="badge info">Missing tools</span>
+                    <span>
+                        <strong>Verify the tool profile is still <code>coding</code>.</strong>
+                        <span>If Telegram reports no shell, filesystem, browser, gateway, or config tools, inspect <code>tools.profile</code> and restart the gateway after changing it.</span>
+                    </span>
+                </article>
+                <article class="trouble-row">
+                    <span class="badge info">Quota</span>
+                    <span>
+                        <strong>Use Gemma4 when Codex quota is unavailable.</strong>
+                        <span>The configured fallback is <code>ollama/gemma4:latest</code>. Confirm it with <code>openclaw models fallbacks list</code>.</span>
+                    </span>
+                </article>
+            </div>
+        </section>
+
+        <footer class="footer">
+            <span>OpenClaw dashboard page for swchoi1994.github.io</span>
+            <span id="clock">Local time loading</span>
+        </footer>
+    </main>
+
+    <script>
+        const copyButtons = document.querySelectorAll(".copy");
+        copyButtons.forEach((button) => {
+            button.addEventListener("click", async () => {
+                const text = button.dataset.copy;
+                try {
+                    await navigator.clipboard.writeText(text);
+                    const previous = button.textContent;
+                    button.textContent = "Copied";
+                    window.setTimeout(() => {
+                        button.textContent = previous;
+                    }, 1200);
+                } catch (error) {
+                    button.textContent = "Copy failed";
+                    window.setTimeout(() => {
+                        button.textContent = "Copy";
+                    }, 1200);
+                }
+            });
+        });
+
+        const probeButton = document.getElementById("probeButton");
+        const probeState = document.getElementById("probeState");
+        const probeTime = document.getElementById("probeTime");
+        const wsUrl = document.getElementById("wsUrl");
+
+        probeButton.addEventListener("click", () => {
+            const url = wsUrl.value.trim();
+            if (!url) {
+                probeState.textContent = "Missing URL";
+                return;
+            }
+
+            probeState.textContent = "Testing";
+            probeTime.textContent = new Date().toLocaleString();
+
+            let settled = false;
+            let socket;
+            const timeout = window.setTimeout(() => {
+                if (!settled) {
+                    settled = true;
+                    probeState.textContent = "Timed out";
+                    if (socket) {
+                        socket.close();
+                    }
+                }
+            }, 3500);
+
+            try {
+                socket = new WebSocket(url);
+                socket.addEventListener("open", () => {
+                    if (settled) return;
+                    settled = true;
+                    window.clearTimeout(timeout);
+                    probeState.textContent = "Socket opened";
+                    socket.close();
+                });
+                socket.addEventListener("error", () => {
+                    if (settled) return;
+                    settled = true;
+                    window.clearTimeout(timeout);
+                    probeState.textContent = "Blocked or unreachable";
+                });
+                socket.addEventListener("close", () => {
+                    if (settled) return;
+                    settled = true;
+                    window.clearTimeout(timeout);
+                    probeState.textContent = "Closed by gateway";
+                });
+            } catch (error) {
+                window.clearTimeout(timeout);
+                probeState.textContent = "Invalid URL";
+            }
+        });
+
+        const skillFilter = document.getElementById("skillFilter");
+        const skillRows = Array.from(document.querySelectorAll(".skill-row"));
+        const skillCount = document.getElementById("skillCount");
+
+        skillFilter.addEventListener("input", () => {
+            const term = skillFilter.value.trim().toLowerCase();
+            let visible = 0;
+            skillRows.forEach((row) => {
+                const match = !term || row.dataset.skill.includes(term) || row.textContent.toLowerCase().includes(term);
+                row.style.display = match ? "grid" : "none";
+                if (match) visible += 1;
+            });
+            skillCount.textContent = `${visible} skills shown`;
+        });
+
+        const clock = document.getElementById("clock");
+        const updateClock = () => {
+            clock.textContent = `Browser time: ${new Date().toLocaleString()}`;
+        };
+        updateClock();
+        window.setInterval(updateClock, 30000);
+    </script>
+</body>
+</html>
