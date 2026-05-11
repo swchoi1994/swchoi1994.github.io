@@ -323,6 +323,63 @@ li {
     gap: 2rem;
 }
 
+.blog-quick-links {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1rem;
+    margin-bottom: 2rem;
+}
+
+.quick-link {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1rem;
+    background-color: #f8f9fa;
+    border: 1px solid #e9ecef;
+    border-radius: 8px;
+    color: #333;
+    text-decoration: none;
+    transition: all 0.3s ease;
+}
+
+.quick-link:hover {
+    border-color: #007bff;
+    box-shadow: 0 6px 18px rgba(0,0,0,0.08);
+    transform: translateY(-2px);
+    text-decoration: none;
+}
+
+.quick-link i {
+    width: 42px;
+    height: 42px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: rgba(0,123,255,0.1);
+    color: #007bff;
+    font-size: 1.2rem;
+    flex: 0 0 auto;
+}
+
+.quick-link span {
+    display: flex;
+    flex-direction: column;
+    gap: 0.15rem;
+    min-width: 0;
+}
+
+.quick-link strong {
+    color: #333;
+    line-height: 1.25;
+}
+
+.quick-link small {
+    color: #666;
+    line-height: 1.35;
+}
+
 .blog-post {
     background-color: #fff;
     border: 1px solid #e9ecef;
@@ -587,6 +644,10 @@ li {
         flex-direction: column;
         gap: 0.5rem;
         align-items: flex-start;
+    }
+
+    .blog-quick-links {
+        grid-template-columns: 1fr;
     }
 
     .publications-list {
