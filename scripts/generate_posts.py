@@ -162,14 +162,57 @@ Do not include any text outside the JSON object.
 
 
 def llm_complete(system: str, user: str) -> str:
-    """Return raw text completion. Tries Anthropic Claude, then OpenAI."""
+    """Return raw text completion.
+
+    Provider preference, in order:
+      1. GitHub Models (free, uses GITHUB_TOKEN from Actions or a PAT)
+      2. Anthropic Claude (paid API)
+      3. OpenAI API (paid)
+    """
+    gh_token = os.environ.get("GITHUB_MODELS_TOKEN") or os.environ.get("GITHUB_TOKEN")
     anth_key = os.environ.get("ANTHROPIC_API_KEY")
     oai_key = os.environ.get("OPENAI_API_KEY")
+    if gh_token:
+        return _github_models(system, user, gh_token)
     if anth_key:
         return _claude(system, user, anth_key)
     if oai_key:
         return _openai(system, user, oai_key)
-    raise RuntimeError("Neither ANTHROPIC_API_KEY nor OPENAI_API_KEY is set")
+    raise RuntimeError(
+        "No LLM credentials. Set one of: GITHUB_TOKEN (free, via GitHub Models), "
+        "ANTHROPIC_API_KEY, or OPENAI_API_KEY."
+    )
+
+
+def _github_models(system: str, user: str, token: str) -> str:
+    """Free GitHub Models endpoint. OpenAI-compatible.
+    Docs: https://docs.github.com/en/github-models
+    Default model: openai/gpt-4o-mini. Override with GITHUB_MODELS_MODEL env."""
+    import urllib.request
+
+    body = json.dumps(
+        {
+            "model": os.environ.get("GITHUB_MODELS_MODEL", "openai/gpt-4o-mini"),
+            "messages": [
+                {"role": "system", "content": system},
+                {"role": "user", "content": user},
+            ],
+            "temperature": 0.7,
+        }
+    ).encode("utf-8")
+    req = urllib.request.Request(
+        "https://models.github.ai/inference/chat/completions",
+        data=body,
+        headers={
+            "Content-Type": "application/json",
+            "Authorization": f"Bearer {token}",
+            "Accept": "application/vnd.github+json",
+        },
+        method="POST",
+    )
+    with urllib.request.urlopen(req, timeout=120) as r:
+        data = json.loads(r.read().decode("utf-8"))
+    return data["choices"][0]["message"]["content"]
 
 
 def _claude(system: str, user: str, key: str) -> str:

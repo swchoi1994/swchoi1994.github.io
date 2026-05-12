@@ -30,10 +30,24 @@ In the repo: **Settings → Secrets and variables → Actions → New repository
 | Secret | Required | Notes |
 |---|---|---|
 | `TAVILY_API_KEY` | yes | https://tavily.com — free tier covers daily runs |
-| `ANTHROPIC_API_KEY` | one of these two | Claude is preferred for writing |
-| `OPENAI_API_KEY` | one of these two | Fallback if Claude key isn't set |
+| `ANTHROPIC_API_KEY` | optional | Only needed if you want to bypass GitHub Models |
+| `OPENAI_API_KEY` | optional | Same — fallback only |
 
-Optional env: `CLAUDE_MODEL` (default `claude-sonnet-4-6`), `OPENAI_MODEL` (default `gpt-4o-mini`).
+### LLM access: GitHub Models (free, default)
+
+The generator uses **GitHub Models** by default — a free, official endpoint that gives you `gpt-4o-mini`, `gpt-4o`, Llama 3.3, Mistral, and others. Auth uses the `GITHUB_TOKEN` that's automatically present in every GitHub Action, so **no extra secret is required**.
+
+Rate limits (free tier, roughly):
+- `gpt-4o-mini`: ~15 req/min, 150 req/day
+- `gpt-4o`: ~10 req/min, 50 req/day
+
+At 3–6 posts/day, you'll never hit them.
+
+Override the model by setting a repo variable `GITHUB_MODELS_MODEL` (e.g. `openai/gpt-4o`, `meta/llama-3.3-70b-instruct`, `mistral-ai/mistral-small-2503`).
+
+Provider preference order in code: `GITHUB_TOKEN` → `ANTHROPIC_API_KEY` → `OPENAI_API_KEY`.
+
+Optional env: `CLAUDE_MODEL` (default `claude-sonnet-4-6`), `OPENAI_MODEL` (default `gpt-4o-mini`), `GITHUB_MODELS_MODEL` (default `openai/gpt-4o-mini`).
 
 ## Local run
 

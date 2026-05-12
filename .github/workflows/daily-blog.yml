@@ -17,6 +17,7 @@ on:
 
 permissions:
   contents: write
+  models: read
 
 concurrency:
   group: daily-blog
@@ -39,9 +40,15 @@ jobs:
 
       - name: Generate posts
         env:
+          # Free GitHub Models access (preferred). GITHUB_TOKEN is auto-provided
+          # by the runner; it has models:read because of the permissions block above.
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           TAVILY_API_KEY: ${{ secrets.TAVILY_API_KEY }}
+          # Optional fallbacks if you ever want to switch off GitHub Models:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          # Optional model override (default: openai/gpt-4o-mini)
+          GITHUB_MODELS_MODEL: ${{ vars.GITHUB_MODELS_MODEL }}
         run: |
           ARGS=""
           if [ "${{ github.event.inputs.seed_fixture }}" = "true" ]; then
