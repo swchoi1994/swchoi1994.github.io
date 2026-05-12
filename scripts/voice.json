@@ -1,0 +1,65 @@
+{
+  "_comment": "Edit this file to refine the blog's voice. The generator reads it on every run.",
+  "author": {
+    "name": "Seongwoo Choi",
+    "name_ko": "최성우",
+    "bio_en": "AI engineer based in Seoul. Writes about LLMs, RAG, and the tech industry across the US, China, and Korea.",
+    "bio_ko": "서울에 사는 AI 엔지니어. LLM, RAG, 그리고 미국·중국·한국의 IT 산업 이야기를 씁니다.",
+    "site": "https://swchoi1994.github.io"
+  },
+  "tone": {
+    "en": "Conversational but precise. First person. No marketing fluff. Explain jargon in one sentence. Short paragraphs (2-4 sentences). Lead with the news, then say why it matters to engineers. End with a brief personal take. No emojis in headings; sparingly inline.",
+    "ko": "친근한 1인칭. 존댓말 사용. '오늘은', '저는' 같은 자연스러운 시작. 짧은 문단(2~4문장). 영어 약어는 처음 등장할 때 한 줄로 풀어쓰기 (예: RAG = Retrieval-Augmented Generation). 마지막 단락은 가볍게 본인 생각이나 코멘트로 마무리. 이모지는 본문에 가끔만, 제목에는 사용하지 않습니다."
+  },
+  "structure": {
+    "min_words_en": 600,
+    "max_words_en": 1100,
+    "min_words_ko": 800,
+    "max_words_ko": 1400,
+    "sections": ["hook (1 short paragraph)", "what happened (the news, with at least one source link)", "why it matters", "deeper context or technical detail", "personal take / outlook"]
+  },
+  "regions": {
+    "us": {
+      "label_en": "US Tech",
+      "label_ko": "미국 IT",
+      "search_queries": [
+        "latest AI news US site:techcrunch.com OR site:theverge.com OR site:arstechnica.com",
+        "OpenAI Anthropic Google DeepMind announcement",
+        "US startup funding AI machine learning this week",
+        "NVIDIA AMD Intel chip announcement",
+        "US tech regulation AI policy"
+      ]
+    },
+    "china": {
+      "label_en": "China Tech",
+      "label_ko": "중국 IT",
+      "search_queries": [
+        "China AI news DeepSeek Qwen Baidu Alibaba",
+        "Chinese semiconductor SMIC Huawei chip",
+        "China tech regulation export controls",
+        "Tencent ByteDance product launch",
+        "China EV BYD Xiaomi technology"
+      ]
+    },
+    "korea": {
+      "label_en": "Korea Tech",
+      "label_ko": "한국 IT",
+      "search_queries": [
+        "한국 AI 뉴스 네이버 카카오 LG",
+        "삼성전자 SK하이닉스 반도체",
+        "스타트업 투자 한국 AI",
+        "한국 정부 AI 정책 규제",
+        "Korean tech news Samsung SK Hynix AI semiconductor"
+      ]
+    }
+  },
+  "categories": ["AI/ML", "Semiconductors", "Startups", "Policy", "Cloud & Infra", "Devtools"],
+  "post_plan": {
+    "_comment": "Posts generated per daily run. Mix languages and regions. Adjust to scale up.",
+    "daily": [
+      {"lang": "en", "region": "us"},
+      {"lang": "en", "region": "china"},
+      {"lang": "ko", "region": "korea"}
+    ]
+  }
+}

@@ -1,0 +1,59 @@
+[
+  {
+    "title": "What 'agentic AI' actually means in 2026 (and what it doesn't)",
+    "description": "A short, no-hype breakdown of where the US AI labs landed on agents, and what is real vs. demo-ware right now.",
+    "category": "AI/ML",
+    "region": "us",
+    "lang": "en",
+    "date": "2026-05-12",
+    "path": "/blog/posts/2026/05/12/us-en-what-agentic-ai-actually-means-in-2026-and-what-it-doesnt/",
+    "sources": [
+      {
+        "title": "Anthropic - Building with Claude agents",
+        "url": "https://www.anthropic.com/news/agents"
+      },
+      {
+        "title": "OpenAI - Function calling and tool use",
+        "url": "https://platform.openai.com/docs/guides/function-calling"
+      }
+    ]
+  },
+  {
+    "title": "Why China's open-weight push is reshaping the LLM cost curve",
+    "description": "Open-weight Chinese frontier models are putting price pressure on the entire stack. Here's how to think about it.",
+    "category": "AI/ML",
+    "region": "china",
+    "lang": "en",
+    "date": "2026-05-12",
+    "path": "/blog/posts/2026/05/12/china-en-why-chinas-open-weight-push-is-reshaping-the-llm-cost-curve/",
+    "sources": [
+      {
+        "title": "DeepSeek - Model releases",
+        "url": "https://www.deepseek.com/"
+      },
+      {
+        "title": "Alibaba Qwen - Open models",
+        "url": "https://qwenlm.github.io/"
+      }
+    ]
+  },
+  {
+    "title": "삼성과 SK하이닉스의 HBM 경쟁, 엔지니어 입장에서 본 짧은 정리",
+    "description": "HBM(High Bandwidth Memory) 경쟁이 왜 AI 인프라에 직접 영향을 주는지, 그리고 한국 메모리 업계의 현재 위치를 짧게 정리했습니다.",
+    "category": "Semiconductors",
+    "region": "korea",
+    "lang": "ko",
+    "date": "2026-05-12",
+    "path": "/blog/posts/2026/05/12/korea-ko-삼성과-sk하이닉스의-hbm-경쟁-엔지니어-입장에서-본-짧은-정리/",
+    "sources": [
+      {
+        "title": "SK hynix - HBM 사업 소개",
+        "url": "https://www.skhynix.com/products/dram/hbm/"
+      },
+      {
+        "title": "Samsung Semiconductor - HBM",
+        "url": "https://semiconductor.samsung.com/dram/hbm/"
+      }
+    ]
+  }
+]

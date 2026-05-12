@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="index, follow">
+<link rel="icon" href="/favicon.ico">
+<link rel="stylesheet" href="/assets/css/style.css">
+<link rel="stylesheet" href="/blog/assets/blog.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+<link rel="alternate" type="application/rss+xml" title="Seongwoo Choi - IT Blog" href="/blog/feed.xml">
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6903374993226057" crossorigin="anonymous"></script>
+
+<title>삼성과 SK하이닉스의 HBM 경쟁, 엔지니어 입장에서 본 짧은 정리 | Seongwoo Choi</title>
+<meta name="description" content="HBM(High Bandwidth Memory) 경쟁이 왜 AI 인프라에 직접 영향을 주는지, 그리고 한국 메모리 업계의 현재 위치를 짧게 정리했습니다.">
+<meta property="og:type" content="article">
+<meta property="og:title" content="삼성과 SK하이닉스의 HBM 경쟁, 엔지니어 입장에서 본 짧은 정리">
+<meta property="og:description" content="HBM(High Bandwidth Memory) 경쟁이 왜 AI 인프라에 직접 영향을 주는지, 그리고 한국 메모리 업계의 현재 위치를 짧게 정리했습니다.">
+<meta property="og:url" content="https://swchoi1994.github.io/blog/posts/2026/05/12/korea-ko-삼성과-sk하이닉스의-hbm-경쟁-엔지니어-입장에서-본-짧은-정리/">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="canonical" href="https://swchoi1994.github.io/blog/posts/2026/05/12/korea-ko-삼성과-sk하이닉스의-hbm-경쟁-엔지니어-입장에서-본-짧은-정리/">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "삼성과 SK하이닉스의 HBM 경쟁, 엔지니어 입장에서 본 짧은 정리",
+  "description": "HBM(High Bandwidth Memory) 경쟁이 왜 AI 인프라에 직접 영향을 주는지, 그리고 한국 메모리 업계의 현재 위치를 짧게 정리했습니다.",
+  "author": {
+    "@type": "Person",
+    "name": "Seongwoo Choi",
+    "url": "https://swchoi1994.github.io"
+  },
+  "datePublished": "2026-05-12",
+  "dateModified": "2026-05-12",
+  "inLanguage": "ko-KR",
+  "mainEntityOfPage": "https://swchoi1994.github.io/blog/posts/2026/05/12/korea-ko-삼성과-sk하이닉스의-hbm-경쟁-엔지니어-입장에서-본-짧은-정리/",
+  "publisher": {
+    "@type": "Person",
+    "name": "Seongwoo Choi"
+  }
+}
+</script>
+</head>
+<body class="blog-body">
+<nav class="navbar">
+  <div class="nav-container">
+    <div class="nav-brand"><a href="/">Seongwoo Choi</a></div>
+    <div class="nav-menu">
+      <a href="/" class="nav-link">Home</a>
+      <a href="/blog/" class="nav-link">Blog</a>
+      <a href="/blog/?region=us" class="nav-link">US</a>
+      <a href="/blog/?region=china" class="nav-link">China</a>
+      <a href="/blog/?region=korea" class="nav-link">Korea</a>
+      <a href="/blog/feed.xml" class="nav-link"><i class="fas fa-rss"></i></a>
+    </div>
+  </div>
+</nav>
+
+<main class="blog-main">
+  <article class="post">
+    <header class="post-header">
+      <div class="post-meta">
+        <span class="region-tag region-korea">한국 IT</span>
+        <span class="category-tag">Semiconductors</span>
+        <time datetime="2026-05-12">2026년 05월 12일</time>
+        <span class="lang-tag">한국어</span>
+      </div>
+      <h1 class="post-title">삼성과 SK하이닉스의 HBM 경쟁, 엔지니어 입장에서 본 짧은 정리</h1>
+      <p class="post-subtitle">HBM(High Bandwidth Memory) 경쟁이 왜 AI 인프라에 직접 영향을 주는지, 그리고 한국 메모리 업계의 현재 위치를 짧게 정리했습니다.</p>
+    </header>
+    <div class="ad-slot">
+  <ins class="adsbygoogle"
+       style="display:block; text-align:center;"
+       data-ad-client="ca-pub-6903374993226057"
+       data-ad-slot="auto"
+       data-ad-format="auto"
+       data-full-width-responsive="true"></ins>
+  <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
+</div>
+
+    <div class="post-body">
+<p>오늘은 한국 반도체 업계의 핵심 이슈인 HBM(High Bandwidth Memory, 고대역폭 메모리) 이야기를 짧게 정리해보겠습니다. AI 인프라 비용의 상당 부분이 결국 메모리에서 나오기 때문에, 엔지니어 입장에서도 한 번쯤 짚어둘 만한 주제입니다.</p>
+<h2>무슨 일이 있었나</h2>
+<p>엔비디아의 차세대 AI 가속기에 들어가는 HBM은 사실상 <strong>삼성전자와 SK하이닉스, 그리고 마이크론</strong> 세 회사가 나눠 가지는 시장입니다 <a class="cite" href="#src-1">[1]</a>. 최근 흐름은 SK하이닉스가 HBM3E에서 한발 앞서나간 상황이고, 삼성은 다음 세대에서 다시 격차를 좁히겠다는 전략을 공식화했습니다 <a class="cite" href="#src-2">[2]</a>.</p>
+<h2>왜 중요한가</h2>
+<p>LLM(대규모 언어 모델) 추론 비용의 병목은 대부분 메모리 대역폭입니다. GPU 코어가 아무리 빨라도, 가중치를 가져오는 속도가 느리면 성능이 떨어지죠. 그래서 HBM 한 세대가 바뀔 때마다 토큰당 비용이 실질적으로 내려갑니다. 결국 한국 메모리 업계의 경쟁력이 곧 글로벌 AI 서비스의 단가에 직접 영향을 미친다는 얘기입니다.</p>
+<h2>조금 더 깊은 맥락</h2>
+<p>한 가지 흥미로운 점은, HBM은 단순히 D램을 쌓는 기술이 아니라 <strong>TSV(Through-Silicon Via) 패키징</strong>과 <strong>열 관리</strong> 등 후공정 기술이 핵심이라는 것입니다. 그래서 양산 수율이 곧 경쟁력입니다. 이 부분에서 한국 두 회사가 미국·중국 경쟁사들과 격차를 유지하고 있는 건 사실이지만, 장기적으로 중국 메모리 업체들이 후공정 쪽 투자에 집중하고 있다는 점은 지켜봐야 할 부분입니다.</p>
+<h2>마무리하며</h2>
+<p>개인적으로는, AI 모델 자체의 발전 속도에 비해 메모리 쪽 이야기가 한국 IT 매체에서 너무 가볍게 다뤄지는 것 같습니다. 실제로는 모델 한 세대만큼이나 큰 변화가 메모리 쪽에서 일어나고 있고, 한국이 그 변화의 한가운데에 있습니다. 엔지니어 입장에서 한 번쯤 깊게 들여다볼 만한 주제라고 생각합니다.</p>
+    </div>
+    <div class="ad-slot">
+  <ins class="adsbygoogle"
+       style="display:block; text-align:center;"
+       data-ad-client="ca-pub-6903374993226057"
+       data-ad-slot="auto"
+       data-ad-format="auto"
+       data-full-width-responsive="true"></ins>
+  <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
+</div>
+
+    <section class="sources">
+      <h3>Sources</h3>
+      <ol>
+<li id="src-1"><a href="https://www.skhynix.com/products/dram/hbm/" rel="noopener" target="_blank">SK hynix - HBM 사업 소개</a></li>
+<li id="src-2"><a href="https://semiconductor.samsung.com/dram/hbm/" rel="noopener" target="_blank">Samsung Semiconductor - HBM</a></li>
+      </ol>
+    </section>
+    <aside class="newsletter-cta">
+  <h3>Get this in your inbox</h3>
+  <p>A short daily digest of AI &amp; tech news from the US, China, and Korea. No spam.</p>
+  <a class="cta-btn" href="https://buttondown.com/swchoi1994" rel="noopener">Subscribe</a>
+  <small>Or <a href="/blog/feed.xml">grab the RSS feed</a>.</small>
+</aside>
+
+    <section class="post-nav">
+      <a href="/blog/">&larr; All posts</a>
+    </section>
+  </article>
+</main>
+<footer class="site-footer">
+  <div class="footer-inner">
+    <p>&copy; <span id="year"></span> Seongwoo Choi. Built with Claude + Tavily. <a href="/blog/feed.xml">RSS</a> &middot; <a href="/sitemap.xml">Sitemap</a> &middot; <a href="/">Portfolio</a></p>
+    <p class="disclaimer">Posts may include affiliate links. As an Amazon Associate and Coupang Partner, I earn from qualifying purchases. Generated daily with AI assistance and editorial review.</p>
+  </div>
+  <script>document.getElementById('year').textContent = new Date().getFullYear();</script>
+</footer>
+
+</body>
+</html>

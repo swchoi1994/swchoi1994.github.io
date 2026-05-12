@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="index, follow">
+<link rel="icon" href="/favicon.ico">
+<link rel="stylesheet" href="/assets/css/style.css">
+<link rel="stylesheet" href="/blog/assets/blog.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+<link rel="alternate" type="application/rss+xml" title="Seongwoo Choi - IT Blog" href="/blog/feed.xml">
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6903374993226057" crossorigin="anonymous"></script>
+
+<title>What &#x27;agentic AI&#x27; actually means in 2026 (and what it doesn&#x27;t) | Seongwoo Choi</title>
+<meta name="description" content="A short, no-hype breakdown of where the US AI labs landed on agents, and what is real vs. demo-ware right now.">
+<meta property="og:type" content="article">
+<meta property="og:title" content="What &#x27;agentic AI&#x27; actually means in 2026 (and what it doesn&#x27;t)">
+<meta property="og:description" content="A short, no-hype breakdown of where the US AI labs landed on agents, and what is real vs. demo-ware right now.">
+<meta property="og:url" content="https://swchoi1994.github.io/blog/posts/2026/05/12/us-en-what-agentic-ai-actually-means-in-2026-and-what-it-doesnt/">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="canonical" href="https://swchoi1994.github.io/blog/posts/2026/05/12/us-en-what-agentic-ai-actually-means-in-2026-and-what-it-doesnt/">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "What 'agentic AI' actually means in 2026 (and what it doesn't)",
+  "description": "A short, no-hype breakdown of where the US AI labs landed on agents, and what is real vs. demo-ware right now.",
+  "author": {
+    "@type": "Person",
+    "name": "Seongwoo Choi",
+    "url": "https://swchoi1994.github.io"
+  },
+  "datePublished": "2026-05-12",
+  "dateModified": "2026-05-12",
+  "inLanguage": "en-US",
+  "mainEntityOfPage": "https://swchoi1994.github.io/blog/posts/2026/05/12/us-en-what-agentic-ai-actually-means-in-2026-and-what-it-doesnt/",
+  "publisher": {
+    "@type": "Person",
+    "name": "Seongwoo Choi"
+  }
+}
+</script>
+</head>
+<body class="blog-body">
+<nav class="navbar">
+  <div class="nav-container">
+    <div class="nav-brand"><a href="/">Seongwoo Choi</a></div>
+    <div class="nav-menu">
+      <a href="/" class="nav-link">Home</a>
+      <a href="/blog/" class="nav-link">Blog</a>
+      <a href="/blog/?region=us" class="nav-link">US</a>
+      <a href="/blog/?region=china" class="nav-link">China</a>
+      <a href="/blog/?region=korea" class="nav-link">Korea</a>
+      <a href="/blog/feed.xml" class="nav-link"><i class="fas fa-rss"></i></a>
+    </div>
+  </div>
+</nav>
+
+<main class="blog-main">
+  <article class="post">
+    <header class="post-header">
+      <div class="post-meta">
+        <span class="region-tag region-us">US Tech</span>
+        <span class="category-tag">AI/ML</span>
+        <time datetime="2026-05-12">May 12, 2026</time>
+        <span class="lang-tag">English</span>
+      </div>
+      <h1 class="post-title">What &#x27;agentic AI&#x27; actually means in 2026 (and what it doesn&#x27;t)</h1>
+      <p class="post-subtitle">A short, no-hype breakdown of where the US AI labs landed on agents, and what is real vs. demo-ware right now.</p>
+    </header>
+    <div class="ad-slot">
+  <ins class="adsbygoogle"
+       style="display:block; text-align:center;"
+       data-ad-client="ca-pub-6903374993226057"
+       data-ad-slot="auto"
+       data-ad-format="auto"
+       data-full-width-responsive="true"></ins>
+  <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
+</div>
+
+    <div class="post-body">
+<p>Every press release out of San Francisco this year has the word &quot;agent&quot; in it. I want to give you a quick, engineer&#x27;s-eye summary of what the term actually buys you in production today, and where it&#x27;s still mostly a demo.</p>
+<h2>What changed in the last 12 months</h2>
+<p>Two things, mostly. First, <strong>tool use got reliable enough</strong> for a model to chain three or four calls without you wrapping it in retry-and-pray glue. Second, <strong>context windows crossed the &#x27;whole-repo&#x27; line</strong> for the major labs, which means the agent can keep a non-trivial mental model of your codebase without RAG gymnastics <a class="cite" href="#src-1">[1]</a>.</p>
+<p>That&#x27;s it. Those two changes are doing most of the work in the demos you&#x27;ve seen.</p>
+<h2>What&#x27;s still flaky</h2>
+<p>Long-horizon planning - anything past a 20-step trajectory - still drifts. The mitigation everyone is converging on is the same: shorter loops with explicit checkpoints, plus a separate evaluator model that grades each step <a class="cite" href="#src-2">[2]</a>. If you&#x27;re shipping an agent into production this quarter and you&#x27;re not doing both, you&#x27;re going to find out the hard way.</p>
+<h2>The honest take</h2>
+<p>I run a few agentic pipelines at work. The ones that survive contact with real users are boring: narrow scope, explicit success criteria, a hard step limit, and a fallback to a human or a deterministic tool. The wild open-ended demos are still mostly cherry-picked. That&#x27;s fine - the tech is good enough to be useful in narrow lanes, and that&#x27;s where the money is for now.</p>
+<p>If you remember one thing from this post: <strong>scope, evaluate, fall back.</strong></p>
+    </div>
+    <div class="ad-slot">
+  <ins class="adsbygoogle"
+       style="display:block; text-align:center;"
+       data-ad-client="ca-pub-6903374993226057"
+       data-ad-slot="auto"
+       data-ad-format="auto"
+       data-full-width-responsive="true"></ins>
+  <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
+</div>
+
+    <section class="sources">
+      <h3>Sources</h3>
+      <ol>
+<li id="src-1"><a href="https://www.anthropic.com/news/agents" rel="noopener" target="_blank">Anthropic - Building with Claude agents</a></li>
+<li id="src-2"><a href="https://platform.openai.com/docs/guides/function-calling" rel="noopener" target="_blank">OpenAI - Function calling and tool use</a></li>
+      </ol>
+    </section>
+    <aside class="newsletter-cta">
+  <h3>Get this in your inbox</h3>
+  <p>A short daily digest of AI &amp; tech news from the US, China, and Korea. No spam.</p>
+  <a class="cta-btn" href="https://buttondown.com/swchoi1994" rel="noopener">Subscribe</a>
+  <small>Or <a href="/blog/feed.xml">grab the RSS feed</a>.</small>
+</aside>
+
+    <section class="post-nav">
+      <a href="/blog/">&larr; All posts</a>
+    </section>
+  </article>
+</main>
+<footer class="site-footer">
+  <div class="footer-inner">
+    <p>&copy; <span id="year"></span> Seongwoo Choi. Built with Claude + Tavily. <a href="/blog/feed.xml">RSS</a> &middot; <a href="/sitemap.xml">Sitemap</a> &middot; <a href="/">Portfolio</a></p>
+    <p class="disclaimer">Posts may include affiliate links. As an Amazon Associate and Coupang Partner, I earn from qualifying purchases. Generated daily with AI assistance and editorial review.</p>
+  </div>
+  <script>document.getElementById('year').textContent = new Date().getFullYear();</script>
+</footer>
+
+</body>
+</html>
