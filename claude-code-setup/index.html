@@ -1,0 +1,1174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#f6f4ef">
+    <title>Claude Code Setup</title>
+    <meta name="description" content="Claude Code version, active model, settings, and monitoring commands for swchoi1994's setup. The version and model update automatically from Claude Code's status line.">
+    <link rel="canonical" href="https://swchoi1994.github.io/claude-code-setup/">
+    <link rel="icon" href="../favicon.ico" sizes="any">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&amp;family=Newsreader:opsz,wght@6..72,500;6..72,600&amp;display=swap" rel="stylesheet">
+    <style>
+        :root {
+            color-scheme: light;
+            --bg: #f6f4ef;
+            --surface: #fffdf8;
+            --surface-soft: #f1eee7;
+            --surface-strong: #ebe7de;
+            --border: #d8d4cb;
+            --border-strong: #bfb9ad;
+            --text: #1e1f23;
+            --text-secondary: #4d4d48;
+            --text-muted: #686862;
+            --code-bg: #1e1f23;
+            --code-text: #efe9df;
+            --accent: #a64b2a;
+            --accent-strong: #7d321a;
+            --accent-soft: #ead8ce;
+            --green: #2f6b3f;
+            --green-bg: #e3efe3;
+            --amber: #83520b;
+            --amber-bg: #f8ebd2;
+            --red: #a3261d;
+            --red-bg: #f7e0dc;
+            --radius: 12px;
+            --radius-control: 8px;
+            --font-body: "DM Sans", ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+            --font-display: "Newsreader", Georgia, serif;
+            --font-mono: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+            scroll-padding-top: 5rem;
+        }
+
+        body {
+            margin: 0;
+            overflow-x: hidden;
+            background: var(--bg);
+            color: var(--text);
+            font-family: var(--font-body);
+            line-height: 1.6;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        a {
+            color: var(--accent-strong);
+            text-underline-offset: 0.2em;
+        }
+
+        a:hover {
+            color: var(--accent);
+        }
+
+        :focus-visible {
+            outline: 3px solid var(--accent);
+            outline-offset: 3px;
+        }
+
+        code {
+            font-family: var(--font-mono);
+            font-size: 0.92em;
+        }
+
+        .shell {
+            width: min(1180px, calc(100% - 48px));
+            margin: 0 auto;
+        }
+
+        .topbar {
+            position: sticky;
+            top: 0;
+            z-index: 10;
+            border-bottom: 1px solid var(--border);
+            background: rgba(246, 244, 239, 0.94);
+            backdrop-filter: blur(14px);
+        }
+
+        .topbar-inner {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 18px;
+            min-height: 68px;
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            min-width: 0;
+            color: var(--text);
+            text-decoration: none;
+        }
+
+        .brand:hover {
+            color: var(--text);
+        }
+
+        .mark {
+            display: grid;
+            place-items: center;
+            width: 38px;
+            height: 38px;
+            border-radius: var(--radius-control);
+            background: var(--accent);
+            color: #fffdf8;
+            font-weight: 700;
+            flex: 0 0 auto;
+        }
+
+        .brand-text {
+            min-width: 0;
+        }
+
+        .brand-text strong {
+            display: block;
+            font-size: 0.98rem;
+            white-space: nowrap;
+        }
+
+        .brand-text span {
+            display: block;
+            color: var(--text-muted);
+            font-size: 0.82rem;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .nav {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            flex-wrap: wrap;
+            justify-content: flex-end;
+        }
+
+        .nav a {
+            display: inline-flex;
+            align-items: center;
+            min-height: 44px;
+            padding: 0 10px;
+            border-radius: var(--radius-control);
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            font-weight: 600;
+            text-decoration: none;
+        }
+
+        .nav a:hover {
+            background: var(--surface);
+            color: var(--accent-strong);
+        }
+
+        .page-header {
+            display: grid;
+            grid-template-columns: minmax(0, 1.35fr) minmax(320px, 0.65fr);
+            gap: 32px;
+            padding: 48px 0 24px;
+            align-items: stretch;
+        }
+
+        .kicker {
+            margin: 0 0 12px;
+            color: var(--accent);
+            font-size: 0.82rem;
+            font-weight: 700;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+        }
+
+        .title-block h1 {
+            margin: 0;
+            max-width: 16ch;
+            font-family: var(--font-display);
+            font-size: clamp(2.3rem, 5vw, 3.9rem);
+            font-weight: 500;
+            line-height: 1.02;
+            letter-spacing: -0.02em;
+        }
+
+        .title-block p {
+            max-width: 62ch;
+            margin: 18px 0 0;
+            color: var(--text-secondary);
+            font-size: 1.04rem;
+        }
+
+        .meta-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 22px;
+        }
+
+        .pill {
+            display: inline-flex;
+            align-items: center;
+            min-height: 32px;
+            padding: 5px 11px;
+            border: 1px solid var(--border);
+            border-radius: 999px;
+            background: var(--surface);
+            color: var(--text-secondary);
+            font-size: 0.84rem;
+            font-weight: 600;
+            font-variant-numeric: tabular-nums;
+            white-space: nowrap;
+        }
+
+        .summary-panel,
+        .panel,
+        .metric-card,
+        .command-card,
+        .trouble-row {
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            background: var(--surface);
+        }
+
+        .summary-panel {
+            padding: 20px;
+        }
+
+        .summary-panel h2 {
+            margin: 0 0 8px;
+            font-size: 1rem;
+        }
+
+        .status-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            padding: 10px 0;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .status-item:last-child {
+            border-bottom: 0;
+            padding-bottom: 0;
+        }
+
+        .status-item > span:first-child {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 26px;
+            padding: 3px 10px;
+            border-radius: 999px;
+            background: var(--surface-strong);
+            color: var(--text-secondary);
+            font-size: 0.78rem;
+            font-weight: 700;
+            font-variant-numeric: tabular-nums;
+            text-align: right;
+        }
+
+        .badge.ok {
+            color: var(--green);
+            background: var(--green-bg);
+        }
+
+        .badge.warn {
+            color: var(--amber);
+            background: var(--amber-bg);
+        }
+
+        .badge.info {
+            color: var(--accent-strong);
+            background: var(--accent-soft);
+        }
+
+        .badge.danger {
+            color: var(--red);
+            background: var(--red-bg);
+        }
+
+        .section {
+            padding: 28px 0;
+        }
+
+        .section-heading {
+            display: flex;
+            align-items: flex-end;
+            justify-content: space-between;
+            gap: 18px;
+            margin: 0 0 16px;
+        }
+
+        .section-heading h2 {
+            margin: 0;
+            font-family: var(--font-display);
+            font-size: 1.85rem;
+            font-weight: 500;
+            line-height: 1.1;
+            letter-spacing: -0.01em;
+        }
+
+        .section-heading p {
+            max-width: 62ch;
+            margin: 6px 0 0;
+            color: var(--text-muted);
+            font-size: 0.96rem;
+        }
+
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            gap: 14px;
+        }
+
+        .metric-card {
+            min-height: 164px;
+            padding: 18px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            gap: 14px;
+        }
+
+        .metric-card.is-primary {
+            border-color: var(--text);
+            background: var(--text);
+            color: #fffdf8;
+        }
+
+        .metric-card.is-primary .metric-label,
+        .metric-card.is-primary .metric-note {
+            color: #d8d4cb;
+        }
+
+        .metric-card.is-primary code {
+            color: #fffdf8;
+        }
+
+        .metric-label {
+            color: var(--text-muted);
+            font-size: 0.78rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+        }
+
+        .metric-value {
+            margin-top: 6px;
+            font-family: var(--font-display);
+            font-size: 1.9rem;
+            font-weight: 500;
+            line-height: 1.05;
+            font-variant-numeric: tabular-nums;
+            overflow-wrap: anywhere;
+        }
+
+        .metric-note {
+            color: var(--text-secondary);
+            font-size: 0.87rem;
+            overflow-wrap: anywhere;
+        }
+
+        .panel {
+            padding: 20px;
+        }
+
+        .table-wrap {
+            overflow-x: auto;
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            background: var(--surface);
+        }
+
+        .table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .table th,
+        .table td {
+            padding: 12px 14px;
+            border-bottom: 1px solid var(--border);
+            text-align: left;
+            vertical-align: top;
+            font-size: 0.93rem;
+        }
+
+        .table th {
+            background: var(--surface-soft);
+            color: var(--text-secondary);
+            font-size: 0.76rem;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+        }
+
+        .table tr:last-child td {
+            border-bottom: 0;
+        }
+
+        .table td:first-child {
+            font-weight: 600;
+            white-space: nowrap;
+        }
+
+        .table td:nth-child(2) {
+            overflow-wrap: anywhere;
+        }
+
+        .commands-grid {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 14px;
+        }
+
+        .command-card {
+            overflow: hidden;
+        }
+
+        .command-card header {
+            padding: 12px 14px;
+            border-bottom: 1px solid var(--border);
+            background: var(--surface-soft);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+        }
+
+        .command-card h3 {
+            margin: 0;
+            font-size: 0.95rem;
+        }
+
+        .command-card header p {
+            margin: 0;
+            color: var(--text-muted);
+            font-size: 0.82rem;
+        }
+
+        .command-body {
+            padding: 14px;
+        }
+
+        pre {
+            margin: 0;
+            padding: 13px 14px;
+            border-radius: var(--radius-control);
+            background: var(--code-bg);
+            color: var(--code-text);
+            overflow-x: auto;
+            font-size: 0.86rem;
+            line-height: 1.5;
+        }
+
+        button {
+            min-height: 44px;
+            border: 1px solid var(--border);
+            border-radius: var(--radius-control);
+            background: var(--surface);
+            color: var(--text-secondary);
+            cursor: pointer;
+            font: inherit;
+            font-size: 0.86rem;
+            font-weight: 700;
+            padding: 8px 14px;
+            white-space: nowrap;
+        }
+
+        button:hover {
+            border-color: var(--accent);
+            color: var(--accent-strong);
+        }
+
+        .flow {
+            display: grid;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            gap: 14px;
+            margin: 0 0 16px;
+            padding: 0;
+            list-style: none;
+            counter-reset: flow;
+        }
+
+        .flow li {
+            position: relative;
+            padding: 18px;
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            background: var(--surface);
+            counter-increment: flow;
+        }
+
+        .flow li::before {
+            content: counter(flow);
+            display: grid;
+            place-items: center;
+            width: 28px;
+            height: 28px;
+            margin-bottom: 12px;
+            border-radius: 50%;
+            background: var(--accent-soft);
+            color: var(--accent-strong);
+            font-size: 0.85rem;
+            font-weight: 700;
+        }
+
+        .flow li:not(:last-child)::after {
+            content: "";
+            position: absolute;
+            top: 31px;
+            right: -14px;
+            width: 14px;
+            border-top: 2px solid var(--border-strong);
+        }
+
+        .flow strong {
+            display: block;
+            margin-bottom: 4px;
+        }
+
+        .flow span {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        .setup-grid {
+            display: grid;
+            grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+            gap: 16px;
+            align-items: start;
+        }
+
+        .steps {
+            margin: 0;
+            padding-left: 1.3rem;
+            display: grid;
+            gap: 12px;
+        }
+
+        .steps li {
+            padding-left: 4px;
+            color: var(--text-secondary);
+        }
+
+        .steps li strong {
+            color: var(--text);
+        }
+
+        .snippet {
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            overflow: hidden;
+            background: var(--surface);
+        }
+
+        .snippet + .snippet {
+            margin-top: 14px;
+        }
+
+        .snippet header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            padding: 8px 8px 8px 14px;
+            border-bottom: 1px solid var(--border);
+            background: var(--surface-soft);
+            font-size: 0.86rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+        }
+
+        .snippet pre {
+            border-radius: 0;
+        }
+
+        .notice {
+            margin-top: 16px;
+            border-left: 4px solid var(--accent);
+            background: var(--accent-soft);
+            padding: 12px 14px;
+            border-radius: var(--radius-control);
+            color: var(--accent-strong);
+            font-size: 0.92rem;
+        }
+
+        .trouble-list {
+            display: grid;
+            gap: 10px;
+        }
+
+        .trouble-row {
+            padding: 16px;
+            display: grid;
+            grid-template-columns: 170px minmax(0, 1fr);
+            gap: 14px;
+            align-items: start;
+        }
+
+        .trouble-row .badge {
+            justify-self: start;
+            white-space: nowrap;
+        }
+
+        .trouble-row strong {
+            display: block;
+            margin-bottom: 4px;
+            font-size: 0.97rem;
+        }
+
+        .trouble-row span {
+            color: var(--text-secondary);
+            font-size: 0.92rem;
+        }
+
+        .footer {
+            padding: 36px 0 48px;
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+
+        @media (max-width: 980px) {
+            .page-header,
+            .setup-grid {
+                grid-template-columns: minmax(0, 1fr);
+            }
+
+            .dashboard-grid,
+            .commands-grid,
+            .flow {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+
+            .flow li::after {
+                display: none;
+            }
+        }
+
+        @media (max-width: 720px) {
+            .shell {
+                width: calc(100% - 32px);
+            }
+
+            .topbar {
+                position: static;
+            }
+
+            .topbar-inner {
+                align-items: flex-start;
+                flex-direction: column;
+                gap: 6px;
+                padding: 12px 0 6px;
+            }
+
+            .nav {
+                justify-content: flex-start;
+                margin-left: -10px;
+            }
+
+            .page-header {
+                padding-top: 28px;
+            }
+
+            .dashboard-grid,
+            .commands-grid,
+            .flow {
+                grid-template-columns: minmax(0, 1fr);
+            }
+
+            .section-heading {
+                align-items: flex-start;
+                flex-direction: column;
+            }
+
+            .trouble-row {
+                grid-template-columns: minmax(0, 1fr);
+                gap: 8px;
+            }
+
+            .table thead {
+                display: none;
+            }
+
+            .table,
+            .table tbody,
+            .table tr,
+            .table td {
+                display: block;
+            }
+
+            .table tr {
+                padding: 12px 14px;
+                border-bottom: 1px solid var(--border);
+            }
+
+            .table tr:last-child {
+                border-bottom: 0;
+            }
+
+            .table td {
+                padding: 2px 0;
+                border-bottom: 0;
+            }
+
+            .table td:first-child {
+                white-space: normal;
+            }
+
+            .brand-text strong,
+            .brand-text span {
+                white-space: normal;
+            }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            html {
+                scroll-behavior: auto;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="topbar">
+        <div class="shell topbar-inner">
+            <a class="brand" href="/">
+                <span class="mark" aria-hidden="true">CC</span>
+                <span class="brand-text">
+                    <strong>Claude Code Setup</strong>
+                    <span>Version, model, settings, and auto-sync</span>
+                </span>
+            </a>
+            <nav class="nav" aria-label="Page navigation">
+                <a href="#status">Status</a>
+                <a href="#settings">Settings</a>
+                <a href="#commands">Commands</a>
+                <a href="#sync">Auto-sync</a>
+                <a href="/">Home</a>
+            </nav>
+        </div>
+    </div>
+
+    <main class="shell">
+        <section class="page-header">
+            <div class="title-block">
+                <p class="kicker">Field notes · AI agent tooling</p>
+                <h1>Claude Code settings and model dashboard</h1>
+                <p>
+                    The Claude Code setup I use every day. The version and model on this page come from Claude Code itself:
+                    a status line script on my machine publishes them whenever either one changes, so this page stays
+                    in sync with each update and model switch.
+                </p>
+                <div class="meta-row" role="group" aria-label="Current setup summary">
+                    <span class="pill">Claude Code&nbsp;<span data-claude="version">2.1.281</span></span>
+                    <span class="pill" data-claude="model">Opus 5.5</span>
+                    <span class="pill" data-claude="context-short">1M context</span>
+                    <span class="pill">Synced&nbsp;<span data-claude="synced">2026-09-24</span></span>
+                </div>
+            </div>
+
+            <aside class="summary-panel" aria-label="Status summary">
+                <h2>Current snapshot</h2>
+                <div class="status-item">
+                    <span>Claude Code</span>
+                    <span class="badge info" data-claude="version">2.1.281</span>
+                </div>
+                <div class="status-item">
+                    <span>Model</span>
+                    <span class="badge info" data-claude="model">Opus 5.5</span>
+                </div>
+                <div class="status-item">
+                    <span>Context window</span>
+                    <span class="badge info" data-claude="context">1M tokens</span>
+                </div>
+                <div class="status-item">
+                    <span>Latest release</span>
+                    <span class="badge" data-claude="update-state">Checking</span>
+                </div>
+                <div class="status-item">
+                    <span>Last synced</span>
+                    <span class="badge" data-claude="synced-badge">Loading</span>
+                </div>
+            </aside>
+        </section>
+
+        <section id="status" class="section" aria-labelledby="status-title">
+            <div class="section-heading">
+                <div>
+                    <h2 id="status-title">Live status</h2>
+                    <p>Loaded from <code>status.json</code> each time the page opens. The latest release comes straight from the npm registry.</p>
+                </div>
+            </div>
+
+            <div class="dashboard-grid">
+                <article class="metric-card is-primary">
+                    <div>
+                        <div class="metric-label">Model</div>
+                        <div class="metric-value" data-claude="model">Opus 5.5</div>
+                    </div>
+                    <div class="metric-note">Model ID <code data-claude="model-id">claude-opus-5-5[1m]</code></div>
+                </article>
+
+                <article class="metric-card">
+                    <div>
+                        <div class="metric-label">Context window</div>
+                        <div class="metric-value" data-claude="context">1M tokens</div>
+                    </div>
+                    <div class="metric-note" data-claude="context-note">Extended context for long sessions and large codebases.</div>
+                </article>
+
+                <article class="metric-card">
+                    <div>
+                        <div class="metric-label">Claude Code</div>
+                        <div class="metric-value" data-claude="version">2.1.281</div>
+                    </div>
+                    <div class="metric-note">Latest on npm: <code data-claude="latest">checking</code></div>
+                </article>
+
+                <article class="metric-card">
+                    <div>
+                        <div class="metric-label">Last synced</div>
+                        <div class="metric-value" data-claude="synced-relative">Loading</div>
+                    </div>
+                    <div class="metric-note" data-claude="synced-full">Published by the status line script.</div>
+                </article>
+            </div>
+        </section>
+
+        <section id="settings" class="section" aria-labelledby="settings-title">
+            <div class="section-heading">
+                <div>
+                    <h2 id="settings-title">Settings snapshot</h2>
+                    <p>Where each part of the setup lives. Credentials and API keys are never published here.</p>
+                </div>
+            </div>
+
+            <div class="table-wrap">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th scope="col">Area</th>
+                            <th scope="col">Value</th>
+                            <th scope="col">Notes</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Active model</td>
+                            <td><code data-claude="model-id">claude-opus-5-5[1m]</code></td>
+                            <td>Switch with <code>/model</code>. The <code>[1m]</code> suffix selects the 1M-token context window.</td>
+                        </tr>
+                        <tr>
+                            <td>Claude Code</td>
+                            <td><code data-claude="version">2.1.281</code></td>
+                            <td>Check with <code>claude --version</code>. Upgrade with <code>claude update</code>.</td>
+                        </tr>
+                        <tr>
+                            <td>User settings</td>
+                            <td><code>~/.claude/settings.json</code></td>
+                            <td>Personal defaults for every project: model, status line, hooks, and permissions.</td>
+                        </tr>
+                        <tr>
+                            <td>Project settings</td>
+                            <td><code>.claude/settings.json</code></td>
+                            <td>Checked into a repository and shared. <code>.claude/settings.local.json</code> holds personal overrides.</td>
+                        </tr>
+                        <tr>
+                            <td>Memory</td>
+                            <td><code>CLAUDE.md</code></td>
+                            <td>Project instructions loaded at session start. <code>~/.claude/CLAUDE.md</code> applies to all projects.</td>
+                        </tr>
+                        <tr>
+                            <td>Status line</td>
+                            <td><code>claude-code-setup/sync-status.sh</code></td>
+                            <td>Shows the model and version in the terminal and publishes them to this page when they change.</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <section id="commands" class="section" aria-labelledby="commands-title">
+            <div class="section-heading">
+                <div>
+                    <h2 id="commands-title">Everyday commands</h2>
+                    <p>Shell commands run in a terminal. Slash commands run inside a Claude Code session.</p>
+                </div>
+            </div>
+
+            <div class="commands-grid">
+                <article class="command-card">
+                    <header>
+                        <div>
+                            <h3>Version</h3>
+                            <p>Installed Claude Code build</p>
+                        </div>
+                        <button class="copy" type="button" data-copy="claude --version">Copy</button>
+                    </header>
+                    <div class="command-body">
+                        <pre><code>claude --version</code></pre>
+                    </div>
+                </article>
+
+                <article class="command-card">
+                    <header>
+                        <div>
+                            <h3>Update</h3>
+                            <p>Install the latest release</p>
+                        </div>
+                        <button class="copy" type="button" data-copy="claude update">Copy</button>
+                    </header>
+                    <div class="command-body">
+                        <pre><code>claude update</code></pre>
+                    </div>
+                </article>
+
+                <article class="command-card">
+                    <header>
+                        <div>
+                            <h3>Health check</h3>
+                            <p>Installation and settings diagnostics</p>
+                        </div>
+                        <button class="copy" type="button" data-copy="claude doctor">Copy</button>
+                    </header>
+                    <div class="command-body">
+                        <pre><code>claude doctor</code></pre>
+                    </div>
+                </article>
+
+                <article class="command-card">
+                    <header>
+                        <div>
+                            <h3>Switch model</h3>
+                            <p>Opus with 1M context</p>
+                        </div>
+                        <button class="copy" type="button" data-copy="/model opus[1m]">Copy</button>
+                    </header>
+                    <div class="command-body">
+                        <pre><code>/model opus[1m]</code></pre>
+                    </div>
+                </article>
+
+                <article class="command-card">
+                    <header>
+                        <div>
+                            <h3>Session status</h3>
+                            <p>Version, model, account</p>
+                        </div>
+                        <button class="copy" type="button" data-copy="/status">Copy</button>
+                    </header>
+                    <div class="command-body">
+                        <pre><code>/status</code></pre>
+                    </div>
+                </article>
+
+                <article class="command-card">
+                    <header>
+                        <div>
+                            <h3>Context usage</h3>
+                            <p>What fills the context window</p>
+                        </div>
+                        <button class="copy" type="button" data-copy="/context">Copy</button>
+                    </header>
+                    <div class="command-body">
+                        <pre><code>/context</code></pre>
+                    </div>
+                </article>
+
+                <article class="command-card">
+                    <header>
+                        <div>
+                            <h3>MCP servers</h3>
+                            <p>Connected tool servers</p>
+                        </div>
+                        <button class="copy" type="button" data-copy="claude mcp list">Copy</button>
+                    </header>
+                    <div class="command-body">
+                        <pre><code>claude mcp list</code></pre>
+                    </div>
+                </article>
+
+                <article class="command-card">
+                    <header>
+                        <div>
+                            <h3>Hooks</h3>
+                            <p>Review configured hooks</p>
+                        </div>
+                        <button class="copy" type="button" data-copy="/hooks">Copy</button>
+                    </header>
+                    <div class="command-body">
+                        <pre><code>/hooks</code></pre>
+                    </div>
+                </article>
+
+                <article class="command-card">
+                    <header>
+                        <div>
+                            <h3>Sync log</h3>
+                            <p>Last auto-sync result</p>
+                        </div>
+                        <button class="copy" type="button" data-copy="tail -n 20 ~/swchoi1994.github.io/.git/claude-status/sync.log">Copy</button>
+                    </header>
+                    <div class="command-body">
+                        <pre><code>tail -n 20 ~/swchoi1994.github.io/.git/claude-status/sync.log</code></pre>
+                    </div>
+                </article>
+            </div>
+        </section>
+
+        <section id="sync" class="section" aria-labelledby="sync-title">
+            <div class="section-heading">
+                <div>
+                    <h2 id="sync-title">How the page stays current</h2>
+                    <p>Nothing about the version or model is typed by hand. Claude Code reports it, and a small script publishes it.</p>
+                </div>
+            </div>
+
+            <ol class="flow">
+                <li>
+                    <strong>Claude Code</strong>
+                    <span>Sends the current model and version to the status line command after each message.</span>
+                </li>
+                <li>
+                    <strong>sync-status.sh</strong>
+                    <span>Prints the status line and checks whether the model or version changed since the last publish.</span>
+                </li>
+                <li>
+                    <strong>GitHub</strong>
+                    <span>On a change, commits only <code>status.json</code> to <code>main</code> in the background.</span>
+                </li>
+                <li>
+                    <strong>This page</strong>
+                    <span>GitHub Pages redeploys, and the page reads the new <code>status.json</code> on load.</span>
+                </li>
+            </ol>
+
+            <div class="setup-grid">
+                <div class="panel">
+                    <h3>One-time setup on a new machine</h3>
+                    <ol class="steps">
+                        <li><strong>Clone this site</strong> with push access, for example to <code>~/swchoi1994.github.io</code>.</li>
+                        <li><strong>Make the script executable</strong> with <code>chmod +x</code>.</li>
+                        <li><strong>Point the status line at it</strong> in <code>~/.claude/settings.json</code>.</li>
+                        <li><strong>Start Claude Code and send a message.</strong> The status line shows the model and version, and this page updates a minute or two later.</li>
+                    </ol>
+                    <div class="notice">
+                        The script never touches your working tree. It builds the commit with git plumbing, so uncommitted
+                        work in the clone stays exactly as it was.
+                    </div>
+                </div>
+
+                <div>
+                    <div class="snippet">
+                        <header>
+                            <span>Terminal</span>
+                            <button class="copy" type="button" data-copy-target="setupShell">Copy</button>
+                        </header>
+                        <pre><code id="setupShell">git clone https://github.com/swchoi1994/swchoi1994.github.io.git ~/swchoi1994.github.io
+chmod +x ~/swchoi1994.github.io/claude-code-setup/sync-status.sh</code></pre>
+                    </div>
+                    <div class="snippet">
+                        <header>
+                            <span>~/.claude/settings.json</span>
+                            <button class="copy" type="button" data-copy-target="setupSettings">Copy</button>
+                        </header>
+                        <pre><code id="setupSettings">{
+  "statusLine": {
+    "type": "command",
+    "command": "~/swchoi1994.github.io/claude-code-setup/sync-status.sh"
+  }
+}</code></pre>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="troubleshooting" class="section" aria-labelledby="troubleshooting-title">
+            <div class="section-heading">
+                <div>
+                    <h2 id="troubleshooting-title">Troubleshooting</h2>
+                    <p>The shortest useful check for each symptom.</p>
+                </div>
+            </div>
+
+            <div class="trouble-list">
+                <article class="trouble-row">
+                    <span class="badge warn">Old model shown</span>
+                    <span>
+                        <strong>Check the last synced time first.</strong>
+                        <span>The status line only runs in interactive sessions, after a message. Send one message after <code>/model</code>, then allow a minute or two for GitHub Pages to redeploy.</span>
+                    </span>
+                </article>
+                <article class="trouble-row">
+                    <span class="badge danger">Sync failing</span>
+                    <span>
+                        <strong>Read the sync log.</strong>
+                        <span>Every publish is logged to <code>.git/claude-status/sync.log</code> in the clone. Most failures are push credentials: confirm with <code>git -C ~/swchoi1994.github.io push --dry-run</code>. Failed publishes retry after 10 minutes.</span>
+                    </span>
+                </article>
+                <article class="trouble-row">
+                    <span class="badge info">Update available</span>
+                    <span>
+                        <strong>Run <code>claude update</code>, then start a new session.</strong>
+                        <span>The new version is published with the next status line refresh, and the badge turns green.</span>
+                    </span>
+                </article>
+                <article class="trouble-row">
+                    <span class="badge info">Custom status line</span>
+                    <span>
+                        <strong>Keep your own status line and pipe the same JSON through.</strong>
+                        <span>In your existing script, after <code>input=$(cat)</code>, add <code>printf '%s' "$input" | ~/swchoi1994.github.io/claude-code-setup/sync-status.sh &gt;/dev/null</code>.</span>
+                    </span>
+                </article>
+                <article class="trouble-row">
+                    <span class="badge info">No status line</span>
+                    <span>
+                        <strong>Confirm the path and permissions.</strong>
+                        <span>The command in <code>statusLine</code> must point to the script and the script must be executable. The script needs <code>jq</code>, <code>node</code>, or <code>python3</code> to read the JSON from Claude Code.</span>
+                    </span>
+                </article>
+            </div>
+        </section>
+
+        <footer class="footer">
+            <span>Claude Code setup page for swchoi1994.github.io</span>
+            <a href="/">Back to home</a>
+        </footer>
+    </main>
+
+    <script src="status.js"></script>
+    <script>
+        document.querySelectorAll(".copy").forEach((button) => {
+            button.addEventListener("click", async () => {
+                const target = button.dataset.copyTarget ? document.getElementById(button.dataset.copyTarget) : null;
+                const text = target ? target.textContent : button.dataset.copy;
+                try {
+                    await navigator.clipboard.writeText(text);
+                    button.textContent = "Copied";
+                } catch (error) {
+                    button.textContent = "Copy failed";
+                }
+                window.setTimeout(() => {
+                    button.textContent = "Copy";
+                }, 1200);
+            });
+        });
+    </script>
+</body>
+</html>
