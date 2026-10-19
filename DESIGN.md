@@ -128,4 +128,4 @@ Use the accent for links, focus, data highlights, and primary actions. Do not in
 - Dead links and decorative controls
 - Font Awesome or unnecessary UI dependencies
 - Scroll-triggered opacity that can leave content blank
-- Advertising or unrelated third-party scripts
+- Unrelated third-party scripts. The owner-authorized AdSense and Google consent / ad-blocking recovery tags are permitted; reading and legal pages must remain accessible.
