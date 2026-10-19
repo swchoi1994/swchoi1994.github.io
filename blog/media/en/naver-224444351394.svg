@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1400" height="1050" viewBox="0 0 1400 1050" role="img">
+<title>NVIDIA Reveals Nemotron 3.5 Super VL and Bolt: What to Check First for Local Agents</title>
+<desc>An English guide to the main sections of this article.</desc>
+<rect width="1400" height="1050" fill="#f6f4ef"/>
+<rect x="64" y="64" width="64" height="5" fill="#a64b2a"/>
+<g font-family="Arial, sans-serif" fill="#1e1f23">
+<text x="64" y="109" font-size="23" letter-spacing="2" fill="#a64b2a">SEONGWOO CHOI / IT JOURNAL</text>
+<text x="64" y="172" font-family="Georgia, serif" font-size="42">NVIDIA Reveals Nemotron 3.5 Super VL and Bolt: What to</text>
+<text x="64" y="221" font-family="Georgia, serif" font-size="42">Check First for Local Agents</text>
+<text x="64" y="337" font-size="22" fill="#686862">ARTICLE GUIDE · 2026-10-17</text>
+<rect x="64" y="382" width="620" height="247" rx="12" fill="#fffdf8" stroke="#d8d4cb"/>
+<text x="90" y="424" font-size="23" fill="#a64b2a">01</text>
+<text x="90" y="465" font-size="26" font-weight="600">Dividing the roles of the three models</text>
+<text x="90" y="537" font-size="22" fill="#686862">Super VL is a 120B (120 billion parameters) open</text>
+<text x="90" y="565" font-size="22" fill="#686862">model for agents that understand images, web</text>
+<text x="90" y="593" font-size="22" fill="#686862">pages, and PDFs together.</text>
+<rect x="716" y="382" width="620" height="247" rx="12" fill="#fffdf8" stroke="#d8d4cb"/>
+<text x="742" y="424" font-size="23" fill="#a64b2a">02</text>
+<text x="742" y="465" font-size="26" font-weight="600">Three things to check first when using</text>
+<text x="742" y="497" font-size="26" font-weight="600">them locally</text>
+<text x="742" y="537" font-size="22" fill="#686862">First, available memory. 24GB is the figure for</text>
+<text x="742" y="565" font-size="22" fill="#686862">the model weights.</text>
+<rect x="64" y="655" width="620" height="247" rx="12" fill="#fffdf8" stroke="#d8d4cb"/>
+<text x="90" y="697" font-size="23" fill="#a64b2a">03</text>
+<text x="90" y="738" font-size="26" font-weight="600">Read benchmark figures as company</text>
+<text x="90" y="770" font-size="26" font-weight="600">claims</text>
+<text x="90" y="810" font-size="22" fill="#686862">NVIDIA stated that Bolt 74B-A9B 24GB ranked</text>
+<text x="90" y="838" font-size="22" fill="#686862">first among open models in the same tier on</text>
+<text x="90" y="866" font-size="22" fill="#686862">PinchBench and second on BrowseComp.</text>
+<rect x="716" y="655" width="620" height="247" rx="12" fill="#fffdf8" stroke="#d8d4cb"/>
+<text x="742" y="697" font-size="23" fill="#a64b2a">04</text>
+<text x="742" y="738" font-size="26" font-weight="600">What changes for enterprise adoption</text>
+<text x="742" y="810" font-size="22" fill="#686862">The open weights, training data, and training</text>
+<text x="742" y="838" font-size="22" fill="#686862">recipe are being released together, allowing</text>
+<text x="742" y="866" font-size="22" fill="#686862">companies to perform post-training with their…</text>
+<text x="64" y="1010" font-size="21" fill="#686862">AI-assisted article guide. Read the article and linked sources for details.</text></g></svg>
