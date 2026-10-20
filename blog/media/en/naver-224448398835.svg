@@ -1,0 +1,37 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1400" height="1050" viewBox="0 0 1400 1050" role="img">
+<title>Blog automation operations: 3 errors I experienced and how I solved them</title>
+<desc>An English guide to the main sections of this article.</desc>
+<rect width="1400" height="1050" fill="#f6f4ef"/>
+<rect x="64" y="64" width="64" height="5" fill="#a64b2a"/>
+<g font-family="Arial, sans-serif" fill="#1e1f23">
+<text x="64" y="109" font-size="23" letter-spacing="2" fill="#a64b2a">SEONGWOO CHOI / IT JOURNAL</text>
+<text x="64" y="172" font-family="Georgia, serif" font-size="42">Blog automation operations: 3 errors I experienced and</text>
+<text x="64" y="221" font-family="Georgia, serif" font-size="42">how I solved them</text>
+<text x="64" y="337" font-size="22" fill="#686862">ARTICLE GUIDE · 2026-10-21</text>
+<rect x="64" y="382" width="620" height="247" rx="12" fill="#fffdf8" stroke="#d8d4cb"/>
+<text x="90" y="424" font-size="23" fill="#a64b2a">01</text>
+<text x="90" y="465" font-size="26" font-weight="600">The day desktop automation was blocked</text>
+<text x="90" y="497" font-size="26" font-weight="600">(October 16)</text>
+<text x="90" y="537" font-size="22" fill="#686862">At first, I tried to operate the editor by</text>
+<text x="90" y="565" font-size="22" fill="#686862">sending keystrokes to the Windows screen.</text>
+<rect x="716" y="382" width="620" height="247" rx="12" fill="#fffdf8" stroke="#d8d4cb"/>
+<text x="742" y="424" font-size="23" fill="#a64b2a">02</text>
+<text x="742" y="465" font-size="26" font-weight="600">The days when a logged-out session</text>
+<text x="742" y="497" font-size="26" font-weight="600">turned the writing screen into a login…</text>
+<text x="742" y="537" font-size="22" fill="#686862">The publishing ledger contains two records of</text>
+<text x="742" y="565" font-size="22" fill="#686862">being blocked by login.</text>
+<rect x="64" y="655" width="620" height="247" rx="12" fill="#fffdf8" stroke="#d8d4cb"/>
+<text x="90" y="697" font-size="23" fill="#a64b2a">03</text>
+<text x="90" y="738" font-size="26" font-weight="600">The day work records were truncated or</text>
+<text x="90" y="770" font-size="26" font-weight="600">disappeared, making publication status…</text>
+<text x="90" y="810" font-size="22" fill="#686862">There were times when a publishing command ran</text>
+<text x="90" y="838" font-size="22" fill="#686862">in the background but its output was truncated,</text>
+<text x="90" y="866" font-size="22" fill="#686862">making it impossible to tell whether it had…</text>
+<rect x="716" y="655" width="620" height="247" rx="12" fill="#fffdf8" stroke="#d8d4cb"/>
+<text x="742" y="697" font-size="23" fill="#a64b2a">04</text>
+<text x="742" y="738" font-size="26" font-weight="600">Risk prevented in advance: concurrent</text>
+<text x="742" y="770" font-size="26" font-weight="600">execution</text>
+<text x="742" y="810" font-size="22" fill="#686862">This was not an incident that actually occurred,</text>
+<text x="742" y="838" font-size="22" fill="#686862">but a rule established in advance based on the</text>
+<text x="742" y="866" font-size="22" fill="#686862">experiences above.</text>
+<text x="64" y="1010" font-size="21" fill="#686862">AI-assisted article guide. Read the article and linked sources for details.</text></g></svg>
