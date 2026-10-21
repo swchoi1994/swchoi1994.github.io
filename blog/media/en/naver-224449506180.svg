@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1400" height="1050" viewBox="0 0 1400 1050" role="img">
+<title>The Difference Between Cloud Sync and Backup: A 3-2-1 Example to Prevent Deletion Accidents</title>
+<desc>An English guide to the main sections of this article.</desc>
+<rect width="1400" height="1050" fill="#f6f4ef"/>
+<rect x="64" y="64" width="64" height="5" fill="#a64b2a"/>
+<g font-family="Arial, sans-serif" fill="#1e1f23">
+<text x="64" y="109" font-size="23" letter-spacing="2" fill="#a64b2a">SEONGWOO CHOI / IT JOURNAL</text>
+<text x="64" y="172" font-family="Georgia, serif" font-size="42">The Difference Between Cloud Sync and Backup: A 3-2-1</text>
+<text x="64" y="221" font-family="Georgia, serif" font-size="42">Example to Prevent Deletion Accidents</text>
+<text x="64" y="337" font-size="22" fill="#686862">ARTICLE GUIDE · 2026-10-21</text>
+<rect x="64" y="382" width="620" height="247" rx="12" fill="#fffdf8" stroke="#d8d4cb"/>
+<text x="90" y="424" font-size="23" fill="#a64b2a">01</text>
+<text x="90" y="465" font-size="26" font-weight="600">Sync also propagates deletions</text>
+<text x="90" y="537" font-size="22" fill="#686862">According to Google Drive Help, when files are</text>
+<text x="90" y="565" font-size="22" fill="#686862">mirrored or streamed using the Drive desktop</text>
+<text x="90" y="593" font-size="22" fill="#686862">app, files moved to the Trash are moved to the…</text>
+<rect x="716" y="382" width="620" height="247" rx="12" fill="#fffdf8" stroke="#d8d4cb"/>
+<text x="742" y="424" font-size="23" fill="#a64b2a">02</text>
+<text x="742" y="465" font-size="26" font-weight="600">The 3-2-1 rule: 3 copies, 2 types of</text>
+<text x="742" y="497" font-size="26" font-weight="600">media, 1 off-site copy</text>
+<text x="742" y="537" font-size="22" fill="#686862">A data backup options document jointly published</text>
+<text x="742" y="565" font-size="22" fill="#686862">by the U.S.</text>
+<rect x="64" y="655" width="620" height="247" rx="12" fill="#fffdf8" stroke="#d8d4cb"/>
+<text x="90" y="697" font-size="23" fill="#a64b2a">03</text>
+<text x="90" y="738" font-size="26" font-weight="600">Hypothetical example: how one</text>
+<text x="90" y="770" font-size="26" font-weight="600">presentation folder disappears</text>
+<text x="90" y="810" font-size="22" fill="#686862">Suppose the “Presentation Materials” folder on a</text>
+<text x="90" y="838" font-size="22" fill="#686862">laptop is synced with a cloud drive.</text>
+<rect x="716" y="655" width="620" height="247" rx="12" fill="#fffdf8" stroke="#d8d4cb"/>
+<text x="742" y="697" font-size="23" fill="#a64b2a">04</text>
+<text x="742" y="738" font-size="26" font-weight="600">Checklist and order of action</text>
+<text x="742" y="810" font-size="22" fill="#686862">(1) Make a list of important folders. (2) Use</text>
+<text x="742" y="838" font-size="22" fill="#686862">synced folders only as workspaces, and keep</text>
+<text x="742" y="866" font-size="22" fill="#686862">weekly backups separately on another medium. (3)…</text>
+<text x="64" y="1010" font-size="21" fill="#686862">AI-assisted article guide. Read the article and linked sources for details.</text></g></svg>
