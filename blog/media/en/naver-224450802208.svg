@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1400" height="1050" viewBox="0 0 1400 1050" role="img">
+<title>What are Claude Skills? Distinguishing official and community resources in a post about 400 agents</title>
+<desc>An English guide to the main sections of this article.</desc>
+<rect width="1400" height="1050" fill="#f6f4ef"/>
+<rect x="64" y="64" width="64" height="5" fill="#a64b2a"/>
+<g font-family="Arial, sans-serif" fill="#1e1f23">
+<text x="64" y="109" font-size="23" letter-spacing="2" fill="#a64b2a">SEONGWOO CHOI / IT JOURNAL</text>
+<text x="64" y="172" font-family="Georgia, serif" font-size="42">What are Claude Skills? Distinguishing official and</text>
+<text x="64" y="221" font-family="Georgia, serif" font-size="42">community resources in a post about 400 agents</text>
+<text x="64" y="337" font-size="22" fill="#686862">ARTICLE GUIDE · 2026-10-22</text>
+<rect x="64" y="382" width="620" height="247" rx="12" fill="#fffdf8" stroke="#d8d4cb"/>
+<text x="90" y="424" font-size="23" fill="#a64b2a">01</text>
+<text x="90" y="465" font-size="26" font-weight="600">Resources bundled in shared posts have</text>
+<text x="90" y="497" font-size="26" font-weight="600">mixed sources</text>
+<text x="90" y="537" font-size="22" fill="#686862">The LinkedIn post shared by the reader</text>
+<text x="90" y="565" font-size="22" fill="#686862">introduces several GitHub repositories at once.</text>
+<rect x="716" y="382" width="620" height="247" rx="12" fill="#fffdf8" stroke="#d8d4cb"/>
+<text x="742" y="424" font-size="23" fill="#a64b2a">02</text>
+<text x="742" y="465" font-size="26" font-weight="600">Skills, agents, and plugins are</text>
+<text x="742" y="497" font-size="26" font-weight="600">different units</text>
+<text x="742" y="537" font-size="22" fill="#686862">According to Anthropic’s explanation, a Skill is</text>
+<text x="742" y="565" font-size="22" fill="#686862">a folder containing a SKILL.md file.</text>
+<rect x="64" y="655" width="620" height="247" rx="12" fill="#fffdf8" stroke="#d8d4cb"/>
+<text x="90" y="697" font-size="23" fill="#a64b2a">03</text>
+<text x="90" y="738" font-size="26" font-weight="600">Example repositories may not be Skills</text>
+<text x="90" y="770" font-size="26" font-weight="600">ready for immediate installation</text>
+<text x="90" y="810" font-size="22" fill="#686862">[claude-quickstarts](https://github.com/anthropics/claude-quickstarts)</text>
+<text x="90" y="838" font-size="22" fill="#686862">is a collection of examples for building apps</text>
+<text x="90" y="866" font-size="22" fill="#686862">with the Claude API.</text>
+<rect x="716" y="655" width="620" height="247" rx="12" fill="#fffdf8" stroke="#d8d4cb"/>
+<text x="742" y="697" font-size="23" fill="#a64b2a">04</text>
+<text x="742" y="738" font-size="26" font-weight="600">Hypothetical example: a customer</text>
+<text x="742" y="770" font-size="26" font-weight="600">inquiry response Skill</text>
+<text x="742" y="810" font-size="22" fill="#686862">The following is a hypothetical example for</text>
+<text x="742" y="838" font-size="22" fill="#686862">explanation.</text>
+<text x="64" y="1010" font-size="21" fill="#686862">AI-assisted article guide. Read the article and linked sources for details.</text></g></svg>
