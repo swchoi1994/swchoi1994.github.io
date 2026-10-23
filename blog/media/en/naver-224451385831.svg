@@ -1,0 +1,39 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1400" height="1050" viewBox="0 0 1400 1050" role="img">
+<title>Four steps to check when Korean input does not work in Windows</title>
+<desc>An English guide to the main sections of this article.</desc>
+<rect width="1400" height="1050" fill="#f6f4ef"/>
+<rect x="64" y="64" width="64" height="5" fill="#a64b2a"/>
+<g font-family="Arial, sans-serif" fill="#1e1f23">
+<text x="64" y="109" font-size="23" letter-spacing="2" fill="#a64b2a">SEONGWOO CHOI / IT JOURNAL</text>
+<text x="64" y="172" font-family="Georgia, serif" font-size="42">Four steps to check when Korean input does not work in</text>
+<text x="64" y="221" font-family="Georgia, serif" font-size="42">Windows</text>
+<text x="64" y="337" font-size="22" fill="#686862">ARTICLE GUIDE · 2026-10-23</text>
+<rect x="64" y="382" width="620" height="247" rx="12" fill="#fffdf8" stroke="#d8d4cb"/>
+<text x="90" y="424" font-size="23" fill="#a64b2a">01</text>
+<text x="90" y="465" font-size="26" font-weight="600">Step 1. Check the current input</text>
+<text x="90" y="497" font-size="26" font-weight="600">language on the taskbar</text>
+<text x="90" y="537" font-size="22" fill="#686862">If ENG appears in the system tray on the right</text>
+<text x="90" y="565" font-size="22" fill="#686862">side of the taskbar, the English keyboard layout</text>
+<text x="90" y="593" font-size="22" fill="#686862">is selected.</text>
+<rect x="716" y="382" width="620" height="247" rx="12" fill="#fffdf8" stroke="#d8d4cb"/>
+<text x="742" y="424" font-size="23" fill="#a64b2a">02</text>
+<text x="742" y="465" font-size="26" font-weight="600">Step 2. Check the input mode using A</text>
+<text x="742" y="497" font-size="26" font-weight="600">and Korean indicators</text>
+<text x="742" y="537" font-size="22" fill="#686862">If Han appears in the tray but characters are</text>
+<text x="742" y="565" font-size="22" fill="#686862">not being composed, click the A icon next to Han</text>
+<text x="742" y="593" font-size="22" fill="#686862">to change it to Korean.</text>
+<rect x="64" y="655" width="620" height="247" rx="12" fill="#fffdf8" stroke="#d8d4cb"/>
+<text x="90" y="697" font-size="23" fill="#a64b2a">03</text>
+<text x="90" y="738" font-size="26" font-weight="600">Step 3. Check whether Microsoft IME is</text>
+<text x="90" y="770" font-size="26" font-weight="600">installed</text>
+<text x="90" y="810" font-size="22" fill="#686862">Go to Settings › Time &amp; language › Language &amp;</text>
+<text x="90" y="838" font-size="22" fill="#686862">region, click the three-dot icon for Korean, and</text>
+<text x="90" y="866" font-size="22" fill="#686862">open Language options.</text>
+<rect x="716" y="655" width="620" height="247" rx="12" fill="#fffdf8" stroke="#d8d4cb"/>
+<text x="742" y="697" font-size="23" fill="#a64b2a">04</text>
+<text x="742" y="738" font-size="26" font-weight="600">Step 4. Check Korean-English switching</text>
+<text x="742" y="770" font-size="26" font-weight="600">and shortcut conflicts in Notepad</text>
+<text x="742" y="810" font-size="22" fill="#686862">Open Notepad, select the Korean input method,</text>
+<text x="742" y="838" font-size="22" fill="#686862">and press the right Alt key to see whether the A</text>
+<text x="742" y="866" font-size="22" fill="#686862">and Korean indicators change.</text>
+<text x="64" y="1010" font-size="21" fill="#686862">AI-assisted article guide. Read the article and linked sources for details.</text></g></svg>
