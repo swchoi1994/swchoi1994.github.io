@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1400" height="1050" viewBox="0 0 1400 1050" role="img">
+<title>How to restore PDF file associations when Windows changes the default app</title>
+<desc>An English guide to the main sections of this article.</desc>
+<rect width="1400" height="1050" fill="#f6f4ef"/>
+<rect x="64" y="64" width="64" height="5" fill="#a64b2a"/>
+<g font-family="Arial, sans-serif" fill="#1e1f23">
+<text x="64" y="109" font-size="23" letter-spacing="2" fill="#a64b2a">SEONGWOO CHOI / IT JOURNAL</text>
+<text x="64" y="172" font-family="Georgia, serif" font-size="42">How to restore PDF file associations when Windows</text>
+<text x="64" y="221" font-family="Georgia, serif" font-size="42">changes the default app</text>
+<text x="64" y="337" font-size="22" fill="#686862">ARTICLE GUIDE · 2026-10-23</text>
+<rect x="64" y="382" width="620" height="247" rx="12" fill="#fffdf8" stroke="#d8d4cb"/>
+<text x="90" y="424" font-size="23" fill="#a64b2a">01</text>
+<text x="90" y="465" font-size="26" font-weight="600">First, check which app handles PDFs</text>
+<text x="90" y="537" font-size="22" fill="#686862">PDF problems are often caused not by a broken</text>
+<text x="90" y="565" font-size="22" fill="#686862">app but by a change in which app is associated</text>
+<text x="90" y="593" font-size="22" fill="#686862">with opening .pdf files.</text>
+<rect x="716" y="382" width="620" height="247" rx="12" fill="#fffdf8" stroke="#d8d4cb"/>
+<text x="742" y="424" font-size="23" fill="#a64b2a">02</text>
+<text x="742" y="465" font-size="26" font-weight="600">Change the default app for .pdf files</text>
+<text x="742" y="497" font-size="26" font-weight="600">in Settings</text>
+<text x="742" y="537" font-size="22" fill="#686862">Microsoft Support instructs you to open Settings</text>
+<text x="742" y="565" font-size="22" fill="#686862">and go to Apps &gt; Default apps. (1) Open</text>
+<text x="742" y="593" font-size="22" fill="#686862">Settings. (2) Select Apps &gt; Default apps. (3)…</text>
+<rect x="64" y="655" width="620" height="247" rx="12" fill="#fffdf8" stroke="#d8d4cb"/>
+<text x="90" y="697" font-size="23" fill="#a64b2a">03</text>
+<text x="90" y="738" font-size="26" font-weight="600">Verify the change with an actual file</text>
+<text x="90" y="810" font-size="22" fill="#686862">The process is not finished just because the</text>
+<text x="90" y="838" font-size="22" fill="#686862">value changed in Settings.</text>
+<rect x="716" y="655" width="620" height="247" rx="12" fill="#fffdf8" stroke="#d8d4cb"/>
+<text x="742" y="697" font-size="23" fill="#a64b2a">04</text>
+<text x="742" y="738" font-size="26" font-weight="600">Checklist when the setting changes</text>
+<text x="742" y="770" font-size="26" font-weight="600">back</text>
+<text x="742" y="810" font-size="22" fill="#686862">Users in the Microsoft Q&amp;A community have</text>
+<text x="742" y="838" font-size="22" fill="#686862">reported that the default PDF app reverted to</text>
+<text x="742" y="866" font-size="22" fill="#686862">Microsoft’s default after a reboot.</text>
+<text x="64" y="1010" font-size="21" fill="#686862">AI-assisted article guide. Read the article and linked sources for details.</text></g></svg>
