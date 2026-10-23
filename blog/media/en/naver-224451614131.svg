@@ -1,0 +1,33 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1400" height="1050" viewBox="0 0 1400 1050" role="img">
+<title>What to check first in Volume Mixer when only a specific Windows app has no sound</title>
+<desc>An English guide to the main sections of this article.</desc>
+<rect width="1400" height="1050" fill="#f6f4ef"/>
+<rect x="64" y="64" width="64" height="5" fill="#a64b2a"/>
+<g font-family="Arial, sans-serif" fill="#1e1f23">
+<text x="64" y="109" font-size="23" letter-spacing="2" fill="#a64b2a">SEONGWOO CHOI / IT JOURNAL</text>
+<text x="64" y="172" font-family="Georgia, serif" font-size="42">What to check first in Volume Mixer when only a specific</text>
+<text x="64" y="221" font-family="Georgia, serif" font-size="42">Windows app has no sound</text>
+<text x="64" y="337" font-size="22" fill="#686862">ARTICLE GUIDE · 2026-10-23</text>
+<rect x="64" y="382" width="620" height="247" rx="12" fill="#fffdf8" stroke="#d8d4cb"/>
+<text x="90" y="424" font-size="23" fill="#a64b2a">01</text>
+<text x="90" y="465" font-size="26" font-weight="600">Step 1. Unmute the app in Volume Mixer</text>
+<text x="90" y="537" font-size="22" fill="#686862">Go to Settings › System › Sound and open “Volume</text>
+<text x="90" y="565" font-size="22" fill="#686862">Mixer.” Under “Apps,” check that the relevant</text>
+<text x="90" y="593" font-size="22" fill="#686862">app is not muted and that its slider is not set…</text>
+<rect x="716" y="382" width="620" height="247" rx="12" fill="#fffdf8" stroke="#d8d4cb"/>
+<text x="742" y="424" font-size="23" fill="#a64b2a">02</text>
+<text x="742" y="465" font-size="26" font-weight="600">Step 2. Check the app-specific output</text>
+<text x="742" y="497" font-size="26" font-weight="600">device</text>
+<text x="742" y="537" font-size="22" fill="#686862">Under “Apps” in the same Volume Mixer, check the</text>
+<text x="742" y="565" font-size="22" fill="#686862">output device for the relevant app.</text>
+<rect x="64" y="655" width="620" height="247" rx="12" fill="#fffdf8" stroke="#d8d4cb"/>
+<text x="90" y="697" font-size="23" fill="#a64b2a">03</text>
+<text x="90" y="738" font-size="26" font-weight="600">Step 3. Restart the Windows audio</text>
+<text x="90" y="770" font-size="26" font-weight="600">services</text>
+<text x="90" y="810" font-size="22" fill="#686862">If the first two steps do not solve the problem</text>
+<text x="90" y="838" font-size="22" fill="#686862">and it may be temporary, restart the services.</text>
+<rect x="716" y="655" width="620" height="247" rx="12" fill="#fffdf8" stroke="#d8d4cb"/>
+<text x="742" y="697" font-size="23" fill="#a64b2a">04</text>
+<text x="742" y="738" font-size="26" font-weight="600">Step 4. Update the audio driver</text>
+<text x="742" y="810" font-size="22" fill="#686862">If the problem persists, suspect the driver.</text>
+<text x="64" y="1010" font-size="21" fill="#686862">AI-assisted article guide. Read the article and linked sources for details.</text></g></svg>
