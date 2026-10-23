@@ -1,0 +1,37 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1400" height="1050" viewBox="0 0 1400 1050" role="img">
+<title>How to Show Windows File Extensions and Identify Double-Extension Files</title>
+<desc>An English guide to the main sections of this article.</desc>
+<rect width="1400" height="1050" fill="#f6f4ef"/>
+<rect x="64" y="64" width="64" height="5" fill="#a64b2a"/>
+<g font-family="Arial, sans-serif" fill="#1e1f23">
+<text x="64" y="109" font-size="23" letter-spacing="2" fill="#a64b2a">SEONGWOO CHOI / IT JOURNAL</text>
+<text x="64" y="172" font-family="Georgia, serif" font-size="42">How to Show Windows File Extensions and Identify</text>
+<text x="64" y="221" font-family="Georgia, serif" font-size="42">Double-Extension Files</text>
+<text x="64" y="337" font-size="22" fill="#686862">ARTICLE GUIDE · 2026-10-23</text>
+<rect x="64" y="382" width="620" height="247" rx="12" fill="#fffdf8" stroke="#d8d4cb"/>
+<text x="90" y="424" font-size="23" fill="#a64b2a">01</text>
+<text x="90" y="465" font-size="26" font-weight="600">Extensions identify file types</text>
+<text x="90" y="537" font-size="22" fill="#686862">Microsoft Support explains that Windows file</text>
+<text x="90" y="565" font-size="22" fill="#686862">names are divided into a name and an extension,</text>
+<text x="90" y="593" font-size="22" fill="#686862">which is usually 3–4 characters long.</text>
+<rect x="716" y="382" width="620" height="247" rx="12" fill="#fffdf8" stroke="#d8d4cb"/>
+<text x="742" y="424" font-size="23" fill="#a64b2a">02</text>
+<text x="742" y="465" font-size="26" font-weight="600">Turn on extension display: File</text>
+<text x="742" y="497" font-size="26" font-weight="600">Explorer’s View menu</text>
+<text x="742" y="537" font-size="22" fill="#686862">These are the steps for Windows 11. (1) Open</text>
+<text x="742" y="565" font-size="22" fill="#686862">File Explorer. (2) Select View &gt; Show at the</text>
+<text x="742" y="593" font-size="22" fill="#686862">top. (3) Check “File name extensions.” After…</text>
+<rect x="64" y="655" width="620" height="247" rx="12" fill="#fffdf8" stroke="#d8d4cb"/>
+<text x="90" y="697" font-size="23" fill="#a64b2a">03</text>
+<text x="90" y="738" font-size="26" font-weight="600">Check double extensions from the last</text>
+<text x="90" y="770" font-size="26" font-weight="600">extension</text>
+<text x="90" y="810" font-size="22" fill="#686862">A double extension is a name such as</text>
+<text x="90" y="838" font-size="22" fill="#686862">invoice.pdf.exe, in which another extension</text>
+<text x="90" y="866" font-size="22" fill="#686862">follows text that looks like a document…</text>
+<rect x="716" y="655" width="620" height="247" rx="12" fill="#fffdf8" stroke="#d8d4cb"/>
+<text x="742" y="697" font-size="23" fill="#a64b2a">04</text>
+<text x="742" y="738" font-size="26" font-weight="600">Four checks before opening a file</text>
+<text x="742" y="810" font-size="22" fill="#686862">① Last extension: If the ending extension is</text>
+<text x="742" y="838" font-size="22" fill="#686862">executable, such as exe, msi, or bat, stop</text>
+<text x="742" y="866" font-size="22" fill="#686862">before running the file. ② Sender: If you…</text>
+<text x="64" y="1010" font-size="21" fill="#686862">AI-assisted article guide. Read the article and linked sources for details.</text></g></svg>
