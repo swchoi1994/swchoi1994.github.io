@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1400" height="1050" viewBox="0 0 1400 1050" role="img">
+<title>How to Create an Excel Drop-Down List and Reduce Input Errors</title>
+<desc>An English guide to the main sections of this article.</desc>
+<rect width="1400" height="1050" fill="#f6f4ef"/>
+<rect x="64" y="64" width="64" height="5" fill="#a64b2a"/>
+<g font-family="Arial, sans-serif" fill="#1e1f23">
+<text x="64" y="109" font-size="23" letter-spacing="2" fill="#a64b2a">SEONGWOO CHOI / IT JOURNAL</text>
+<text x="64" y="172" font-family="Georgia, serif" font-size="42">How to Create an Excel Drop-Down List and Reduce Input</text>
+<text x="64" y="221" font-family="Georgia, serif" font-size="42">Errors</text>
+<text x="64" y="337" font-size="22" fill="#686862">ARTICLE GUIDE · 2026-10-24</text>
+<rect x="64" y="382" width="620" height="247" rx="12" fill="#fffdf8" stroke="#d8d4cb"/>
+<text x="90" y="424" font-size="23" fill="#a64b2a">01</text>
+<text x="90" y="465" font-size="26" font-weight="600">Basic setup sequence</text>
+<text x="90" y="537" font-size="22" fill="#686862">First, select the cells or column where you want</text>
+<text x="90" y="565" font-size="22" fill="#686862">to add the drop-down list.</text>
+<rect x="716" y="382" width="620" height="247" rx="12" fill="#fffdf8" stroke="#d8d4cb"/>
+<text x="742" y="424" font-size="23" fill="#a64b2a">02</text>
+<text x="742" y="465" font-size="26" font-weight="600">Choose from four list sources</text>
+<text x="742" y="537" font-size="22" fill="#686862">Microsoft divides drop-down sources into</text>
+<text x="742" y="565" font-size="22" fill="#686862">comma-separated lists, cell ranges, named</text>
+<text x="742" y="593" font-size="22" fill="#686862">ranges, and columns in an Excel Table.</text>
+<rect x="64" y="655" width="620" height="247" rx="12" fill="#fffdf8" stroke="#d8d4cb"/>
+<text x="90" y="697" font-size="23" fill="#a64b2a">03</text>
+<text x="90" y="738" font-size="26" font-weight="600">Example using a hypothetical</text>
+<text x="90" y="770" font-size="26" font-weight="600">department list</text>
+<text x="90" y="810" font-size="22" fill="#686862">For this explanation, let us create a</text>
+<text x="90" y="838" font-size="22" fill="#686862">hypothetical department list.</text>
+<rect x="716" y="655" width="620" height="247" rx="12" fill="#fffdf8" stroke="#d8d4cb"/>
+<text x="742" y="697" font-size="23" fill="#a64b2a">04</text>
+<text x="742" y="738" font-size="26" font-weight="600">Configuring input messages and error</text>
+<text x="742" y="770" font-size="26" font-weight="600">alerts</text>
+<text x="742" y="810" font-size="22" fill="#686862">On the Input Message tab, you can enter a title</text>
+<text x="742" y="838" font-size="22" fill="#686862">and instructional text to display when a cell is</text>
+<text x="742" y="866" font-size="22" fill="#686862">selected.</text>
+<text x="64" y="1010" font-size="21" fill="#686862">AI-assisted article guide. Read the article and linked sources for details.</text></g></svg>
