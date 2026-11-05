@@ -1,3 +1,8 @@
+# Public articles are available to search and AI search crawlers.
+User-agent: OAI-SearchBot
+Allow: /
+
 User-agent: *
 Allow: /
+
 Sitemap: https://swchoi1994.github.io/sitemap.xml
