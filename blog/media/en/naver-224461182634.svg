@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1400" height="1050" viewBox="0 0 1400 1050" role="img">
+<title>Check scaling first when Windows text and app screens look blurry</title>
+<desc>An English guide to the main sections of this article.</desc>
+<rect width="1400" height="1050" fill="#f6f4ef"/>
+<rect x="64" y="64" width="64" height="5" fill="#a64b2a"/>
+<g font-family="Arial, sans-serif" fill="#1e1f23">
+<text x="64" y="109" font-size="23" letter-spacing="2" fill="#a64b2a">SEONGWOO CHOI / IT JOURNAL</text>
+<text x="64" y="172" font-family="Georgia, serif" font-size="42">Check scaling first when Windows text and app screens</text>
+<text x="64" y="221" font-family="Georgia, serif" font-size="42">look blurry</text>
+<text x="64" y="337" font-size="22" fill="#686862">ARTICLE GUIDE · 2026-11-01</text>
+<rect x="64" y="382" width="620" height="247" rx="12" fill="#fffdf8" stroke="#d8d4cb"/>
+<text x="90" y="424" font-size="23" fill="#a64b2a">01</text>
+<text x="90" y="465" font-size="26" font-weight="600">Match scaling across monitors</text>
+<text x="90" y="537" font-size="22" fill="#686862">In Settings &gt; System &gt; Display, check the value</text>
+<text x="90" y="565" font-size="22" fill="#686862">for “Change the size of text, apps, and other</text>
+<text x="90" y="593" font-size="22" fill="#686862">items.” Microsoft’s support documentation…</text>
+<rect x="716" y="382" width="620" height="247" rx="12" fill="#fffdf8" stroke="#d8d4cb"/>
+<text x="742" y="424" font-size="23" fill="#a64b2a">02</text>
+<text x="742" y="465" font-size="26" font-weight="600">Sign out and sign in again after</text>
+<text x="742" y="497" font-size="26" font-weight="600">changing settings</text>
+<text x="742" y="537" font-size="22" fill="#686862">The same document says that if apps look blurry</text>
+<text x="742" y="565" font-size="22" fill="#686862">after connecting or disconnecting a monitor,</text>
+<text x="742" y="593" font-size="22" fill="#686862">changing the docking state, or changing the…</text>
+<rect x="64" y="655" width="620" height="247" rx="12" fill="#fffdf8" stroke="#d8d4cb"/>
+<text x="90" y="697" font-size="23" fill="#a64b2a">03</text>
+<text x="90" y="738" font-size="26" font-weight="600">Check only the blurry app separately</text>
+<text x="90" y="810" font-size="22" fill="#686862">If only a specific app looks blurry, open</text>
+<text x="90" y="838" font-size="22" fill="#686862">Properties &gt; Compatibility &gt; “Change high DPI</text>
+<text x="90" y="866" font-size="22" fill="#686862">settings” from the app’s shortcut or executable…</text>
+<rect x="716" y="655" width="620" height="247" rx="12" fill="#fffdf8" stroke="#d8d4cb"/>
+<text x="742" y="697" font-size="23" fill="#a64b2a">04</text>
+<text x="742" y="738" font-size="26" font-weight="600">Treat the driver as a last step</text>
+<text x="742" y="810" font-size="22" fill="#686862">It is reasonable to suspect a graphics driver</text>
+<text x="742" y="838" font-size="22" fill="#686862">problem only after checking scaling and signing</text>
+<text x="742" y="866" font-size="22" fill="#686862">in again has not solved the issue.</text>
+<text x="64" y="1010" font-size="21" fill="#686862">AI-assisted article guide. Read the article and linked sources for details.</text></g></svg>

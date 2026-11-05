@@ -1,0 +1,37 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1400" height="1050" viewBox="0 0 1400 1050" role="img">
+<title>Excel #DIV/0! Error: How to Fix It When the Divisor Is 0 or Blank</title>
+<desc>An English guide to the main sections of this article.</desc>
+<rect width="1400" height="1050" fill="#f6f4ef"/>
+<rect x="64" y="64" width="64" height="5" fill="#a64b2a"/>
+<g font-family="Arial, sans-serif" fill="#1e1f23">
+<text x="64" y="109" font-size="23" letter-spacing="2" fill="#a64b2a">SEONGWOO CHOI / IT JOURNAL</text>
+<text x="64" y="172" font-family="Georgia, serif" font-size="42">Excel #DIV/0! Error: How to Fix It When the Divisor Is 0</text>
+<text x="64" y="221" font-family="Georgia, serif" font-size="42">or Blank</text>
+<text x="64" y="337" font-size="22" fill="#686862">ARTICLE GUIDE · 2026-10-30</text>
+<rect x="64" y="382" width="620" height="247" rx="12" fill="#fffdf8" stroke="#d8d4cb"/>
+<text x="90" y="424" font-size="23" fill="#a64b2a">01</text>
+<text x="90" y="465" font-size="26" font-weight="600">Find the denominator in the cell with</text>
+<text x="90" y="497" font-size="26" font-weight="600">the error</text>
+<text x="90" y="537" font-size="22" fill="#686862">For example, if cell C2 contains =A2/B2 and B2</text>
+<text x="90" y="565" font-size="22" fill="#686862">is blank, the denominator is B2.</text>
+<rect x="716" y="382" width="620" height="247" rx="12" fill="#fffdf8" stroke="#d8d4cb"/>
+<text x="742" y="424" font-size="23" fill="#a64b2a">02</text>
+<text x="742" y="465" font-size="26" font-weight="600">Check whether the denominator cell is</text>
+<text x="742" y="497" font-size="26" font-weight="600">0 or blank</text>
+<text x="742" y="537" font-size="22" fill="#686862">Microsoft Support explains that #DIV/0! occurs</text>
+<text x="742" y="565" font-size="22" fill="#686862">when a formula contains 0 or refers to a blank</text>
+<text x="742" y="593" font-size="22" fill="#686862">cell.</text>
+<rect x="64" y="655" width="620" height="247" rx="12" fill="#fffdf8" stroke="#d8d4cb"/>
+<text x="90" y="697" font-size="23" fill="#a64b2a">03</text>
+<text x="90" y="738" font-size="26" font-weight="600">Determine whether the blank is</text>
+<text x="90" y="770" font-size="26" font-weight="600">expected or an error</text>
+<text x="90" y="810" font-size="22" fill="#686862">If the table is waiting for input, it is</text>
+<text x="90" y="838" font-size="22" fill="#686862">appropriate to leave the blank as it is and hide</text>
+<text x="90" y="866" font-size="22" fill="#686862">only the error.</text>
+<rect x="716" y="655" width="620" height="247" rx="12" fill="#fffdf8" stroke="#d8d4cb"/>
+<text x="742" y="697" font-size="23" fill="#a64b2a">04</text>
+<text x="742" y="738" font-size="26" font-weight="600">Three ways to fix the formula</text>
+<text x="742" y="810" font-size="22" fill="#686862">① Change the reference: Fix the formula so that</text>
+<text x="742" y="838" font-size="22" fill="#686862">the denominator refers to a different cell that</text>
+<text x="742" y="866" font-size="22" fill="#686862">is not 0. ② Use an IF condition: Calculate only…</text>
+<text x="64" y="1010" font-size="21" fill="#686862">AI-assisted article guide. Read the article and linked sources for details.</text></g></svg>

@@ -1,0 +1,34 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1400" height="1050" viewBox="0 0 1400 1050" role="img">
+<title>Run a program at the same time every day with Windows Task Scheduler</title>
+<desc>An English guide to the main sections of this article.</desc>
+<rect width="1400" height="1050" fill="#f6f4ef"/>
+<rect x="64" y="64" width="64" height="5" fill="#a64b2a"/>
+<g font-family="Arial, sans-serif" fill="#1e1f23">
+<text x="64" y="109" font-size="23" letter-spacing="2" fill="#a64b2a">SEONGWOO CHOI / IT JOURNAL</text>
+<text x="64" y="172" font-family="Georgia, serif" font-size="42">Run a program at the same time every day with Windows</text>
+<text x="64" y="221" font-family="Georgia, serif" font-size="42">Task Scheduler</text>
+<text x="64" y="337" font-size="22" fill="#686862">ARTICLE GUIDE · 2026-10-31</text>
+<rect x="64" y="382" width="620" height="247" rx="12" fill="#fffdf8" stroke="#d8d4cb"/>
+<text x="90" y="424" font-size="23" fill="#a64b2a">01</text>
+<text x="90" y="465" font-size="26" font-weight="600">Three things to decide before</text>
+<text x="90" y="497" font-size="26" font-weight="600">registering</text>
+<text x="90" y="537" font-size="22" fill="#686862">First is the target to run.</text>
+<rect x="716" y="382" width="620" height="247" rx="12" fill="#fffdf8" stroke="#d8d4cb"/>
+<text x="742" y="424" font-size="23" fill="#a64b2a">02</text>
+<text x="742" y="465" font-size="26" font-weight="600">Create a task from Command Prompt</text>
+<text x="742" y="537" font-size="22" fill="#686862">The Microsoft Learn schtasks create</text>
+<text x="742" y="565" font-size="22" fill="#686862">documentation shows the format for specifying</text>
+<text x="742" y="593" font-size="22" fill="#686862">the frequency with /sc, the task name with /tn…</text>
+<rect x="64" y="655" width="620" height="247" rx="12" fill="#fffdf8" stroke="#d8d4cb"/>
+<text x="90" y="697" font-size="23" fill="#a64b2a">03</text>
+<text x="90" y="738" font-size="26" font-weight="600">Choose the execution permission</text>
+<text x="90" y="770" font-size="26" font-weight="600">options</text>
+<text x="90" y="810" font-size="22" fill="#686862">The /rl option sets the execution level.</text>
+<rect x="716" y="655" width="620" height="247" rx="12" fill="#fffdf8" stroke="#d8d4cb"/>
+<text x="742" y="697" font-size="23" fill="#a64b2a">04</text>
+<text x="742" y="738" font-size="26" font-weight="600">Four things to check after</text>
+<text x="742" y="770" font-size="26" font-weight="600">registration</text>
+<text x="742" y="810" font-size="22" fill="#686862">Open the Task Scheduler Library in the Task</text>
+<text x="742" y="838" font-size="22" fill="#686862">Scheduler app and find the name you just</text>
+<text x="742" y="866" font-size="22" fill="#686862">created.</text>
+<text x="64" y="1010" font-size="21" fill="#686862">AI-assisted article guide. Read the article and linked sources for details.</text></g></svg>
