@@ -129,3 +129,9 @@ Use the accent for links, focus, data highlights, and primary actions. Do not in
 - Font Awesome or unnecessary UI dependencies
 - Scroll-triggered opacity that can leave content blank
 - Unrelated third-party scripts. The owner-authorized AdSense and Google consent / ad-blocking recovery tags are permitted; reading and legal pages must remain accessible.
+
+## Publication update
+
+The primary audience now includes readers looking for useful AI and everyday software guidance. The journal is the homepage; the career narrative and CV live at `/portfolio/`. Retain the existing palette and typography while using a compact introduction, curated lead story, topic navigation and scannable article lists. Use text rather than repetitive generated thumbnail graphics in archives. Article pages lead with an answer summary and preserve sources, disclosure and accessible contents navigation.
+
+Publication-specific styles extend this system in `assets/css/publication.css`. Do not edit externally synced blog HTML for layout changes; apply them in `tools/publish.py` so subsequent syncs retain the publication structure.

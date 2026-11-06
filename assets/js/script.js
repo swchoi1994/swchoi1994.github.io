@@ -1,9 +1,10 @@
 (() => {
     "use strict";
+    document.documentElement.classList.add("js");
 
     const navToggle = document.querySelector(".nav-toggle");
     const navMenu = document.querySelector(".nav-menu");
-    const navLinks = [...document.querySelectorAll(".nav-link")];
+    const navLinks = [...document.querySelectorAll('.nav-link[href^="#"]')];
     const sections = [...document.querySelectorAll("main section[id]")];
     const currentYear = document.getElementById("current-year");
 
