@@ -6,3 +6,4 @@ User-agent: *
 Allow: /
 
 Sitemap: https://swchoi1994.github.io/sitemap.xml
+Sitemap: https://swchoi1994.github.io/sitemap-guides.xml

@@ -1,0 +1,18 @@
+.guide .reading-body h3{font-size:1.2rem;line-height:1.5;letter-spacing:-.02em;margin:0 0 4px}
+.table-scroll{overflow-x:auto;margin:0 0 32px;border:1px solid #d8d4cb;border-radius:10px;background:#fffdf8}
+.repo-table{width:100%;border-collapse:collapse;font-size:.9rem;line-height:1.5;font-variant-numeric:tabular-nums}
+.repo-table th,.repo-table td{padding:10px 14px;text-align:left;border-bottom:1px solid #ebe7de;white-space:nowrap}
+.repo-table th{font-weight:600;color:#686862;font-size:.8rem}
+.repo-table tbody tr:last-child td{border-bottom:0}
+.repo-table td:nth-child(n+4){text-align:right}
+.repo-table th:nth-child(n+4){text-align:right}
+.repo-table a{color:#1e1f23;text-decoration:none;font-weight:600}
+.repo-card{padding:24px 0;border-top:1px solid #d8d4cb;scroll-margin-top:90px}
+.repo-card>p{margin:0 0 12px}
+.repo-card .post-meta{margin-bottom:12px}
+.repo-path{font-size:.8rem;font-weight:400;color:#686862;font-family:ui-monospace,SFMono-Regular,Menlo,monospace}
+.repo-check,.repo-take{font-size:.95rem;background:#ebe7de;border-radius:8px;padding:12px 16px}
+.repo-take{background:#ead8ce}
+.video-card{display:flex;align-items:center;gap:16px;margin:0 0 24px;padding:12px;border:1px solid #d8d4cb;border-radius:10px;background:#fffdf8;text-decoration:none!important;color:#1e1f23!important;font-weight:600;line-height:1.5}
+.video-card img{width:120px;height:auto;border-radius:6px;flex-shrink:0}
+@media(max-width:820px){.repo-table .col-group{display:none}.repo-table th,.repo-table td{padding:9px 10px}.video-card img{width:96px}}

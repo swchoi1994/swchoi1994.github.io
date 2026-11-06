@@ -1,0 +1,216 @@
+{
+  "snapshots": {
+    "2026-11-06": {
+      "obra/superpowers": 313481,
+      "mattpocock/skills": 316441,
+      "affaan-m/ECC": 298411,
+      "multica-ai/andrej-karpathy-skills": 230194,
+      "DietrichGebert/ponytail": 185727,
+      "Leonxlnx/taste-skill": 111134,
+      "pbakaus/impeccable": 104617,
+      "Nutlope/hallmark": 49429,
+      "cathrynlavery/diagram-design": 65470,
+      "tt-a1i/archify": 94150,
+      "deepseek-ai/deepseek-harness": 274785,
+      "anomalyco/opencode": 225000,
+      "pingdotgg/t3code": 49363,
+      "stablyai/orca": 117601,
+      "thedotmack/claude-mem": 113896,
+      "Graphify-Labs/graphify": 143409,
+      "morluto/rea": 437224,
+      "Panniantong/Agent-Reach": 109620,
+      "cloudflare/security-audit-skill": 63441,
+      "heygen-com/hyperframes": 79993,
+      "debpalash/VoiceStudio": 102675,
+      "HKUDS/DeepTutor": 55850,
+      "bilawalsidhu/gods-eye-view": 63156
+    }
+  },
+  "fetched_at": "2026-11-06T18:15:26+00:00",
+  "repos": {
+    "obra/superpowers": {
+      "url": "https://github.com/obra/superpowers",
+      "stars": 313481,
+      "created": "2025-10-09",
+      "pushed": "2026-11-03",
+      "language": "Shell",
+      "license": "MIT"
+    },
+    "mattpocock/skills": {
+      "url": "https://github.com/mattpocock/skills",
+      "stars": 316441,
+      "created": "2026-02-03",
+      "pushed": "2026-11-05",
+      "language": "Shell",
+      "license": "MIT"
+    },
+    "affaan-m/ECC": {
+      "url": "https://github.com/affaan-m/ECC",
+      "stars": 298411,
+      "created": "2026-01-18",
+      "pushed": "2026-11-06",
+      "language": "JavaScript",
+      "license": "MIT"
+    },
+    "multica-ai/andrej-karpathy-skills": {
+      "url": "https://github.com/multica-ai/andrej-karpathy-skills",
+      "stars": 230194,
+      "created": "2026-01-27",
+      "pushed": "2026-04-20",
+      "language": null,
+      "license": null
+    },
+    "DietrichGebert/ponytail": {
+      "url": "https://github.com/DietrichGebert/ponytail",
+      "stars": 185727,
+      "created": "2026-06-12",
+      "pushed": "2026-10-29",
+      "language": "JavaScript",
+      "license": "MIT"
+    },
+    "Leonxlnx/taste-skill": {
+      "url": "https://github.com/Leonxlnx/taste-skill",
+      "stars": 111134,
+      "created": "2026-02-19",
+      "pushed": "2026-11-05",
+      "language": "JavaScript",
+      "license": "MIT"
+    },
+    "pbakaus/impeccable": {
+      "url": "https://github.com/pbakaus/impeccable",
+      "stars": 104617,
+      "created": "2025-11-16",
+      "pushed": "2026-11-05",
+      "language": "Rust",
+      "license": "Apache-2.0"
+    },
+    "Nutlope/hallmark": {
+      "url": "https://github.com/Nutlope/hallmark",
+      "stars": 49429,
+      "created": "2026-04-27",
+      "pushed": "2026-11-05",
+      "language": "CSS",
+      "license": "MIT"
+    },
+    "cathrynlavery/diagram-design": {
+      "url": "https://github.com/cathrynlavery/diagram-design",
+      "stars": 65470,
+      "created": "2026-04-16",
+      "pushed": "2026-11-06",
+      "language": "HTML",
+      "license": "MIT"
+    },
+    "tt-a1i/archify": {
+      "url": "https://github.com/tt-a1i/archify",
+      "stars": 94150,
+      "created": "2026-04-15",
+      "pushed": "2026-11-06",
+      "language": "JavaScript",
+      "license": "Apache-2.0"
+    },
+    "deepseek-ai/deepseek-harness": {
+      "url": "https://github.com/deepseek-ai/deepseek-harness",
+      "stars": 274785,
+      "created": "2026-08-13",
+      "pushed": "2026-11-04",
+      "language": "TypeScript",
+      "license": "MIT"
+    },
+    "anomalyco/opencode": {
+      "url": "https://github.com/anomalyco/opencode",
+      "stars": 225000,
+      "created": "2025-04-30",
+      "pushed": "2026-11-06",
+      "language": "TypeScript",
+      "license": "MIT"
+    },
+    "pingdotgg/t3code": {
+      "url": "https://github.com/pingdotgg/t3code",
+      "stars": 49363,
+      "created": "2026-02-08",
+      "pushed": "2026-11-06",
+      "language": "TypeScript",
+      "license": "MIT"
+    },
+    "stablyai/orca": {
+      "url": "https://github.com/stablyai/orca",
+      "stars": 117601,
+      "created": "2026-03-17",
+      "pushed": "2026-11-06",
+      "language": "TypeScript",
+      "license": "MIT"
+    },
+    "thedotmack/claude-mem": {
+      "url": "https://github.com/thedotmack/claude-mem",
+      "stars": 113896,
+      "created": "2025-08-31",
+      "pushed": "2026-11-06",
+      "language": "TypeScript",
+      "license": "Apache-2.0"
+    },
+    "Graphify-Labs/graphify": {
+      "url": "https://github.com/Graphify-Labs/graphify",
+      "stars": 143409,
+      "created": "2026-04-03",
+      "pushed": "2026-11-06",
+      "language": "Python",
+      "license": "Apache-2.0"
+    },
+    "morluto/rea": {
+      "url": "https://github.com/morluto/rea",
+      "stars": 437224,
+      "created": "2026-04-14",
+      "pushed": "2026-11-06",
+      "language": "TypeScript",
+      "license": "MIT"
+    },
+    "Panniantong/Agent-Reach": {
+      "url": "https://github.com/Panniantong/Agent-Reach",
+      "stars": 109620,
+      "created": "2026-02-24",
+      "pushed": "2026-11-06",
+      "language": "Python",
+      "license": "MIT"
+    },
+    "cloudflare/security-audit-skill": {
+      "url": "https://github.com/cloudflare/security-audit-skill",
+      "stars": 63441,
+      "created": "2026-06-18",
+      "pushed": "2026-09-14",
+      "language": "JavaScript",
+      "license": "MIT"
+    },
+    "heygen-com/hyperframes": {
+      "url": "https://github.com/heygen-com/hyperframes",
+      "stars": 79993,
+      "created": "2026-03-10",
+      "pushed": "2026-11-06",
+      "language": "TypeScript",
+      "license": "Apache-2.0"
+    },
+    "debpalash/VoiceStudio": {
+      "url": "https://github.com/debpalash/VoiceStudio",
+      "stars": 102675,
+      "created": "2026-04-09",
+      "pushed": "2026-11-06",
+      "language": "Python",
+      "license": "AGPL-3.0"
+    },
+    "HKUDS/DeepTutor": {
+      "url": "https://github.com/HKUDS/DeepTutor",
+      "stars": 55850,
+      "created": "2025-12-28",
+      "pushed": "2026-11-06",
+      "language": "Python",
+      "license": "Apache-2.0"
+    },
+    "bilawalsidhu/gods-eye-view": {
+      "url": "https://github.com/bilawalsidhu/gods-eye-view",
+      "stars": 63156,
+      "created": "2026-06-22",
+      "pushed": "2026-11-06",
+      "language": "JavaScript",
+      "license": "NOASSERTION"
+    }
+  }
+}

@@ -1,0 +1,230 @@
+{
+  "slug": "ai-coding-agent-repos",
+  "title": "The fastest-growing AI agent repos on GitHub",
+  "description": "Live star counts, what each repo does and what to check before installing: 23 skills, harnesses and tools that coding agents run on.",
+  "kicker": "Guide · AI agent tools",
+  "published": "2026-11-06",
+  "intro": [
+    "Most of the fastest-growing repositories on GitHub this year are not apps. They are instructions, harnesses and add-ons for coding agents such as Claude Code, Codex and OpenCode. This page tracks {count} of them, groups them by what they change about your agent, and notes what to check before you install each one.",
+    "Star counts come from the GitHub API and are refreshed regularly. Stars measure attention, not quality: a repo can gain 100,000 stars in a month because of one viral post. Treat the numbers as a map of what developers are trying, then read the check notes before you give any of these access to your code."
+  ],
+  "groups": [
+    {
+      "id": "methodology",
+      "name": "Methodology and skill packs",
+      "intro": "These change how the agent works rather than where it runs. Most respond to the same complaints Andrej Karpathy listed in a widely shared post: agents make silent assumptions, overbuild and edit code they were not asked to touch."
+    },
+    {
+      "id": "design",
+      "name": "Design taste for agents",
+      "intro": "Steve Jobs once said Microsoft had no taste. Five of this year's fastest-growing repos try to write taste down so an agent can follow it: art direction, real photography, accessibility floors and named steering commands. The Jobs and Gates rivalry is covered in a short video on this site's YouTube channel.",
+      "video": {"id": "1sAW6TBcKHo", "title": "Why Steve Jobs And Bill Gates Needed Each Other"}
+    },
+    {
+      "id": "harness",
+      "name": "Harnesses and control surfaces",
+      "intro": "Harnesses decide where the agent runs, which models it can call and how you supervise it. DeepSeek now ships its own. T3 Code and Orca sit one level up and drive several agents at once. T3 Code's supported list already includes xAI's Grok Build CLI."
+    },
+    {
+      "id": "context",
+      "name": "Memory and codebase context",
+      "intro": "Both tools here attack the same cost: an agent re-reading the same files and re-learning the same project every session."
+    },
+    {
+      "id": "capability",
+      "name": "New capabilities",
+      "intro": "These give an agent skills it does not have out of the box: reverse engineering, reading platforms it cannot reach, structured security audits and rendering video."
+    },
+    {
+      "id": "apps",
+      "name": "AI apps beyond coding",
+      "intro": "Three of the fastest risers are end-user AI apps rather than agent add-ons. They are on the list because developers starred them at the same pace."
+    }
+  ],
+  "repos": [
+    {
+      "repo": "obra/superpowers",
+      "name": "Superpowers",
+      "group": "methodology",
+      "what": "A full development methodology for coding agents, built from composable skills plus starter instructions that make the agent actually use them. The workflow moves from brainstorming to a written plan to test-driven execution, and it supports Claude Code, Codex, Cursor and Gemini CLI.",
+      "check": "Expect the agent to ask more questions and write plans before it codes. That pays off on multi-step features and feels slow on one-line fixes.",
+      "take": ""
+    },
+    {
+      "repo": "mattpocock/skills",
+      "name": "Matt Pocock Skills",
+      "group": "methodology",
+      "what": "Small, composable skills that TypeScript educator Matt Pocock says he uses every day. He positions them against frameworks that own the whole process, such as GSD, BMAD and Spec-Kit, so you keep control of each step.",
+      "check": "Choose one install method per agent. The plugin updates itself and skills.sh copies editable files; installing both loads every skill twice.",
+      "take": ""
+    },
+    {
+      "repo": "affaan-m/ECC",
+      "name": "ECC",
+      "group": "methodology",
+      "what": "An agent harness optimization system: skills, instincts and settings maintained across seven harnesses. The open-source repo is MIT-licensed. ECC Pro is a paid GitHub App for private repos.",
+      "check": "The README warns that only the GitHub repo and its listed npm packages are official. Do not stack a manual install on top of the plugin.",
+      "take": ""
+    },
+    {
+      "repo": "multica-ai/andrej-karpathy-skills",
+      "name": "Karpathy-inspired guidelines",
+      "group": "methodology",
+      "what": "A single CLAUDE.md file with four principles derived from Andrej Karpathy's observations on LLM coding mistakes: wrong assumptions, bloated code and side-effect edits.",
+      "check": "This is a community project inspired by his post, not an official Karpathy release. Merge it into your existing CLAUDE.md instead of overwriting yours.",
+      "take": ""
+    },
+    {
+      "repo": "DietrichGebert/ponytail",
+      "name": "Ponytail",
+      "group": "methodology",
+      "what": "A skill that pushes the agent to write only the code a task needs, modelled on the quiet senior engineer who replaces fifty lines with one. Its stated rule is to never cut validation, error handling, security or accessibility.",
+      "check": "The project reports 53% less code and 45% fewer tokens in its own Claude Code benchmark. Run it on a slice of your own repo before you rely on those numbers.",
+      "take": ""
+    },
+    {
+      "repo": "Leonxlnx/taste-skill",
+      "name": "Taste Skill",
+      "group": "design",
+      "what": "An agent skill for building company websites with real art direction instead of a generic landing page. It uses real photographs from open archives and credits each one.",
+      "check": "It targets marketing and company sites. For dashboards or app UI, check whether its defaults fit before you apply it everywhere.",
+      "take": ""
+    },
+    {
+      "repo": "pbakaus/impeccable",
+      "name": "Impeccable",
+      "group": "design",
+      "what": "A design vocabulary for coding agents from Paul Bakaus. You steer with commands such as polish and bolder and review with critique and audit. It works with more than 15 agents, including Claude Code, Codex, Cursor, Grok Build and DeepSeek Harness.",
+      "check": "Run its init step inside each project, because the steering depends on project context.",
+      "take": ""
+    },
+    {
+      "repo": "Nutlope/hallmark",
+      "name": "Hallmark",
+      "group": "design",
+      "what": "A design skill from Together AI that \"refuses to look AI-generated.\" It picks from 50 material-based themes and checks the result in a real browser against hard gates: contrast, focus states, reduced motion, invented facts and broken phone layouts.",
+      "check": "Use its audit command first on an existing page. It only reports and does not rewrite anything.",
+      "take": ""
+    },
+    {
+      "repo": "cathrynlavery/diagram-design",
+      "name": "Diagram Design",
+      "group": "design",
+      "what": "An agent skill that draws diagrams as one self-contained HTML and SVG file in your brand's colours and fonts. It has 45 diagram types and imports from draw.io, Mermaid and Excalidraw.",
+      "check": "Run its brand onboarding against your site once so later diagrams match your styling.",
+      "take": ""
+    },
+    {
+      "repo": "tt-a1i/archify",
+      "name": "Archify",
+      "group": "design",
+      "what": "Turns an idea, a plan or a whole codebase into an interactive architecture diagram with links back to the source. It works with Cursor, Claude Code, Codex CLI and OpenCode.",
+      "check": "The suggested install asks your agent to read a remote llms.txt file. Read any install prompt yourself before your agent runs it.",
+      "take": ""
+    },
+    {
+      "repo": "deepseek-ai/deepseek-harness",
+      "name": "DeepSeek Harness",
+      "group": "harness",
+      "what": "DeepSeek's own open-source agent harness (dsh). It is built on an everything-is-a-plugin architecture powered by the Cordis framework and runs in the browser with one npx command.",
+      "check": "It is a developer preview, and the README warns of compatibility-breaking changes. Read its SAFETY.md before pointing it at real work.",
+      "take": ""
+    },
+    {
+      "repo": "anomalyco/opencode",
+      "name": "OpenCode",
+      "group": "harness",
+      "what": "An open-source coding agent installable through curl, npm, Homebrew, Arch packages, mise or Nix. Many skills on this page list it as a supported host.",
+      "check": "There are two Homebrew formulas. The project recommends its own tap; the official formula updates less often.",
+      "take": ""
+    },
+    {
+      "repo": "pingdotgg/t3code",
+      "name": "T3 Code",
+      "group": "harness",
+      "what": "An \"agent harness control surface\" that drives the agents already on your machine, including Claude Code, Codex, Cursor, OpenCode, Antigravity and Grok Build, with iOS and Android apps for remote control.",
+      "check": "It uses your existing subscriptions. Install and sign in to at least one provider's CLI before you start it.",
+      "take": ""
+    },
+    {
+      "repo": "stablyai/orca",
+      "name": "Orca",
+      "group": "harness",
+      "what": "Runs Claude Code, Codex and other agents in parallel, each in its own git worktree. One agent can split a large task across workers and merge the results, on your laptop, an SSH host or a cloud VM.",
+      "check": "Parallel workers multiply token spend. Decide on a budget per task before you hand over large jobs.",
+      "take": ""
+    },
+    {
+      "repo": "thedotmack/claude-mem",
+      "name": "Claude-Mem",
+      "group": "context",
+      "what": "Persistent memory across sessions. It records what your agent does, compresses it with AI and injects the relevant context into later sessions. It works with Claude Code, Codex, Gemini, Copilot, OpenCode and others.",
+      "check": "It stores observations from every session. If you handle credentials or customer data, review what it captures and where it is stored.",
+      "take": ""
+    },
+    {
+      "repo": "Graphify-Labs/graphify",
+      "name": "Graphify",
+      "group": "context",
+      "what": "Maps a project's code, docs, PDFs, images and video into a knowledge graph that the agent queries instead of grepping. Code is parsed locally with tree-sitter, with no LLM involved. A paid Graphify Cloud tier adds always-on graphs.",
+      "check": "Code stays on your machine, but docs, PDFs, images and video are sent to your model provider. Exclude sensitive files.",
+      "take": ""
+    },
+    {
+      "repo": "morluto/rea",
+      "name": "REA",
+      "group": "capability",
+      "what": "\"Reverse Engineer Anything\": one MCP server for reverse engineering binaries, applications and runtime behavior, so you can trace how a feature works down to the binary level.",
+      "check": "The README warns that look-alike repos and copied READMEs are not official. Install only from morluto/rea, rea.tools or the rea-agents npm package, and only analyze software you are allowed to.",
+      "take": ""
+    },
+    {
+      "repo": "Panniantong/Agent-Reach",
+      "name": "Agent Reach",
+      "group": "capability",
+      "what": "Gives an agent access to platforms it cannot reach on its own, including searching and reading X, Reddit, YouTube and Xiaohongshu.",
+      "check": "Automated reading of some platforms breaks their terms of service. Check each platform's rules and prefer official APIs where they exist.",
+      "take": ""
+    },
+    {
+      "repo": "cloudflare/security-audit-skill",
+      "name": "Security Audit",
+      "group": "capability",
+      "what": "Cloudflare's coding-agent skill for multi-phase security audits: reconnaissance, coverage-led hunting, validation by fresh verifier agents and a structured findings report. It seeded Cloudflare's own vulnerability discovery harness.",
+      "check": "Treat findings marked needs_validation as leads, not confirmed bugs. Only confirmed findings come with a full source trace.",
+      "take": ""
+    },
+    {
+      "repo": "heygen-com/hyperframes",
+      "name": "HyperFrames",
+      "group": "capability",
+      "what": "HeyGen's open-source framework for rendering HTML, CSS, media and animation into deterministic MP4 video. It runs from a CLI, from coding agents via skills, or in a free desktop studio.",
+      "check": "The framework and studio are free; the Pro plan adds HeyGen's paid generation models. Know which one a template relies on.",
+      "take": ""
+    },
+    {
+      "repo": "debpalash/VoiceStudio",
+      "name": "VoiceStudio",
+      "group": "apps",
+      "what": "A fully local, open-source alternative to ElevenLabs for voice cloning, video dubbing, voice design, dictation and narration. The README lists 646 languages.",
+      "check": "Running locally keeps audio private, but cloning still needs consent from the person whose voice you use.",
+      "take": ""
+    },
+    {
+      "repo": "HKUDS/DeepTutor",
+      "name": "DeepTutor",
+      "group": "apps",
+      "what": "A personalized AI tutoring workspace from the University of Hong Kong's data intelligence lab, with learning paths, notebooks and narrated video lessons. It ships releases about every week.",
+      "check": "Its fast release pace means breaking changes are likely. Pin a version if you build on it.",
+      "take": ""
+    },
+    {
+      "repo": "bilawalsidhu/gods-eye-view",
+      "name": "God's Eye View",
+      "group": "apps",
+      "what": "A photorealistic 3D globe in the browser that shows live public data, including aircraft, ships, satellites, earthquakes, traffic and public cameras, with voice control powered by a realtime AI agent.",
+      "check": "It starts without API keys. Optional keys add paid data sources, and the README has a section on keys and costs.",
+      "take": ""
+    }
+  ]
+}
