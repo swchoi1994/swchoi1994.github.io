@@ -132,3 +132,6 @@
   html:not(.js) .publication .site-nav { flex-wrap: wrap; padding-block: 12px; }
   html:not(.js) .publication .nav-menu { position: static; display: flex; flex-wrap: wrap; visibility: visible; opacity: 1; transform: none; pointer-events: auto; height: auto; padding: 0; gap: 12px; }
 }
+
+.pick-heading{margin:2.25rem 0 .9rem;padding-top:1rem;border-top:1px solid var(--line,#d9d3c7);font-family:'DM Sans',sans-serif;font-size:.8rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted,#6b665c)}
+.starter-section .pick-heading:first-of-type{margin-top:1.5rem}

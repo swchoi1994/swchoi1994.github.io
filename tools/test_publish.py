@@ -76,6 +76,15 @@ class PublicationTest(unittest.TestCase):
                 wrong.append(str(path.relative_to(publish.OUT)))
         self.assertEqual(wrong, [])
 
+    def test_home_features_the_owners_fifteen_ai_picks(self):
+        home = (publish.OUT / 'index.html').read_text()
+        wanted = [slug for _, ids in publish.AI_PICKS for slug in ids]
+        self.assertEqual(len(wanted), 15)
+        self.assertEqual(len(set(wanted)), 15)
+        for slug in wanted:
+            self.assertIn(f'href="/blog/posts/{slug}/"', home, slug)
+        self.assertEqual([m for m in re.findall(r'<h3 class="pick-heading">(.*?)</h3>', home)], [name for name, _ in publish.AI_PICKS])
+
     def test_articles_keep_sources_dates_and_have_relevant_navigation(self):
         for post in self.posts:
             source = (publish.OUT / post['url'].lstrip('/') / 'index.html').read_text()

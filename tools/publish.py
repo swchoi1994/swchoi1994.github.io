@@ -26,6 +26,14 @@ TOPICS = {
 # Editorial selections, not traffic rankings. IDs remain the upstream article IDs.
 PICKS = ['naver-224450802208', 'naver-224449506180', 'naver-224448398835']
 STARTERS = ['naver-224459505819', 'naver-224448740524', 'naver-224453047781']
+# Owner-chosen AI reading list for the home page: (group heading, upstream article IDs).
+AI_PICKS = [
+    ('Coding agents', ['naver-224459894229', 'naver-224450802208', 'naver-224460089258']),
+    ('AI agent security', ['naver-224443237114', 'naver-224444722682', 'naver-224445242655']),
+    ('Model costs and APIs', ['naver-224458624841', 'naver-224447760925', 'naver-224447373831']),
+    ('Local AI and hardware', ['naver-224443239521', 'naver-224444693710', 'naver-224459303987']),
+    ('Using AI safely at work', ['naver-224448867391', 'naver-224449083135', 'naver-224449619760']),
+]
 TITLES = {
     'naver-224450802208': 'Claude Skills explained: official and community resources',
     'naver-224449506180': 'Cloud sync vs. backup: protect your files with the 3-2-1 rule',
@@ -165,15 +173,22 @@ def heading(kicker, title, link='', label='View all articles'):
     return f'<div class="section-heading"><div><p class="kicker">{e(kicker)}</p><h2>{e(title)}</h2></div>' + (f'<a class="section-link" href="{link}">{label} ↗</a>' if link else '') + '</div>'
 
 
+def essentials(groups):
+    """The owner's hand-picked AI reading list, grouped by theme."""
+    parts = ['<section class="home-section starter-section" aria-labelledby="essentials-title">',
+             heading('A useful place to begin', 'Start with the essentials', '/blog/', 'Explore the archive').replace('<h2>', '<h2 id="essentials-title">')]
+    for name, members in groups:
+        parts.append(f'<h3 class="pick-heading">{e(name)}</h3><div class="story-grid">' + ''.join(card(p) for p in members) + '</div>')
+    parts.append('</section>')
+    return ''.join(parts)
+
+
 def home(posts, media):
     by_id = {p['slug']: p for p in posts}
-    picks = [by_id[s] for s in PICKS]
-    starters = [by_id[s] for s in STARTERS]
-    latest = [p for p in posts if p not in picks and p not in starters][:6]
+    groups = [(name, [by_id[s] for s in ids]) for name, ids in AI_PICKS]
+    chosen = [p for _, members in groups for p in members]
     body = f'''<section class="publication-intro"><p class="kicker">An independent technology journal</p><h1>Make technology<br><em>work for you.</em></h1><div class="intro-bottom"><p>Practical guides to AI, everyday software, and safer digital habits.<br>Clear steps. Original sources. Context that matters.</p><a href="/blog/about/" class="byline">By Seongwoo Choi <span>AI engineer &amp; founder ↗</span></a></div></section>
-{topic_links()}<section class="home-section" aria-labelledby="picks-title"><div class="section-heading"><p class="kicker" id="picks-title">The editor’s selection</p><a class="section-link" href="/blog/">Explore the archive ↗</a></div><div class="lead-grid">{card(picks[0], True)}<div class="support-stories">{''.join(card(p) for p in picks[1:])}</div></div></section>
-<section class="home-section starter-section">{heading('A useful place to begin', 'Start with the essentials', '/guides/', 'All guides')}<div class="story-grid">{''.join(card(p) for p in starters)}</div></section>
-<section class="home-section">{heading('Fresh from the journal', 'The latest', '/blog/')}<div class="latest-grid">{''.join(card(p) for p in latest)}</div></section>
+{topic_links()}{essentials(groups)}
 <section class="guide-spotlight"><p class="kicker">For builders</p><h2>Find your next AI coding tool.</h2><p>A guide to agent repositories, skills, and plugins, with dated GitHub star counts and things to check before installing.</p><a class="read-link" href="/guides/ai-coding-agent-repos/">Explore the repository guide ↗</a></section>
 <section class="home-section">{heading('Watch & explore', 'From AI2Now', '/videos/', 'All videos & posts')}<div class="media-list">{''.join(media[:2])}</div></section>
 <section class="author-strip"><img src="/assets/img/swc94.png" width="96" height="96" loading="lazy" alt="Seongwoo Choi"><div><p class="kicker">Behind the journal</p><h2>Technology, with an engineer’s perspective.</h2><p>I’m Seongwoo Choi, an AI engineer and founder based in Abu Dhabi. This journal brings together practical software guides and technology analysis.</p><a href="/blog/about/">About the author &amp; editorial approach ↗</a></div><a class="rss-link" href="/blog/feed.xml">Keep up with the journal<span>Subscribe via RSS ↗</span></a></section>'''
@@ -181,7 +196,7 @@ def home(posts, media):
     person['url'] = SITE + '/blog/about/'
     schemas = [{'@context': 'https://schema.org', '@type': 'WebSite', '@id': SITE + '/#website', 'url': SITE + '/', 'name': BRAND, 'inLanguage': 'en', 'publisher': {'@id': SITE + '/#person'}}, person,
                {'@context': 'https://schema.org', '@type': 'Blog', '@id': SITE + '/blog/#blog', 'url': SITE + '/', 'name': BRAND, 'author': {'@id': SITE + '/#person'}},
-               collection('Selected guides and latest articles', '/', picks + starters + latest)]
+               collection('Start with the essentials: selected AI articles', '/', chosen)]
     write('/', page('Practical AI & technology guides', 'Practical guides to AI, Windows, Google tools, documents, privacy and backup. By AI engineer Seongwoo Choi.', '/', body, schemas))
 
 
