@@ -143,6 +143,21 @@ class PublicationTest(unittest.TestCase):
         search = json.loads((publish.OUT / 'blog/search-index.json').read_text())
         self.assertTrue(all('image' in p and 'prompt' not in p['image'] for p in search))
 
+    def test_reference_screenshots_keep_attribution_and_original_files(self):
+        references = [p for p in self.posts if p['image'].get('reference')]
+        self.assertTrue(references)
+        for post in references:
+            image = post['image']['reference']
+            source = (publish.OUT / post['url'].lstrip('/') / 'index.html').read_text()
+            self.assertEqual(source.count('class="article-reference"'), 1)
+            self.assertIn(image['src'], source)
+            self.assertIn(image['source_url'], source)
+            self.assertIn(image['permission_url'], source)
+            self.assertIn('Used with permission from Microsoft.', source)
+            self.assertLess(source.index('class="article-reference"'), source.index('class="source-box"'))
+            path = image['src'].lstrip('/')
+            self.assertEqual((publish.OUT / path).read_bytes(), (publish.ROOT / path).read_bytes())
+
 
 class AffiliateTest(unittest.TestCase):
     config = {'marketplace': 'amazon.com', 'tracking_id': 'example-20', 'placements': {}}

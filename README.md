@@ -39,6 +39,8 @@ python3 tools/publish.py
 
 Use original illustrations or images with documented reuse permission. Search results alone do not grant reuse rights. Actual screenshots and test results should come from verified demonstrations, not image generation. The build and CI remain standard-library-only.
 
+Selected articles also have a `reference` in their image manifest entry: an unchanged Microsoft Support screenshot with dimensions, descriptive caption, source and original image URLs, permission URL, and review date. These appear before the source list with the required permission notice; they are attributed reference examples, not evidence of the author's testing. Review the actual image and current reuse terms before adding one. Reimporting a cover preserves its reference screenshot.
+
 ## Monetization
 
 The existing AdSense publisher ID and `ads.txt` are preserved. Account approval, Auto ads settings and Google's consent configuration remain controlled by the owner in AdSense; the code does not invent ad-slot IDs or certify the account is approved. Keep advertising out of navigation and away from controls. Use the existing contact page for sponsorship and project inquiries.

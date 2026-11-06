@@ -10,11 +10,11 @@ require('node:fs').mkdirSync('output', { recursive: true });
  const page = await context.newPage();
  page.on('pageerror', e => errors.push(e.message));
  const origin='http://127.0.0.1:8791';
- for(const path of ['/', '/topics/','/topics/windows/','/guides/','/blog/','/blog/page/2/','/blog/posts/naver-224467696426/','/blog/about/','/portfolio/']) {
+ for(const path of ['/', '/topics/','/topics/windows/','/guides/','/blog/','/blog/page/2/','/blog/posts/naver-224467696426/','/blog/posts/naver-224458565730/','/blog/posts/naver-224467587320/','/blog/about/','/portfolio/']) {
    const response=await page.goto(origin+path);
    assert.equal(response.status(),200,path);
    await expect(page.locator('h1')).toHaveCount(1);
-   for (const img of await page.locator('.story-image img, .article-cover img').all()) {
+   for (const img of await page.locator('.story-image img, .article-cover img, .article-reference img').all()) {
      await img.scrollIntoViewIfNeeded();
      await expect.poll(() => img.evaluate(el => el.complete && el.naturalWidth > 0)).toBeTruthy();
    }

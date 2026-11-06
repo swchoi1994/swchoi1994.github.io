@@ -78,7 +78,19 @@
     "height": 675,
     "alt": "Conceptual illustration for Stop Windows Update restarting during your active hours.",
     "credit": "AI-generated editorial illustration; not a product screenshot.",
-    "prompt": "Use case: stylized-concept. Asset type: wide editorial illustration for a technology blog. Article: Stop Windows Update restarting during your active hours. Summary: After installing a Windows update, you may need to restart your PC to finish. This article explains how to defer restarts with Active hours and how to choose a specific time with Schedule the restart, based on Microsoft Support.. Sections: 1. Active hours and restart scheduling are different features; 2. How to set active hours; 3. Choose a specific time with restart scheduling; 4. Example: a PC used from 9 a.m. to 6 p.m.; 5. What to check after setup; 6. How to choose based on the situation. Create an original image of the concrete objects and relationships central to this specific article, not a generic laptop. Sophisticated tactile cut-paper and clay editorial illustration, warm ivory background, charcoal, terracotta, sage, muted ochre. Clear simple composition readable at thumbnail size. Wide landscape 16:9. No words, text, logos, fake screenshot, invented measurements, watermark or claim of firsthand testing. Represent the practical problem with objects rather than a diagram requiring labels. Keep key objects inside central 80 percent."
+    "prompt": "Use case: stylized-concept. Asset type: wide editorial illustration for a technology blog. Article: Stop Windows Update restarting during your active hours. Summary: After installing a Windows update, you may need to restart your PC to finish. This article explains how to defer restarts with Active hours and how to choose a specific time with Schedule the restart, based on Microsoft Support.. Sections: 1. Active hours and restart scheduling are different features; 2. How to set active hours; 3. Choose a specific time with restart scheduling; 4. Example: a PC used from 9 a.m. to 6 p.m.; 5. What to check after setup; 6. How to choose based on the situation. Create an original image of the concrete objects and relationships central to this specific article, not a generic laptop. Sophisticated tactile cut-paper and clay editorial illustration, warm ivory background, charcoal, terracotta, sage, muted ochre. Clear simple composition readable at thumbnail size. Wide landscape 16:9. No words, text, logos, fake screenshot, invented measurements, watermark or claim of firsthand testing. Represent the practical problem with objects rather than a diagram requiring labels. Keep key objects inside central 80 percent.",
+    "reference": {
+      "src": "/assets/img/articles/reference-active-hours.png",
+      "width": 520,
+      "height": 293,
+      "alt": "Microsoft Windows 10 Active hours dialog with a start time of 8 AM and an end time of 5 PM.",
+      "caption": "Microsoft Windows 10 example: active hours run from 8 AM to 5 PM. Windows 11 uses a different Settings layout; follow the steps above for your version.",
+      "source_url": "https://support.microsoft.com/en-us/windows/deployment/updates-lifecycle/keep-your-pc-up-to-date-with-active-hours",
+      "original_url": "https://support.microsoft.com/en-us/windows/media/active-hours-en-png.png",
+      "permission_url": "https://www.microsoft.com/en-us/legal/intellectualproperty/copyright/permissions",
+      "credit": "Used with permission from Microsoft.",
+      "reviewed_on": "2026-11-07"
+    }
   },
   "naver-224467474821": {
     "src": "/assets/img/articles/naver-224467474821-1200.webp",
@@ -429,7 +441,19 @@
     "height": 675,
     "alt": "Conceptual illustration for Excel XLOOKUP·VLOOKUP #N/A errors: Check the lookup value first, then handle blanks.",
     "credit": "AI-generated editorial illustration; not a product screenshot.",
-    "prompt": "Use case: stylized-concept. Asset: 16:9 editorial illustration for this specific technology article. Title: Excel XLOOKUP·VLOOKUP #N/A errors: Check the lookup value first, then handle blanks. Summary: An #N/A error means Excel cannot find the specified value in the lookup range. This article outlines Microsoft’s recommended checks for XLOOKUP and VLOOKUP, using illustrative examples rather than a reproduced worksheet.. Key sections: 1. Check whether the lookup value actually exists in the source range; 2. Match number and text formats and remove spaces; 3. Confirm that the lookup is for an exact match; 4. Display a value only for rows that are legitimately missing. Depict the practical problem with a few recognizable physical objects and one clear visual relationship. Tactile cut-paper/clay editorial art, ivory paper background, charcoal, terracotta, sage and ochre, soft shadows, sophisticated clean composition. Vary the scene to suit this article; avoid a generic laptop and avoid unnecessary people. No written text, logos, fake screenshot, numerical measurement, watermark or testing claim. Landscape 16:9 about 1536px wide; keep key subjects away from edges."
+    "prompt": "Use case: stylized-concept. Asset: 16:9 editorial illustration for this specific technology article. Title: Excel XLOOKUP·VLOOKUP #N/A errors: Check the lookup value first, then handle blanks. Summary: An #N/A error means Excel cannot find the specified value in the lookup range. This article outlines Microsoft’s recommended checks for XLOOKUP and VLOOKUP, using illustrative examples rather than a reproduced worksheet.. Key sections: 1. Check whether the lookup value actually exists in the source range; 2. Match number and text formats and remove spaces; 3. Confirm that the lookup is for an exact match; 4. Display a value only for rows that are legitimately missing. Depict the practical problem with a few recognizable physical objects and one clear visual relationship. Tactile cut-paper/clay editorial art, ivory paper background, charcoal, terracotta, sage and ochre, soft shadows, sophisticated clean composition. Vary the scene to suit this article; avoid a generic laptop and avoid unnecessary people. No written text, logos, fake screenshot, numerical measurement, watermark or testing claim. Landscape 16:9 about 1536px wide; keep key subjects away from edges.",
+    "reference": {
+      "src": "/assets/img/articles/reference-xlookup.jpg",
+      "width": 425,
+      "height": 292,
+      "alt": "Microsoft Excel worksheet with XLOOKUP returning Brazil’s +55 dial code from a country table.",
+      "caption": "Microsoft Excel example: =XLOOKUP(F2,B2:B11,D2:D11) looks up Brazil in column B and returns +55 from column D. This demonstrates a successful match; check that your lookup value exists before handling #N/A.",
+      "source_url": "https://support.microsoft.com/en-us/excel/get-started/xlookup-function",
+      "original_url": "https://support.microsoft.com/en-us/excel/media/excel-xlookup-01.jpg",
+      "permission_url": "https://www.microsoft.com/en-us/legal/intellectualproperty/copyright/permissions",
+      "credit": "Used with permission from Microsoft.",
+      "reviewed_on": "2026-11-07"
+    }
   },
   "naver-224458281018": {
     "src": "/assets/img/articles/naver-224458281018-1200.webp",

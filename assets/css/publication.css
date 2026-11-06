@@ -88,6 +88,7 @@
 .article-summary strong { display: block; font-size: .72rem; text-transform: uppercase; letter-spacing: .08em; color: var(--accent-dark); margin-bottom: 8px; }
 .publication .reading .article-cover { max-width: 740px; margin: 0 auto 32px; }
 .publication .reading .article-cover img { width: 100%; height: auto; border-radius: 6px; }
+.publication .reading .article-reference img { width: auto; max-width: 100%; height: auto; border-radius: 0; }
 .reading-body > nav { background: var(--surface); padding: 22px 26px; border: 1px solid var(--line); border-radius: 4px; margin-bottom: 28px; font-size: .9rem; }
 .reading-body > nav ul { padding-left: 22px; margin-bottom: 0; }
 .reading-body > nav a { display: inline-block; padding: 5px 0; }

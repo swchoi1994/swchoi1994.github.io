@@ -24,6 +24,7 @@ with Image.open(args.source) as original:
         image.thumbnail((width, width))
         image.save(folder / f'{args.slug}-{width}.webp', 'WEBP', quality=82, method=6)
     manifest[args.slug] = {
+        **manifest.get(args.slug, {}),
         'src': f'/assets/img/articles/{args.slug}-1200.webp',
         'small': f'/assets/img/articles/{args.slug}-640.webp',
         'width': image.width, 'height': image.height, 'alt': args.alt,

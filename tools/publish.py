@@ -260,6 +260,15 @@ def article(post, posts):
     source = source.replace('<p class="article-summary">', '<p class="article-summary"><strong>At a glance</strong>')
     visual = f'<figure class="article-cover">{picture(post, True)}<figcaption>{e(post["image"]["credit"])}</figcaption></figure>'
     source = re.sub(r'<figure>.*?</figure>', lambda _: visual, source, count=1, flags=re.S)
+    reference = post['image'].get('reference')
+    if reference:
+        if not (ROOT / reference['src'].lstrip('/')).is_file():
+            raise ValueError(f'Missing reference image: {post["slug"]}')
+        visual = f'<figure class="article-reference"><img src="{e(reference["src"])}" width="{reference["width"]}" height="{reference["height"]}" alt="{e(reference["alt"])}" loading="lazy" decoding="async"><figcaption>{e(reference["caption"])} <a href="{e(reference["source_url"])}">Source: Microsoft Support</a>. {e(reference["credit"])} <a href="{e(reference["permission_url"])}">Reuse terms</a>.</figcaption></figure>'
+        boundary = '<section class="source-box">'
+        if source.count(boundary) != 1:
+            raise ValueError(f'Article source section changed: {post["slug"]}')
+        source = source.replace(boundary, visual + boundary, 1)
     recommendations = '<section class="related-media next-reading">' + heading('Keep exploring', 'A useful next read', f'/topics/{post["topic"]}/', 'More on this topic') + '<div class="story-grid">' + ''.join(card(p) for p in related(post, posts)) + '</div></section>'
     source, replaced = re.subn(r'<section class="related-media">\s*<h2>Related articles</h2>.*?</section>', lambda _: recommendations, source, flags=re.S)
     if not replaced:
