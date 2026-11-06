@@ -22,7 +22,7 @@ ROOT = pathlib.Path(__file__).resolve().parent.parent
 SITE = "https://swchoi1994.github.io"
 ADSENSE_CLIENT = "ca-pub-5340843733211852"
 GUIDE_DIR = ROOT / "guides" / "ai-coding-agent-repos"
-CHROME = "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"
+CHROME = os.environ.get("CHROME_PATH", "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome")
 
 
 def load(path):
@@ -72,11 +72,11 @@ def fetch():
 
 
 def weekly_gains(stars, today):
-    """Stars gained since the newest snapshot that is at least 6 days old, or None."""
-    older = [d for d in stars["snapshots"] if (today - dt.date.fromisoformat(d)).days >= 6]
-    if not older:
+    """Calendar-date delta, only when a snapshot exactly seven days earlier exists."""
+    baseline_date = (today - dt.timedelta(days=7)).isoformat()
+    base = stars["snapshots"].get(baseline_date)
+    if base is None:
         return None
-    base = stars["snapshots"][max(older)]
     return {name: r["stars"] - base[name] for name, r in stars["repos"].items() if name in base}
 
 
@@ -128,7 +128,7 @@ NAV = """<body class="journal">
 <header class="site-header"><nav class="site-nav" aria-label="Main navigation">
 <a class="site-brand" href="/"><span>Seongwoo Choi</span><span class="site-brand__mark" aria-hidden="true">SC</span></a>
 <button class="nav-toggle" type="button" aria-expanded="false" aria-controls="nav-menu" aria-label="Open menu"><span></span><span></span><span></span></button>
-<div class="nav-menu" id="nav-menu"><a class="nav-link" href="/">Portfolio</a><a class="nav-link" href="/blog/">Blog</a><a class="nav-link" href="/blog/#media">Videos &amp; posts</a><a class="nav-link" href="/blog/about/">About</a><a class="nav-link" href="/blog/contact/">Contact</a></div>
+<div class="nav-menu" id="nav-menu"><a class="nav-link" href="/portfolio/">Portfolio</a><a class="nav-link" href="/blog/">Blog</a><a class="nav-link" href="/blog/#media">Videos &amp; posts</a><a class="nav-link" href="/blog/about/">About</a><a class="nav-link" href="/blog/contact/">Contact</a></div>
 </nav></header>"""
 
 FOOTER = """<footer class="journal-footer">
@@ -172,7 +172,7 @@ def build_repo_guide():
             f'<td class="col-group">{e(group_names[r["group"]])}</td><td>{fmt(data["stars"])}</td>{gain}'
             f'<td>{fmt(per_day(r))}</td></tr>'
         )
-    gain_th = "<th scope=\"col\">7-day gain</th>" if gains else ""
+    gain_th = "<th scope=\"col\">7-day date delta</th>" if gains else ""
 
     sections = []
     for group in guide["groups"]:
@@ -212,7 +212,7 @@ def build_repo_guide():
         "datePublished": guide["published"],
         "dateModified": stars["fetched_at"],
         "inLanguage": "en",
-        "author": {"@type": "Person", "@id": f"{SITE}/#person", "name": "Seongwoo Choi", "url": f"{SITE}/"},
+        "author": {"@type": "Person", "@id": f"{SITE}/#person", "name": "Seongwoo Choi", "url": f"{SITE}/portfolio/"},
         "mainEntity": {
             "@type": "ItemList",
             "itemListOrder": "https://schema.org/ItemListOrderDescending",
@@ -238,7 +238,7 @@ def build_repo_guide():
 {"".join(f"<p>{e(p.replace('{count}', str(len(entries))))}</p>" for p in guide["intro"])}
 <nav aria-label="In this guide"><p><strong>In this guide</strong></p><ul><li><a href="#ranking">Ranking by stars</a></li>{toc}<li><a href="#before-installing">Before you install any of these</a></li></ul></nav>
 <h2 id="ranking">Ranking by stars</h2>
-<p>Average stars per day divides the current count by the repo's age, which favours this year's launches over older projects.</p>
+<p>This selection is ranked by total stars, not measured recent growth. Average stars per day is total stars divided by repository age; it is not a daily time series. The 7-day date delta appears only with snapshots dated exactly seven days apart; capture times within those days may differ.</p>
 <div class="table-scroll" tabindex="0" role="region" aria-label="Repos ranked by stars">
 <table class="repo-table"><thead><tr><th scope="col">#</th><th scope="col">Repo</th><th scope="col" class="col-group">Group</th><th scope="col">Stars</th>{gain_th}<th scope="col">Avg/day</th></tr></thead>
 <tbody>{"".join(rows)}</tbody></table>

@@ -1,0 +1,116 @@
+{
+  "two_sum": {
+    "cases": 35100,
+    "result": [
+      1,
+      2
+    ],
+    "trace": [
+      {
+        "i": 0,
+        "value": 4,
+        "needed": 6,
+        "before": {},
+        "match": false
+      },
+      {
+        "i": 1,
+        "value": 9,
+        "needed": 1,
+        "before": {
+          "4": 0
+        },
+        "match": false
+      },
+      {
+        "i": 2,
+        "value": 1,
+        "needed": 9,
+        "before": {
+          "4": 0,
+          "9": 1
+        },
+        "match": true
+      }
+    ],
+    "duplicates": [
+      0,
+      1
+    ]
+  },
+  "anagram": {
+    "cases": 14641,
+    "listen_silent": true,
+    "aab_abb": false
+  },
+  "cache_aside": {
+    "read_values": [
+      100,
+      100,
+      100,
+      130
+    ],
+    "database_reads": 2,
+    "race_repopulated_value": 100
+  },
+  "token_bucket": {
+    "capacity": 3,
+    "tokens_per_second": 2,
+    "times": [
+      0,
+      0,
+      0,
+      0,
+      0.25,
+      0.5,
+      1
+    ],
+    "allowed": [
+      true,
+      true,
+      true,
+      false,
+      false,
+      true,
+      true
+    ]
+  },
+  "memory": {
+    "weightGiB": {
+      "16": 130.385160446167,
+      "8": 65.1925802230835,
+      "4": 32.59629011154175
+    },
+    "kvGiB": 10.0,
+    "note": "Weight and KV arithmetic only; not a tested hardware configuration."
+  },
+  "cost": {
+    "all_rates_hypothetical": true,
+    "fixed": 1860,
+    "api_per_request": 0.007,
+    "local_variable": 0.0002,
+    "break_even_requests": 273530,
+    "monthly": [
+      {
+        "requests": 10000,
+        "api": 70.0,
+        "self_host": 1862.0
+      },
+      {
+        "requests": 100000,
+        "api": 700.0,
+        "self_host": 1880.0
+      },
+      {
+        "requests": 300000,
+        "api": 2100.0,
+        "self_host": 1920.0
+      },
+      {
+        "requests": 1000000,
+        "api": 7000.0,
+        "self_host": 2060.0
+      }
+    ]
+  }
+}

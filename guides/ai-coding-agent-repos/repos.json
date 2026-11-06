@@ -1,12 +1,12 @@
 {
   "slug": "ai-coding-agent-repos",
-  "title": "The fastest-growing AI agent repos on GitHub",
-  "description": "Live star counts, what each repo does and what to check before installing: 23 skills, harnesses and tools that coding agents run on.",
+  "title": "AI agent repos on GitHub: 23 tools to compare",
+  "description": "Compare 23 AI agent repositories by purpose, dated GitHub star counts and README-based checks before installation.",
   "kicker": "Guide · AI agent tools",
   "published": "2026-11-06",
   "intro": [
-    "Most of the fastest-growing repositories on GitHub this year are not apps. They are instructions, harnesses and add-ons for coding agents such as Claude Code, Codex and OpenCode. This page tracks {count} of them, groups them by what they change about your agent, and notes what to check before you install each one.",
-    "Star counts come from the GitHub API and are refreshed regularly. Stars measure attention, not quality: a repo can gain 100,000 stars in a month because of one viral post. Treat the numbers as a map of what developers are trying, then read the check notes before you give any of these access to your code."
+    "This guide compares {count} selected repositories for coding agents and related AI applications. They include instructions, harnesses and tools for Claude Code, Codex and OpenCode. The selection is editorial; it is not a comprehensive ranking of GitHub's fastest-growing projects.",
+    "Star counts are a dated snapshot from the GitHub API. They measure attention, not quality or recent growth. Read the purpose and check notes before choosing a project, then verify the current README and release history."
   ],
   "groups": [
     {
@@ -17,8 +17,11 @@
     {
       "id": "design",
       "name": "Design taste for agents",
-      "intro": "Steve Jobs once said Microsoft had no taste. Five of this year's fastest-growing repos try to write taste down so an agent can follow it: art direction, real photography, accessibility floors and named steering commands. The Jobs and Gates rivalry is covered in a short video on this site's YouTube channel.",
-      "video": {"id": "1sAW6TBcKHo", "title": "Why Steve Jobs And Bill Gates Needed Each Other"}
+      "intro": "These five repositories offer design instructions or tools for agents: art direction, imagery, accessibility and ways to steer a design. The linked Jobs and Gates video supplies historical context for the debate about software design; it does not establish these projects' quality or growth.",
+      "video": {
+        "id": "1sAW6TBcKHo",
+        "title": "Why Steve Jobs And Bill Gates Needed Each Other"
+      }
     },
     {
       "id": "harness",
@@ -38,7 +41,7 @@
     {
       "id": "apps",
       "name": "AI apps beyond coding",
-      "intro": "Three of the fastest risers are end-user AI apps rather than agent add-ons. They are on the list because developers starred them at the same pace."
+      "intro": "These end-user AI applications broaden the comparison beyond agent add-ons. Inclusion does not establish that their growth matches the other projects."
     }
   ],
   "repos": [

@@ -272,6 +272,8 @@ def build():
     OUT.mkdir()
     for name in ['assets', 'blog', 'guides', 'portfolio', 'openclaw-setup']:
         shutil.copytree(ROOT / name, OUT / name, ignore=shutil.ignore_patterns('.DS_Store', '__pycache__'))
+    if (ROOT / 'learning-media').is_dir():
+        shutil.copytree(ROOT / 'learning-media', OUT / 'learning-media')
     for path in ROOT.iterdir():
         if path.is_file() and (path.suffix in ('.txt', '.ico', '.xml') or path.name == '.nojekyll'):
             shutil.copy2(path, OUT / path.name)
