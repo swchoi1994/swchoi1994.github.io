@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1400" height="1050" viewBox="0 0 1400 1050" role="img">
+<title>How to check whether your laptop battery life has declined: the order for reading a powercfg battery report</title>
+<desc>An English guide to the main sections of this article.</desc>
+<rect width="1400" height="1050" fill="#f6f4ef"/>
+<rect x="64" y="64" width="64" height="5" fill="#a64b2a"/>
+<g font-family="Arial, sans-serif" fill="#1e1f23">
+<text x="64" y="109" font-size="23" letter-spacing="2" fill="#a64b2a">SEONGWOO CHOI / IT JOURNAL</text>
+<text x="64" y="172" font-family="Georgia, serif" font-size="42">How to check whether your laptop battery life has</text>
+<text x="64" y="221" font-family="Georgia, serif" font-size="42">declined: the order for reading a powercfg battery</text>
+<text x="64" y="270" font-family="Georgia, serif" font-size="42">report</text>
+<text x="64" y="337" font-size="22" fill="#686862">ARTICLE GUIDE · 2026-11-06</text>
+<rect x="64" y="382" width="620" height="247" rx="12" fill="#fffdf8" stroke="#d8d4cb"/>
+<text x="90" y="424" font-size="23" fill="#a64b2a">01</text>
+<text x="90" y="465" font-size="26" font-weight="600">App problems and battery aging are</text>
+<text x="90" y="497" font-size="26" font-weight="600">different questions</text>
+<text x="90" y="537" font-size="22" fill="#686862">App-by-app usage tells you which apps are using</text>
+<text x="90" y="565" font-size="22" fill="#686862">power right now.</text>
+<rect x="716" y="382" width="620" height="247" rx="12" fill="#fffdf8" stroke="#d8d4cb"/>
+<text x="742" y="424" font-size="23" fill="#a64b2a">02</text>
+<text x="742" y="465" font-size="26" font-weight="600">Create a report in Command Prompt</text>
+<text x="742" y="537" font-size="22" fill="#686862">Open Command Prompt or Terminal from the Start</text>
+<text x="742" y="565" font-size="22" fill="#686862">menu and enter the following format.</text>
+<rect x="64" y="655" width="620" height="247" rx="12" fill="#fffdf8" stroke="#d8d4cb"/>
+<text x="90" y="697" font-size="23" fill="#a64b2a">03</text>
+<text x="90" y="738" font-size="26" font-weight="600">The two capacities to compare in the</text>
+<text x="90" y="770" font-size="26" font-weight="600">report</text>
+<text x="90" y="810" font-size="22" fill="#686862">The report includes both the capacity the</text>
+<text x="90" y="838" font-size="22" fill="#686862">battery was originally designed to hold (design</text>
+<text x="90" y="866" font-size="22" fill="#686862">capacity) and its current capacity when fully…</text>
+<rect x="716" y="655" width="620" height="247" rx="12" fill="#fffdf8" stroke="#d8d4cb"/>
+<text x="742" y="697" font-size="23" fill="#a64b2a">04</text>
+<text x="742" y="738" font-size="26" font-weight="600">The order for reading the results</text>
+<text x="742" y="810" font-size="22" fill="#686862">① First, check the difference between the design</text>
+<text x="742" y="838" font-size="22" fill="#686862">capacity and the full charge capacity. ② In the</text>
+<text x="742" y="866" font-size="22" fill="#686862">same report, look for days when the battery…</text>
+<text x="64" y="1010" font-size="21" fill="#686862">AI-assisted article guide. Read the article and linked sources for details.</text></g></svg>
