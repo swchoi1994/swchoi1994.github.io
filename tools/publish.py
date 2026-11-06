@@ -72,6 +72,7 @@ def topic_for(title):
 
 
 def load_articles():
+    images = json.loads((ROOT / 'content/article-images.json').read_text())
     posts = []
     for path in sorted((ROOT / 'blog/posts').glob('*/index.html')):
         source = path.read_text()
@@ -79,11 +80,18 @@ def load_articles():
         data = next(d for d in schemas if d.get('@type') == 'BlogPosting')
         slug = path.parent.name
         title = TITLES.get(slug, data['headline'])
+        illustration = images.get(slug, {
+            'src': f'/blog/media/en/{slug}.svg', 'alt': f'Illustrated overview: {title}',
+            'width': 1400, 'height': 1050,
+            'credit': 'Explanatory illustration based on this article; not a product screenshot.',
+        })
+        if not (ROOT / illustration['src'].lstrip('/')).is_file():
+            raise ValueError(f'Missing article image: {slug}')
         posts.append(dict(slug=slug, title=title, description=data['description'],
                           date=data['datePublished'], url=f'/blog/posts/{slug}/',
                           topic=topic_for(data['headline']),
                           minutes=max(1, math.ceil(data.get('wordCount', 600) / 220)),
-                          source=source, schema=data))
+                          source=source, schema=data, image=illustration))
     if not posts:
         raise ValueError('No published articles found; refusing to publish an empty site')
     return sorted(posts, key=lambda p: (p['date'], p['slug']), reverse=True)
@@ -160,8 +168,14 @@ def meta(post):
 
 def card(post, lead=False):
     label = TOPICS[post['topic']][0]
-    return f'''<article class="story{' story-lead' if lead else ''}"><a class="topic-label" href="/topics/{post['topic']}/">{label}</a>
+    return f'''<article class="story{' story-lead' if lead else ''}"><a class="story-image" href="{post['url']}" tabindex="-1" aria-hidden="true">{picture(post, lead, decorative=True)}</a><a class="topic-label" href="/topics/{post['topic']}/">{label}</a>
 <h{'2' if lead else '3'}><a href="{post['url']}">{e(post['title'])}</a></h{'2' if lead else '3'}><p class="story-description">{e(post['description'])}</p>{meta(post)}<a class="read-link" href="{post['url']}">Read guide <span aria-hidden="true">↗</span><span class="sr-only">: {e(post['title'])}</span></a></article>'''
+
+
+def picture(post, eager=False, decorative=False):
+    image = post['image']
+    responsive = f' srcset="{e(image["small"])} 640w, {e(image["src"])} 1200w" sizes="(max-width: 820px) calc(100vw - 36px), 740px"' if image.get('small') else ''
+    return f'<img src="{e(image["src"])}"{responsive} width="{image["width"]}" height="{image["height"]}" alt="{e(image["alt"]) if not decorative else ""}" loading="{"eager" if eager else "lazy"}" decoding="async"' + (' fetchpriority="high"' if eager else '') + '>'
 
 
 def topic_links():
@@ -244,8 +258,8 @@ def article(post, posts):
     name = TOPICS[post['topic']][0]
     source = source.replace('<p class="kicker">AI · Software · Technology</p>', f'<nav class="breadcrumbs" aria-label="Breadcrumb"><a href="/">Home</a><span aria-hidden="true"> / </span><a href="/topics/{post["topic"]}/">{name}</a></nav>')
     source = source.replace('<p class="article-summary">', '<p class="article-summary"><strong>At a glance</strong>')
-    # Text-summary illustrations repeat the answer; keep them available below a disclosure.
-    source = re.sub(r'(<figure>.*?/blog/media/en/.*?</figure>)', r'<details class="article-illustration"><summary>View the illustrated overview</summary>\1</details>', source, count=1, flags=re.S)
+    visual = f'<figure class="article-cover">{picture(post, True)}<figcaption>{e(post["image"]["credit"])}</figcaption></figure>'
+    source = re.sub(r'<figure>.*?</figure>', lambda _: visual, source, count=1, flags=re.S)
     recommendations = '<section class="related-media next-reading">' + heading('Keep exploring', 'A useful next read', f'/topics/{post["topic"]}/', 'More on this topic') + '<div class="story-grid">' + ''.join(card(p) for p in related(post, posts)) + '</div></section>'
     source, replaced = re.subn(r'<section class="related-media">\s*<h2>Related articles</h2>.*?</section>', lambda _: recommendations, source, flags=re.S)
     if not replaced:
@@ -255,6 +269,10 @@ def article(post, posts):
         source = source.replace(boundary, recommendations + boundary, 1)
     data = dict(post['schema'])
     data.update(headline=post['title'], articleSection=name)
+    data['image'] = SITE + post['image']['src']
+    source = re.sub(r'<meta property="og:image" content="[^"]*">', lambda _: f'<meta property="og:image" content="{e(data["image"])}">', source)
+    source = source.replace('<meta name="twitter:card" content="summary">', '<meta name="twitter:card" content="summary_large_image">')
+    source = source.replace('</head>', f'<meta name="twitter:image" content="{e(data["image"])}"></head>')
     for key in ('author', 'publisher'):
         data[key] = {'@type': 'Person', '@id': SITE + '/#person', 'name': NAME, 'url': SITE + '/blog/about/'}
     data['isPartOf']['url'] = SITE + '/'
@@ -289,7 +307,7 @@ def build():
     for slug, (name, description) in TOPICS.items():
         members = [p for p in posts if p['topic'] == slug]
         starter = next((p for p in members if p['slug'] in PICKS + STARTERS), members[0])
-        body += f'<section><p class="post-meta">{len(members)} articles</p><h2><a href="/topics/{slug}/">{name} ↗</a></h2><p>{description}</p><p class="topic-starter">Start here: <a href="{starter["url"]}">{e(starter["title"])}</a></p></section>'
+        body += f'<section><a class="story-image" href="/topics/{slug}/" tabindex="-1" aria-hidden="true">{picture(starter, decorative=True)}</a><p class="post-meta">{len(members)} articles</p><h2><a href="/topics/{slug}/">{name} ↗</a></h2><p>{description}</p><p class="topic-starter">Start here: <a href="{starter["url"]}">{e(starter["title"])}</a></p></section>'
     write('/topics/', page('Browse by topic', 'Find guides to AI, Windows, Google tools, Office, privacy and backup.', '/topics/', body + '</div>', [breadcrumbs([('Home', '/'), ('Topics', '/topics/')])]))
     guide_posts = [next(p for p in posts if p['slug'] == slug) for slug in STARTERS + PICKS]
     body = '<header class="listing-intro"><p class="kicker">Learn something useful</p><h1>Guides worth keeping.</h1><p>A selected starting point for better tools, safer habits, and practical AI workflows.</p></header><section class="guide-spotlight"><p class="kicker">For builders</p><h2><a href="/guides/ai-coding-agent-repos/">AI coding agent repositories ↗</a></h2><p>Compare agent tools, skills, and plugins using dated GitHub data and clear installation checks.</p></section><div class="latest-grid archive-grid">' + ''.join(card(p) for p in guide_posts) + '</div>'
@@ -324,7 +342,8 @@ def build():
         source = source.replace('</head>', f'<link rel="canonical" href="{SITE}/openclaw-setup/"></head>')
     setup.write_text(source)
     add_analytics()
-    search = [{k: p[k] for k in ('title', 'description', 'url', 'date', 'topic', 'minutes')} for p in posts]
+    search = [dict({k: p[k] for k in ('title', 'description', 'url', 'date', 'topic', 'minutes')},
+                   image={k: v for k, v in p['image'].items() if k in ('src', 'small', 'width', 'height')}) for p in posts]
     (OUT / 'blog/search-index.json').write_text(json.dumps(search, ensure_ascii=False))
     # Refresh feed titles alongside the visible headings; preserve publication dates and GUIDs.
     feed_path = OUT / 'blog/feed.xml'

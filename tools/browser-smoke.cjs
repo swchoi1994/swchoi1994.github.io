@@ -14,6 +14,10 @@ require('node:fs').mkdirSync('output', { recursive: true });
    const response=await page.goto(origin+path);
    assert.equal(response.status(),200,path);
    await expect(page.locator('h1')).toHaveCount(1);
+   for (const img of await page.locator('.story-image img, .article-cover img').all()) {
+     await img.scrollIntoViewIfNeeded();
+     await expect.poll(() => img.evaluate(el => el.complete && el.naturalWidth > 0)).toBeTruthy();
+   }
    for(const width of [1440,390]) {
      await page.setViewportSize({width,height:900});
      assert(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),`overflow: ${path} at ${width}`);
@@ -24,6 +28,9 @@ require('node:fs').mkdirSync('output', { recursive: true });
  await expect(page.locator('#search-results')).toBeVisible();
  await expect(page.locator('#search-results h3')).toHaveCount(1);
  await expect(page.locator('#search-results')).toContainText('COUNTIF');
+ const searchImage = page.locator('#search-results img');
+ await searchImage.scrollIntoViewIfNeeded();
+ await expect.poll(() => searchImage.evaluate(el => el.complete && el.naturalWidth > 0)).toBeTruthy();
  await page.locator('#archive-search').fill('qwerty-no-matches');
  await expect(page.locator('#search-status')).toContainText('No matches');
  await page.locator('#archive-search').fill('');
@@ -36,6 +43,15 @@ require('node:fs').mkdirSync('output', { recursive: true });
  await expect(page.locator('.nav-menu')).toBeVisible();
  await page.keyboard.press('Escape');
  await expect(page.locator('.nav-toggle')).toHaveAttribute('aria-expanded','false');
+ for (const width of [1440,390]) {
+   await page.setViewportSize({width,height:1000});
+   for (const img of await page.locator('.story-image img').all()) {
+     await img.scrollIntoViewIfNeeded();
+     await expect.poll(() => img.evaluate(el => el.complete && el.naturalWidth > 0)).toBeTruthy();
+   }
+   await page.evaluate(() => scrollTo(0, 0));
+   await page.screenshot({path:`output/images-home-${width}.png`,fullPage:true});
+ }
  await page.goto(origin+'/#work');
  await expect(page).toHaveURL(origin+'/portfolio/#work');
  await page.goto(origin+'/blog/#media');
@@ -44,6 +60,8 @@ require('node:fs').mkdirSync('output', { recursive: true });
  await expect(page.locator('iframe')).toHaveCount(1);
  await page.goto(origin+'/blog/posts/naver-224467696426/');
  await expect(page.locator('a[href="/blog/posts/naver-224466093515/"]')).toBeVisible();
+ await expect(page.locator('.article-cover')).toBeVisible();
+ await expect(page.locator('.article-cover figcaption')).toContainText('AI-generated editorial illustration');
  await page.screenshot({path:'output/journal-article-mobile.png',fullPage:true});
  const failure=await context.newPage();
  await failure.route('**/search-index.json',route=>route.abort());
@@ -60,5 +78,5 @@ require('node:fs').mkdirSync('output', { recursive: true });
  await noJS.close();
  await context.close();
  await browser.close();
- console.log('PASS: desktop/mobile overflow, navigation, all-archive search, empty/error states, legacy URLs, video activation, English links, no-JS navigation and pagination; no application JS errors.');
+ console.log('PASS: loaded cover/card/search images, desktop/mobile overflow, navigation, all-archive search, empty/error states, legacy URLs, video activation, English links, no-JS navigation and pagination; no application JS errors.');
 })().then(()=>process.exit(0)).catch(error=>{console.error(error);process.exit(1);});

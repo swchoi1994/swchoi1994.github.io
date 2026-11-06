@@ -1,0 +1,1118 @@
+{
+  "naver-224450802208": {
+    "src": "/assets/img/articles/naver-224450802208-1200.webp",
+    "small": "/assets/img/articles/naver-224450802208-640.webp",
+    "alt": "Editorial illustration of a laptop connecting reusable instruction cards and modular tools from two collections.",
+    "credit": "AI-generated editorial illustration; not a product screenshot.",
+    "width": 1200,
+    "height": 675,
+    "prompt": "Use case: stylized-concept. Asset type: a 16:9 editorial cover illustration for an English technology blog article titled 'Claude Skills explained: official and community resources'. Subject: a small modular tool library, with neatly stacked instruction cards and connected skill modules around a compact laptop; visual metaphor for reusable AI skills and clearly separated official vs community tool collections. Style: sophisticated tactile paper-cut and clay editorial illustration, warm ivory background, terracotta, charcoal, sage and muted ochre, softly lit three-dimensional objects, strong clean composition readable at thumbnail scale. No text, no letters, no logos, no fake software screenshot, no watermark. Landscape 1536x1024 or similar; keep all meaningful objects within the central 80 percent for a 16:9 crop. This is a conceptual illustration, not evidence of testing a product."
+  },
+  "naver-224449506180": {
+    "src": "/assets/img/articles/naver-224449506180-1200.webp",
+    "small": "/assets/img/articles/naver-224449506180-640.webp",
+    "width": 1200,
+    "height": 675,
+    "alt": "Conceptual illustration for Cloud sync vs. backup: protect your files with the 3-2-1 rule.",
+    "credit": "AI-generated editorial illustration; not a product screenshot.",
+    "prompt": "Use case: stylized-concept. Asset type: wide editorial cover for an English technology journal. Article title: Cloud sync vs. backup: protect your files with the 3-2-1 rule. Article summary: Cloud sync keeps files identical across devices, while backup preserves past copies; because deleting a file in one place can delete it elsewhere, use separate backups under the 3-2-1 rule.. Sections: 1. Sync also propagates deletions; 2. The 3-2-1 rule: 3 copies, 2 types of media, 1 off-site copy; 3. Hypothetical example: how one presentation folder disappears; 4. Checklist and order of action; 5. Limitations to check; Sources and original article. Create one original conceptual illustration that captures the specific practical problem or contrast in THIS article, with a few clear visual objects, not a generic computer or a collage of unrelated icons. Use sophisticated tactile paper-cut/clay shapes, warm ivory, terracotta, charcoal, sage, muted ochre, soft shadows, and an uncluttered composition readable as a thumbnail. Landscape 16:9, about 1536 pixels wide. No words, letters, logos, watermark, fake software screenshot, invented measurements, or claim of firsthand testing. Depict the topic metaphorically and accurately; keep key objects away from the outer 10 percent."
+  },
+  "naver-224448398835": {
+    "src": "/assets/img/articles/naver-224448398835-1200.webp",
+    "small": "/assets/img/articles/naver-224448398835-640.webp",
+    "width": 1200,
+    "height": 675,
+    "alt": "Conceptual illustration for Blog automation: three errors I hit and how I fixed them.",
+    "credit": "AI-generated editorial illustration; not a product screenshot.",
+    "prompt": "Use case: stylized-concept. Asset type: wide editorial cover for an English technology journal. Article title: Blog automation: three errors I hit and how I fixed them. Article summary: An AI agent based on OpenClaw assists with this blog’s writing and publishing within limits set by its owner; this article shares three operational errors from October 16–20, 2026, and their solutions.. Sections: 1. The day desktop automation was blocked (October 16); 2. The days when a logged-out session turned the writing screen into a login page (October 19 and 20); 3. The day work records were truncated or disappeared, making publication status uncertain; 4. Risk prevented in advance: concurrent execution; Summary: operating rules being followed; Sources and original article. Create one original conceptual illustration that captures the specific practical problem or contrast in THIS article, with a few clear visual objects, not a generic computer or a collage of unrelated icons. Use sophisticated tactile paper-cut/clay shapes, warm ivory, terracotta, charcoal, sage, muted ochre, soft shadows, and an uncluttered composition readable as a thumbnail. Landscape 16:9, about 1536 pixels wide. No words, letters, logos, watermark, fake software screenshot, invented measurements, or claim of firsthand testing. Depict the topic metaphorically and accurately; keep key objects away from the outer 10 percent."
+  },
+  "naver-224459505819": {
+    "src": "/assets/img/articles/naver-224459505819-1200.webp",
+    "small": "/assets/img/articles/naver-224459505819-640.webp",
+    "width": 1200,
+    "height": 675,
+    "alt": "Conceptual illustration for Claude Code: installation and first login.",
+    "credit": "AI-generated editorial illustration; not a product screenshot.",
+    "prompt": "Use case: stylized-concept. Asset type: wide editorial cover for an English technology journal. Article title: Claude Code: installation and first login. Article summary: Claude Code lets you open a project folder in a terminal and read and edit code with AI, but checking the login account and API key before first use can help prevent unexpected charges.. Sections: 1. Conditions to check before installation; 2. Choose the installation command for your operating system; 3. Check the version: claude --version; 4. First launch and checking the login account; 5. Billing may differ if an API key environment variable exists; 6. Post-installation checklist. Create one original conceptual illustration that captures the specific practical problem or contrast in THIS article, with a few clear visual objects, not a generic computer or a collage of unrelated icons. Use sophisticated tactile paper-cut/clay shapes, warm ivory, terracotta, charcoal, sage, muted ochre, soft shadows, and an uncluttered composition readable as a thumbnail. Landscape 16:9, about 1536 pixels wide. No words, letters, logos, watermark, fake software screenshot, invented measurements, or claim of firsthand testing. Depict the topic metaphorically and accurately; keep key objects away from the outer 10 percent."
+  },
+  "naver-224448740524": {
+    "src": "/assets/img/articles/naver-224448740524-1200.webp",
+    "small": "/assets/img/articles/naver-224448740524-640.webp",
+    "width": 1200,
+    "height": 675,
+    "alt": "Conceptual illustration for Passkeys, passwords, and 2-step verification explained.",
+    "credit": "AI-generated editorial illustration; not a product screenshot.",
+    "prompt": "Use case: stylized-concept. Asset type: wide editorial cover for an English technology journal. Article title: Passkeys, passwords, and 2-step verification explained. Article summary: Passwords are easy to reuse across sites and can be stolen through fake login pages. Passkeys reduce these risks. This article compares the three methods and explains how to prepare account recovery if you lose your device.. Sections: 1. The three methods address different risks; 2. Creating a passkey does not immediately remove your password; 3. If you lose your device: Syncing and recovery options; 4. Hypothetical example: Preparing for login recovery; 5. Summary; Sources and original article. Create one original conceptual illustration that captures the specific practical problem or contrast in THIS article, with a few clear visual objects, not a generic computer or a collage of unrelated icons. Use sophisticated tactile paper-cut/clay shapes, warm ivory, terracotta, charcoal, sage, muted ochre, soft shadows, and an uncluttered composition readable as a thumbnail. Landscape 16:9, about 1536 pixels wide. No words, letters, logos, watermark, fake software screenshot, invented measurements, or claim of firsthand testing. Depict the topic metaphorically and accurately; keep key objects away from the outer 10 percent."
+  },
+  "naver-224453047781": {
+    "src": "/assets/img/articles/naver-224453047781-1200.webp",
+    "small": "/assets/img/articles/naver-224453047781-640.webp",
+    "width": 1200,
+    "height": 675,
+    "alt": "Conceptual illustration for Organize receipt emails with Gmail filters.",
+    "credit": "AI-generated editorial illustration; not a product screenshot.",
+    "prompt": "Use case: stylized-concept. Asset type: wide editorial cover for an English technology journal. Article title: Organize receipt emails with Gmail filters. Article summary: This checklist, based on Gmail Help, explains how to sort receipt emails with labels, verify search conditions, review existing filters, and handle existing and new messages separately.. Sections: 1. Start by noting what receipt emails have in common; 2. Check that the search results contain only the emails you want; 3. Choose the actions in Create filter; 4. Check existing and new emails separately; 5. How to review and back up existing filters; 6. Organize the process as a checklist. Create one original conceptual illustration that captures the specific practical problem or contrast in THIS article, with a few clear visual objects, not a generic computer or a collage of unrelated icons. Use sophisticated tactile paper-cut/clay shapes, warm ivory, terracotta, charcoal, sage, muted ochre, soft shadows, and an uncluttered composition readable as a thumbnail. Landscape 16:9, about 1536 pixels wide. No words, letters, logos, watermark, fake software screenshot, invented measurements, or claim of firsthand testing. Depict the topic metaphorically and accurately; keep key objects away from the outer 10 percent."
+  },
+  "naver-224467908517": {
+    "src": "/assets/img/articles/naver-224467908517-1200.webp",
+    "small": "/assets/img/articles/naver-224467908517-640.webp",
+    "width": 1200,
+    "height": 675,
+    "alt": "Conceptual illustration for Check laptop battery health with a Windows battery report.",
+    "credit": "AI-generated editorial illustration; not a product screenshot.",
+    "prompt": "Use case: stylized-concept. Asset type: wide editorial illustration for a technology blog. Article: Check laptop battery health with a Windows battery report. Summary: If your laptop shuts down sooner or lasts less on one charge, use Windows’ powercfg battery report to distinguish high app usage from reduced battery capacity and assess battery aging.. Sections: 1. App problems and battery aging are different questions; 2. Create a report in Command Prompt; 3. The two capacities to compare in the report; 4. The order for reading the results; 5. What to check before sharing the report; References. Create an original image of the concrete objects and relationships central to this specific article, not a generic laptop. Sophisticated tactile cut-paper and clay editorial illustration, warm ivory background, charcoal, terracotta, sage, muted ochre. Clear simple composition readable at thumbnail size. Wide landscape 16:9. No words, text, logos, fake screenshot, invented measurements, watermark or claim of firsthand testing. Represent the practical problem with objects rather than a diagram requiring labels. Keep key objects inside central 80 percent."
+  },
+  "naver-224467696426": {
+    "src": "/assets/img/articles/naver-224467696426-1200.webp",
+    "small": "/assets/img/articles/naver-224467696426-640.webp",
+    "width": 1200,
+    "height": 675,
+    "alt": "Conceptual illustration for CHKDSK explained: when to use /f, /r, or /scan.",
+    "credit": "AI-generated editorial illustration; not a product screenshot.",
+    "prompt": "Use case: stylized-concept. Asset type: wide editorial illustration for a technology blog. Article: CHKDSK explained: when to use /f, /r, or /scan. Summary: When a disk error is suspected, chkdsk options should be chosen by purpose: check the status first, repair file-system errors with /f, and consider /r only when physical-sector damage is suspected.. Sections: 1. Running it without arguments does not repair anything; 2. Choose options based on the scope of the repair; 3. Example: when a folder on an external drive will not open; 4. Decide what to do next using the exit code; 5. Points to check before running it; 6. Summary: check the status → confirm the backup → /f → /r only when necessary. Create an original image of the concrete objects and relationships central to this specific article, not a generic laptop. Sophisticated tactile cut-paper and clay editorial illustration, warm ivory background, charcoal, terracotta, sage, muted ochre. Clear simple composition readable at thumbnail size. Wide landscape 16:9. No words, text, logos, fake screenshot, invented measurements, watermark or claim of firsthand testing. Represent the practical problem with objects rather than a diagram requiring labels. Keep key objects inside central 80 percent."
+  },
+  "naver-224467587320": {
+    "src": "/assets/img/articles/naver-224467587320-1200.webp",
+    "small": "/assets/img/articles/naver-224467587320-640.webp",
+    "width": 1200,
+    "height": 675,
+    "alt": "Conceptual illustration for Stop Windows Update restarting during your active hours.",
+    "credit": "AI-generated editorial illustration; not a product screenshot.",
+    "prompt": "Use case: stylized-concept. Asset type: wide editorial illustration for a technology blog. Article: Stop Windows Update restarting during your active hours. Summary: After installing a Windows update, you may need to restart your PC to finish. This article explains how to defer restarts with Active hours and how to choose a specific time with Schedule the restart, based on Microsoft Support.. Sections: 1. Active hours and restart scheduling are different features; 2. How to set active hours; 3. Choose a specific time with restart scheduling; 4. Example: a PC used from 9 a.m. to 6 p.m.; 5. What to check after setup; 6. How to choose based on the situation. Create an original image of the concrete objects and relationships central to this specific article, not a generic laptop. Sophisticated tactile cut-paper and clay editorial illustration, warm ivory background, charcoal, terracotta, sage, muted ochre. Clear simple composition readable at thumbnail size. Wide landscape 16:9. No words, text, logos, fake screenshot, invented measurements, watermark or claim of firsthand testing. Represent the practical problem with objects rather than a diagram requiring labels. Keep key objects inside central 80 percent."
+  },
+  "naver-224467474821": {
+    "src": "/assets/img/articles/naver-224467474821-1200.webp",
+    "small": "/assets/img/articles/naver-224467474821-640.webp",
+    "width": 1200,
+    "height": 675,
+    "alt": "Conceptual illustration for Gmail: blocking a sender vs. reporting spam.",
+    "credit": "AI-generated editorial illustration; not a product screenshot.",
+    "prompt": "Use case: stylized-concept. Asset type: wide editorial illustration for a technology blog. Article: Gmail: blocking a sender vs. reporting spam. Summary: Gmail sender blocking and spam reporting produce different results; this article explains how each works and what to check when messages still go to Spam after a sender is unblocked.. Sections: 1. Distinguish blocking from reporting spam first; 2. Block a sender in Gmail on the web; 3. How to unblock a sender from the blocked list; 4. Example: Messages from a business contact still go to Spam after unblocking; 5. What to know before reporting spam; 6. How to choose based on the situation. Create an original image of the concrete objects and relationships central to this specific article, not a generic laptop. Sophisticated tactile cut-paper and clay editorial illustration, warm ivory background, charcoal, terracotta, sage, muted ochre. Clear simple composition readable at thumbnail size. Wide landscape 16:9. No words, text, logos, fake screenshot, invented measurements, watermark or claim of firsthand testing. Represent the practical problem with objects rather than a diagram requiring labels. Keep key objects inside central 80 percent."
+  },
+  "naver-224467329568": {
+    "src": "/assets/img/articles/naver-224467329568-1200.webp",
+    "small": "/assets/img/articles/naver-224467329568-640.webp",
+    "width": 1200,
+    "height": 675,
+    "alt": "Conceptual illustration for Gmail Undo Send: set your cancellation window.",
+    "credit": "AI-generated editorial illustration; not a product screenshot.",
+    "prompt": "Use case: stylized-concept. Asset type: wide editorial illustration for a technology blog. Article: Gmail Undo Send: set your cancellation window. Summary: Gmail’s Undo Send feature lets you cancel a message for a short time immediately after sending, but it does not recall a message that has already been delivered.. Sections: 1. Check Undo immediately after sending; 2. Choose 5, 10, 20, or 30 seconds for the cancellation period; 3. Example: Sending an email with a typo; 4. What to do after the time has passed; 5. Scheduled sending and Undo Send are different features; 6. Three things to check before changing the setting. Create an original image of the concrete objects and relationships central to this specific article, not a generic laptop. Sophisticated tactile cut-paper and clay editorial illustration, warm ivory background, charcoal, terracotta, sage, muted ochre. Clear simple composition readable at thumbnail size. Wide landscape 16:9. No words, text, logos, fake screenshot, invented measurements, watermark or claim of firsthand testing. Represent the practical problem with objects rather than a diagram requiring labels. Keep key objects inside central 80 percent."
+  },
+  "naver-224467167551": {
+    "src": "/assets/img/articles/naver-224467167551-1200.webp",
+    "small": "/assets/img/articles/naver-224467167551-640.webp",
+    "width": 1200,
+    "height": 675,
+    "alt": "Conceptual illustration for How to find your BitLocker recovery key.",
+    "credit": "AI-generated editorial illustration; not a product screenshot.",
+    "prompt": "Use case: stylized-concept. Asset type: wide editorial illustration for a technology blog. Article: How to find your BitLocker recovery key. Summary: This guide explains, based on two official Microsoft support articles, where and in what order to look for the 48-digit BitLocker recovery key when Windows cannot automatically unlock a drive.. Sections: First, write down the first 8 characters of the key ID on the recovery screen; Step 1: Find it in your Microsoft account; Step 2: Find it in your work or school account; Step 3: Check printed copies, USB drives, and text files; What to check if you still cannot find it; Do this in advance: Back up the key in at least two places. Create an original image of the concrete objects and relationships central to this specific article, not a generic laptop. Sophisticated tactile cut-paper and clay editorial illustration, warm ivory background, charcoal, terracotta, sage, muted ochre. Clear simple composition readable at thumbnail size. Wide landscape 16:9. No words, text, logos, fake screenshot, invented measurements, watermark or claim of firsthand testing. Represent the practical problem with objects rather than a diagram requiring labels. Keep key objects inside central 80 percent."
+  },
+  "naver-224467023835": {
+    "src": "/assets/img/articles/naver-224467023835-1200.webp",
+    "small": "/assets/img/articles/naver-224467023835-640.webp",
+    "width": 1200,
+    "height": 675,
+    "alt": "Conceptual illustration for Wi-Fi connected but no internet? Check these three places.",
+    "credit": "AI-generated editorial illustration; not a product screenshot.",
+    "prompt": "Use case: stylized-concept. Asset type: wide editorial illustration for a technology blog. Article: Wi-Fi connected but no internet? Check these three places. Summary: If Wi-Fi shows as connected but webpages do not open, narrow the cause by checking the PC, router, and ISP in that order instead of changing several settings at once.. Sections: 1. Check the same Wi-Fi with another device; 2. Check the troubleshooter and basic settings; 3. Forget the known network and reconnect; 4. Ping the default gateway; 5. Restart the modem and router in order; 6. Try commands and the driver at the next stage. Create an original image of the concrete objects and relationships central to this specific article, not a generic laptop. Sophisticated tactile cut-paper and clay editorial illustration, warm ivory background, charcoal, terracotta, sage, muted ochre. Clear simple composition readable at thumbnail size. Wide landscape 16:9. No words, text, logos, fake screenshot, invented measurements, watermark or claim of firsthand testing. Represent the practical problem with objects rather than a diagram requiring labels. Keep key objects inside central 80 percent."
+  },
+  "naver-224466875643": {
+    "src": "/assets/img/articles/naver-224466875643-1200.webp",
+    "small": "/assets/img/articles/naver-224466875643-640.webp",
+    "width": 1200,
+    "height": 675,
+    "alt": "Conceptual illustration for Forgot your Windows PIN? Three reset paths.",
+    "credit": "AI-generated editorial illustration; not a product screenshot.",
+    "prompt": "Use case: stylized-concept. Asset type: wide editorial illustration for a technology blog. Article: Forgot your Windows PIN? Three reset paths. Summary: If you forget your Windows login PIN, follow the appropriate Microsoft account or local account recovery path to reset your password or create a new PIN.. Sections: 1. Check whether “I forgot my PIN” appears on the sign-in screen; 2. If the option is missing, sign in with your password and create a new PIN; 3. If you also forgot your password, reset the password first; 4. Checklist for choosing a recovery path; 5. What to prepare before recovery; References. Create an original image of the concrete objects and relationships central to this specific article, not a generic laptop. Sophisticated tactile cut-paper and clay editorial illustration, warm ivory background, charcoal, terracotta, sage, muted ochre. Clear simple composition readable at thumbnail size. Wide landscape 16:9. No words, text, logos, fake screenshot, invented measurements, watermark or claim of firsthand testing. Represent the practical problem with objects rather than a diagram requiring labels. Keep key objects inside central 80 percent."
+  },
+  "naver-224466769066": {
+    "src": "/assets/img/articles/naver-224466769066-1200.webp",
+    "small": "/assets/img/articles/naver-224466769066-640.webp",
+    "width": 1200,
+    "height": 675,
+    "alt": "Conceptual illustration for What to check when an external monitor is not detected: from cables to drivers.",
+    "credit": "AI-generated editorial illustration; not a product screenshot.",
+    "prompt": "Use case: stylized-concept. Asset: 16:9 editorial illustration for this specific technology article. Title: What to check when an external monitor is not detected: from cables to drivers. Summary: When an external monitor shows no image or a second display does not appear in Settings, narrow the cause to cables and connection devices, Windows display settings, or graphics drivers using Microsoft's official troubleshooting order.. Key sections: 1. Determine whether this is a first-time connection or a previously working setup that stopped; 2. Remove intermediate devices and connect the cable directly; 3. Press the Detect button in Settings and check the graphics adapter; 4. Check the driver if a previously working setup has stopped. Depict the practical problem with a few recognizable physical objects and one clear visual relationship. Tactile cut-paper/clay editorial art, ivory paper background, charcoal, terracotta, sage and ochre, soft shadows, sophisticated clean composition. Vary the scene to suit this article; avoid a generic laptop and avoid unnecessary people. No written text, logos, fake screenshot, numerical measurement, watermark or testing claim. Landscape 16:9 about 1536px wide; keep key subjects away from edges."
+  },
+  "naver-224466717756": {
+    "src": "/assets/img/articles/naver-224466717756-1200.webp",
+    "small": "/assets/img/articles/naver-224466717756-640.webp",
+    "width": 1200,
+    "height": 675,
+    "alt": "Conceptual illustration for Request to connect through Quick Assist: 4 steps to check before allowing it.",
+    "credit": "AI-generated editorial illustration; not a product screenshot.",
+    "prompt": "Use case: stylized-concept. Asset: 16:9 editorial illustration for this specific technology article. Title: Request to connect through Quick Assist: 4 steps to check before allowing it. Summary: If a caller or popup asks you to connect through Quick Assist, claiming your computer has a problem, stop first. This article outlines checks to make before sharing the code, based on official Microsoft support documents.. Key sections: 1. Check who initiated contact first; 2. See what level of access the other person wants; 3. Warning signs that require immediate action; 4. Remove access as soon as the connection ends. Depict the practical problem with a few recognizable physical objects and one clear visual relationship. Tactile cut-paper/clay editorial art, ivory paper background, charcoal, terracotta, sage and ochre, soft shadows, sophisticated clean composition. Vary the scene to suit this article; avoid a generic laptop and avoid unnecessary people. No written text, logos, fake screenshot, numerical measurement, watermark or testing claim. Landscape 16:9 about 1536px wide; keep key subjects away from edges."
+  },
+  "naver-224466468139": {
+    "src": "/assets/img/articles/naver-224466468139-1200.webp",
+    "small": "/assets/img/articles/naver-224466468139-640.webp",
+    "width": 1200,
+    "height": 675,
+    "alt": "Conceptual illustration for How to choose whether to change only one Google Calendar recurring event or the entire series.",
+    "credit": "AI-generated editorial illustration; not a product screenshot.",
+    "prompt": "Use case: stylized-concept. Asset: 16:9 editorial illustration for this specific technology article. Title: How to choose whether to change only one Google Calendar recurring event or the entire series. Summary: When changing a recurring Google Calendar event, choose between changing only this event, this and following events, or all events; the wrong choice can alter past events or the entire series.. Key sections: 1. Decide first whether the change applies only once; 2. Check whether the change will continue in the future; 3. When you need to change the entire series; 4. What to check when creating a new recurrence rule. Depict the practical problem with a few recognizable physical objects and one clear visual relationship. Tactile cut-paper/clay editorial art, ivory paper background, charcoal, terracotta, sage and ochre, soft shadows, sophisticated clean composition. Vary the scene to suit this article; avoid a generic laptop and avoid unnecessary people. No written text, logos, fake screenshot, numerical measurement, watermark or testing claim. Landscape 16:9 about 1536px wide; keep key subjects away from edges."
+  },
+  "naver-224466356316": {
+    "src": "/assets/img/articles/naver-224466356316-1200.webp",
+    "small": "/assets/img/articles/naver-224466356316-640.webp",
+    "width": 1200,
+    "height": 675,
+    "alt": "Conceptual illustration for How to find and change the Windows screenshot save location: Distinguishing PrtScn and Snipping Tool.",
+    "credit": "AI-generated editorial illustration; not a product screenshot.",
+    "prompt": "Use case: stylized-concept. Asset: 16:9 editorial illustration for this specific technology article. Title: How to find and change the Windows screenshot save location: Distinguishing PrtScn and Snipping Tool. Summary: When a Windows screenshot file is missing, identify the capture method first: Windows logo key + PrtScn saves directly to Pictures\\Screenshots, while Snipping Tool may save automatically according to its settings.. Key sections: 1. Identify the capture method first; 2. Open the Screenshots folder in File Explorer; 3. Check Snipping Tool’s automatic save settings; 4. Check whether the file was saved. Depict the practical problem with a few recognizable physical objects and one clear visual relationship. Tactile cut-paper/clay editorial art, ivory paper background, charcoal, terracotta, sage and ochre, soft shadows, sophisticated clean composition. Vary the scene to suit this article; avoid a generic laptop and avoid unnecessary people. No written text, logos, fake screenshot, numerical measurement, watermark or testing claim. Landscape 16:9 about 1536px wide; keep key subjects away from edges."
+  },
+  "naver-224466247209": {
+    "src": "/assets/img/articles/naver-224466247209-1200.webp",
+    "small": "/assets/img/articles/naver-224466247209-640.webp",
+    "width": 1200,
+    "height": 675,
+    "alt": "Conceptual illustration for How to check isolated files in Windows Security and decide whether to restore them.",
+    "credit": "AI-generated editorial illustration; not a product screenshot.",
+    "prompt": "Use case: stylized-concept. Asset: 16:9 editorial illustration for this specific technology article. Title: How to check isolated files in Windows Security and decide whether to restore them. Summary: When Windows Security blocks or quarantines a file, first check what was isolated and whether it is a real threat or a false detection, then decide whether to restore, delete, or leave it quarantined.. Key sections: 1. Find quarantined items in protection history; 2. Check the file name and path first; 3. Restore only when you are sure it is safe; 4. Check the allowed threats list as well. Depict the practical problem with a few recognizable physical objects and one clear visual relationship. Tactile cut-paper/clay editorial art, ivory paper background, charcoal, terracotta, sage and ochre, soft shadows, sophisticated clean composition. Vary the scene to suit this article; avoid a generic laptop and avoid unnecessary people. No written text, logos, fake screenshot, numerical measurement, watermark or testing claim. Landscape 16:9 about 1536px wide; keep key subjects away from edges."
+  },
+  "naver-224466093515": {
+    "src": "/assets/img/articles/naver-224466093515-1200.webp",
+    "small": "/assets/img/articles/naver-224466093515-640.webp",
+    "width": 1200,
+    "height": 675,
+    "alt": "Conceptual illustration for How to recover deleted files in Windows: distinguishing the Recycle Bin, cloud storage, and Windows File Recovery.",
+    "credit": "AI-generated editorial illustration; not a product screenshot.",
+    "prompt": "Use case: stylized-concept. Asset: 16:9 editorial illustration for this specific technology article. Title: How to recover deleted files in Windows: distinguishing the Recycle Bin, cloud storage, and Windows File Recovery. Summary: When you accidentally delete a file, first check where it may still exist—your PC’s Recycle Bin, a cloud Recycle Bin such as OneDrive, or a backup—before installing recovery software, following Microsoft’s official guidance.. Key sections: 1. First, look in the Windows Recycle Bin; 2. Check the cloud Recycle Bin and backups; 3. Reduce use of the drive before recovery; 4. Check the Windows File Recovery command format. Depict the practical problem with a few recognizable physical objects and one clear visual relationship. Tactile cut-paper/clay editorial art, ivory paper background, charcoal, terracotta, sage and ochre, soft shadows, sophisticated clean composition. Vary the scene to suit this article; avoid a generic laptop and avoid unnecessary people. No written text, logos, fake screenshot, numerical measurement, watermark or testing claim. Landscape 16:9 about 1536px wide; keep key subjects away from edges."
+  },
+  "naver-224461508628": {
+    "src": "/assets/img/articles/naver-224461508628-1200.webp",
+    "small": "/assets/img/articles/naver-224461508628-640.webp",
+    "width": 1200,
+    "height": 675,
+    "alt": "Conceptual illustration for How to export ChatGPT conversation history: Download it within 24 hours of receiving the email.",
+    "credit": "AI-generated editorial illustration; not a product screenshot.",
+    "prompt": "Use case: stylized-concept. Asset: 16:9 editorial illustration for this specific technology article. Title: How to export ChatGPT conversation history: Download it within 24 hours of receiving the email. Summary: To preserve or transfer ChatGPT conversation history, request a data export in Settings to receive a ZIP file, but only eligible account types can request one and the emailed download link expires after 24 hours.. Key sections: 1. Check whether self-service export is available for your account; 2. Request an export in Settings (web); 3. Download it within 24 hours after the email arrives; 4. Open the ZIP file and check for the conversations you need. Depict the practical problem with a few recognizable physical objects and one clear visual relationship. Tactile cut-paper/clay editorial art, ivory paper background, charcoal, terracotta, sage and ochre, soft shadows, sophisticated clean composition. Vary the scene to suit this article; avoid a generic laptop and avoid unnecessary people. No written text, logos, fake screenshot, numerical measurement, watermark or testing claim. Landscape 16:9 about 1536px wide; keep key subjects away from edges."
+  },
+  "naver-224461390384": {
+    "src": "/assets/img/articles/naver-224461390384-1200.webp",
+    "small": "/assets/img/articles/naver-224461390384-640.webp",
+    "width": 1200,
+    "height": 675,
+    "alt": "Conceptual illustration for What to check before splitting comma-separated values in one Excel cell into multiple columns: empty columns and preserving the original.",
+    "credit": "AI-generated editorial illustration; not a product screenshot.",
+    "prompt": "Use case: stylized-concept. Asset: 16:9 editorial illustration for this specific technology article. Title: What to check before splitting comma-separated values in one Excel cell into multiple columns: empty columns and preserving the original. Summary: Excel can split comma-separated values into multiple columns with Text to Columns, but Microsoft warns that results overwrite cells to the right. This article lists checks for empty columns, backups, delimiters, formatting, and verification.. Key sections: 1. Copy the original separately; 2. Check for empty columns to the right; 3. Check the delimiter and preview; 4. Check dates and leading zeros. Depict the practical problem with a few recognizable physical objects and one clear visual relationship. Tactile cut-paper/clay editorial art, ivory paper background, charcoal, terracotta, sage and ochre, soft shadows, sophisticated clean composition. Vary the scene to suit this article; avoid a generic laptop and avoid unnecessary people. No written text, logos, fake screenshot, numerical measurement, watermark or testing claim. Landscape 16:9 about 1536px wide; keep key subjects away from edges."
+  },
+  "naver-224461288863": {
+    "src": "/assets/img/articles/naver-224461288863-1200.webp",
+    "small": "/assets/img/articles/naver-224461288863-640.webp",
+    "width": 1200,
+    "height": 675,
+    "alt": "Conceptual illustration for What to check when Excel PivotTable values do not change: Refresh and source range.",
+    "credit": "AI-generated editorial illustration; not a product screenshot.",
+    "prompt": "Use case: stylized-concept. Asset: 16:9 editorial illustration for this specific technology article. Title: What to check when Excel PivotTable values do not change: Refresh and source range. Summary: If Excel PivotTable totals or counts stay the same after data is added, first refresh it, then check whether its source range includes the new rows. This guide lists checks from least costly to more involved.. Key sections: 1. Refresh first; 2. Check whether the source range includes the new rows; 3. Check the automatic refresh setting; 4. Prevent column widths and formatting from changing. Depict the practical problem with a few recognizable physical objects and one clear visual relationship. Tactile cut-paper/clay editorial art, ivory paper background, charcoal, terracotta, sage and ochre, soft shadows, sophisticated clean composition. Vary the scene to suit this article; avoid a generic laptop and avoid unnecessary people. No written text, logos, fake screenshot, numerical measurement, watermark or testing claim. Landscape 16:9 about 1536px wide; keep key subjects away from edges."
+  },
+  "naver-224461182634": {
+    "src": "/assets/img/articles/naver-224461182634-1200.webp",
+    "small": "/assets/img/articles/naver-224461182634-640.webp",
+    "width": 1200,
+    "height": 675,
+    "alt": "Conceptual illustration for Check scaling first when Windows text and app screens look blurry.",
+    "credit": "AI-generated editorial illustration; not a product screenshot.",
+    "prompt": "Use case: stylized-concept. Asset: 16:9 editorial illustration for this specific technology article. Title: Check scaling first when Windows text and app screens look blurry. Summary: When text and app screens look blurry after connecting an external monitor or docking and undocking a laptop, first check per-monitor scaling and sign-in status before suspecting the graphics driver.. Key sections: 1. Match scaling across monitors; 2. Sign out and sign in again after changing settings; 3. Check only the blurry app separately; 4. Treat the driver as a last step. Depict the practical problem with a few recognizable physical objects and one clear visual relationship. Tactile cut-paper/clay editorial art, ivory paper background, charcoal, terracotta, sage and ochre, soft shadows, sophisticated clean composition. Vary the scene to suit this article; avoid a generic laptop and avoid unnecessary people. No written text, logos, fake screenshot, numerical measurement, watermark or testing claim. Landscape 16:9 about 1536px wide; keep key subjects away from edges."
+  },
+  "naver-224461070870": {
+    "src": "/assets/img/articles/naver-224461070870-1200.webp",
+    "small": "/assets/img/articles/naver-224461070870-640.webp",
+    "width": 1200,
+    "height": 675,
+    "alt": "Conceptual illustration for What to check when a Windows USB device is not recognized: Ports and Device Manager error codes.",
+    "credit": "AI-generated editorial illustration; not a product screenshot.",
+    "prompt": "Use case: stylized-concept. Asset: 16:9 editorial illustration for this specific technology article. Title: What to check when a Windows USB device is not recognized: Ports and Device Manager error codes. Summary: When Windows shows a “USB device not recognized” alert, check the Device Manager error code and follow the official procedure for that code, starting with low-cost checks such as trying another port.. Key sections: 1. Check the connection notification setting first; 2. Try connecting directly to another USB port; 3. Look for a yellow exclamation mark in Device Manager; 4. Record the error code in Properties. Depict the practical problem with a few recognizable physical objects and one clear visual relationship. Tactile cut-paper/clay editorial art, ivory paper background, charcoal, terracotta, sage and ochre, soft shadows, sophisticated clean composition. Vary the scene to suit this article; avoid a generic laptop and avoid unnecessary people. No written text, logos, fake screenshot, numerical measurement, watermark or testing claim. Landscape 16:9 about 1536px wide; keep key subjects away from edges."
+  },
+  "naver-224460969580": {
+    "src": "/assets/img/articles/naver-224460969580-1200.webp",
+    "small": "/assets/img/articles/naver-224460969580-640.webp",
+    "width": 1200,
+    "height": 675,
+    "alt": "Conceptual illustration for What to Check When Files Do Not Appear in Windows Search: Start with Indexing Status and Excluded Folders.",
+    "credit": "AI-generated editorial illustration; not a product screenshot.",
+    "prompt": "Use case: stylized-concept. Asset: 16:9 editorial illustration for this specific technology article. Title: What to Check When Files Do Not Appear in Windows Search: Start with Indexing Status and Excluded Folders. Summary: When a file does not appear in Windows Search, the index may still be running or the folder may be excluded. This guide follows Microsoft’s official documentation, starting with the least costly checks.. Key sections: 1. Check the indexing status message; 2. Check whether the folder you are looking for is indexed; 3. Check the file type and search process; 4. Make Rebuild the last step. Depict the practical problem with a few recognizable physical objects and one clear visual relationship. Tactile cut-paper/clay editorial art, ivory paper background, charcoal, terracotta, sage and ochre, soft shadows, sophisticated clean composition. Vary the scene to suit this article; avoid a generic laptop and avoid unnecessary people. No written text, logos, fake screenshot, numerical measurement, watermark or testing claim. Landscape 16:9 about 1536px wide; keep key subjects away from edges."
+  },
+  "naver-224460876457": {
+    "src": "/assets/img/articles/naver-224460876457-1200.webp",
+    "small": "/assets/img/articles/naver-224460876457-640.webp",
+    "width": 1200,
+    "height": 675,
+    "alt": "Conceptual illustration for Windows system file checks: when to use sfc /scannow and DISM.",
+    "credit": "AI-generated editorial illustration; not a product screenshot.",
+    "prompt": "Use case: stylized-concept. Asset: 16:9 editorial illustration for this specific technology article. Title: Windows system file checks: when to use sfc /scannow and DISM. Summary: This article explains the order for using sfc and DISM to check and repair Windows system files, based on Microsoft’s official documentation, without claiming results from an actual PC.. Key sections: 1. Open a command window with administrator privileges; 2. Start by checking with sfc only; 3. If sfc does not resolve the issue, check the image with DISM; 4. If it is repairable, use RestoreHealth and check the repair source. Depict the practical problem with a few recognizable physical objects and one clear visual relationship. Tactile cut-paper/clay editorial art, ivory paper background, charcoal, terracotta, sage and ochre, soft shadows, sophisticated clean composition. Vary the scene to suit this article; avoid a generic laptop and avoid unnecessary people. No written text, logos, fake screenshot, numerical measurement, watermark or testing claim. Landscape 16:9 about 1536px wide; keep key subjects away from edges."
+  },
+  "naver-224460808219": {
+    "src": "/assets/img/articles/naver-224460808219-1200.webp",
+    "small": "/assets/img/articles/naver-224460808219-640.webp",
+    "width": 1200,
+    "height": 675,
+    "alt": "Conceptual illustration for The order for distinguishing temporary and personal files when Windows warns of low storage space.",
+    "credit": "AI-generated editorial illustration; not a product screenshot.",
+    "prompt": "Use case: stylized-concept. Asset: 16:9 editorial illustration for this specific technology article. Title: The order for distinguishing temporary and personal files when Windows warns of low storage space. Summary: When Windows warns that storage space is low, check the drive, remove temporary files, review large or unused files, and decide about personal files only after verifying copies and Windows.old rollback needs.. Key sections: 1. Check the remaining space first; 2. Step 1: Check temporary files first; 3. Step 2: Review large or unused files; 4. Step 3: Decide about personal files based on their contents. Depict the practical problem with a few recognizable physical objects and one clear visual relationship. Tactile cut-paper/clay editorial art, ivory paper background, charcoal, terracotta, sage and ochre, soft shadows, sophisticated clean composition. Vary the scene to suit this article; avoid a generic laptop and avoid unnecessary people. No written text, logos, fake screenshot, numerical measurement, watermark or testing claim. Landscape 16:9 about 1536px wide; keep key subjects away from edges."
+  },
+  "naver-224460766787": {
+    "src": "/assets/img/articles/naver-224460766787-1200.webp",
+    "small": "/assets/img/articles/naver-224460766787-640.webp",
+    "width": 1200,
+    "height": 675,
+    "alt": "Conceptual illustration for What to check when ##### appears in an Excel cell: column width and negative dates or times.",
+    "credit": "AI-generated editorial illustration; not a product screenshot.",
+    "prompt": "Use case: stylized-concept. Asset: 16:9 editorial illustration for this specific technology article. Title: What to check when ##### appears in an Excel cell: column width and negative dates or times. Summary: When an Excel cell shows only #####, the value may not be gone: the column may be too narrow, or a date/time result may be negative. This article explains how to check both causes.. Key sections: 1. Adjust the column width first; 2. Check whether the date or time result is negative; 3. Change the result cell to a number format to check the value; 4. Summary of the checking order. Depict the practical problem with a few recognizable physical objects and one clear visual relationship. Tactile cut-paper/clay editorial art, ivory paper background, charcoal, terracotta, sage and ochre, soft shadows, sophisticated clean composition. Vary the scene to suit this article; avoid a generic laptop and avoid unnecessary people. No written text, logos, fake screenshot, numerical measurement, watermark or testing claim. Landscape 16:9 about 1536px wide; keep key subjects away from edges."
+  },
+  "naver-224460731404": {
+    "src": "/assets/img/articles/naver-224460731404-1200.webp",
+    "small": "/assets/img/articles/naver-224460731404-640.webp",
+    "width": 1200,
+    "height": 675,
+    "alt": "Conceptual illustration for What to check when Excel COUNTIF returns 0: spaces, wildcards, and text values.",
+    "credit": "AI-generated editorial illustration; not a product screenshot.",
+    "prompt": "Use case: stylized-concept. Asset: 16:9 editorial illustration for this specific technology article. Title: What to check when Excel COUNTIF returns 0: spaces, wildcards, and text values. Summary: When Excel COUNTIF returns 0, spaces, nonprinting characters, wildcard symbols, or text-formatted numbers may prevent a match. This article outlines checks based on Microsoft’s COUNTIF rules.. Key sections: 1. Check the range and criteria format first; 2. Clean up leading, trailing, and nonprinting characters; 3. Check wildcard symbols in the value you are searching for; 4. Check whether values that look like numbers are text. Depict the practical problem with a few recognizable physical objects and one clear visual relationship. Tactile cut-paper/clay editorial art, ivory paper background, charcoal, terracotta, sage and ochre, soft shadows, sophisticated clean composition. Vary the scene to suit this article; avoid a generic laptop and avoid unnecessary people. No written text, logos, fake screenshot, numerical measurement, watermark or testing claim. Landscape 16:9 about 1536px wide; keep key subjects away from edges."
+  },
+  "naver-224460478300": {
+    "src": "/assets/img/articles/naver-224460478300-1200.webp",
+    "small": "/assets/img/articles/naver-224460478300-640.webp",
+    "width": 1200,
+    "height": 675,
+    "alt": "Conceptual illustration for What to check when Windows desktop icons disappear: Display settings and the View menu.",
+    "credit": "AI-generated editorial illustration; not a product screenshot.",
+    "prompt": "Use case: stylized-concept. Asset: 16:9 editorial illustration for this specific technology article. Title: What to check when Windows desktop icons disappear: Display settings and the View menu. Summary: If the Recycle Bin or frequently used file icons suddenly disappear from the desktop, the files may not be deleted; the icons may simply be hidden. This article, based on Microsoft Support, explains what to check first.. Key sections: 1. Turn on desktop icons in the View menu; 2. Check theme settings if only system icons are missing; 3. Determine whether the files are actually missing; 4. Checklist before restoring them. Depict the practical problem with a few recognizable physical objects and one clear visual relationship. Tactile cut-paper/clay editorial art, ivory paper background, charcoal, terracotta, sage and ochre, soft shadows, sophisticated clean composition. Vary the scene to suit this article; avoid a generic laptop and avoid unnecessary people. No written text, logos, fake screenshot, numerical measurement, watermark or testing claim. Landscape 16:9 about 1536px wide; keep key subjects away from edges."
+  },
+  "naver-224460376809": {
+    "src": "/assets/img/articles/naver-224460376809-1200.webp",
+    "small": "/assets/img/articles/naver-224460376809-640.webp",
+    "width": 1200,
+    "height": 675,
+    "alt": "Conceptual illustration for How to roll back a Windows driver: Reverting when a device acts up after an update.",
+    "credit": "AI-generated editorial illustration; not a product screenshot.",
+    "prompt": "Use case: stylized-concept. Asset: 16:9 editorial illustration for this specific technology article. Title: How to roll back a Windows driver: Reverting when a device acts up after an update. Summary: If graphics, sound, Bluetooth, or a printer starts acting up after a Windows update or new driver installation, review driver rollback first. This article explains the Device Manager rollback steps and what to check when the button is unavailable.. Key sections: 1. First check whether rollback is appropriate; 2. How to roll back in Device Manager; 3. What to check when the Roll Back Driver button cannot be clicked; 4. Checklist for before and after rollback. Depict the practical problem with a few recognizable physical objects and one clear visual relationship. Tactile cut-paper/clay editorial art, ivory paper background, charcoal, terracotta, sage and ochre, soft shadows, sophisticated clean composition. Vary the scene to suit this article; avoid a generic laptop and avoid unnecessary people. No written text, logos, fake screenshot, numerical measurement, watermark or testing claim. Landscape 16:9 about 1536px wide; keep key subjects away from edges."
+  },
+  "naver-224460287354": {
+    "src": "/assets/img/articles/naver-224460287354-1200.webp",
+    "small": "/assets/img/articles/naver-224460287354-640.webp",
+    "width": 1200,
+    "height": 675,
+    "alt": "Conceptual illustration for How to Check and Delete ChatGPT Memory: Keep It Separate from Deleting Chats.",
+    "credit": "AI-generated editorial illustration; not a product screenshot.",
+    "prompt": "Use case: stylized-concept. Asset: 16:9 editorial illustration for this specific technology article. Title: How to Check and Delete ChatGPT Memory: Keep It Separate from Deleting Chats. Summary: ChatGPT’s Memory feature uses preferences and context from conversations in future chats. This article explains how to check, edit, delete, and turn off memory, which is stored separately from chat history.. Key sections: 1. First, see what is remembered; 2. Correct inaccurate information and exclude what you do not want mentioned again; 3. Memory may remain separately even after deleting a conversation; 4. What to distinguish when turning off memory. Depict the practical problem with a few recognizable physical objects and one clear visual relationship. Tactile cut-paper/clay editorial art, ivory paper background, charcoal, terracotta, sage and ochre, soft shadows, sophisticated clean composition. Vary the scene to suit this article; avoid a generic laptop and avoid unnecessary people. No written text, logos, fake screenshot, numerical measurement, watermark or testing claim. Landscape 16:9 about 1536px wide; keep key subjects away from edges."
+  },
+  "naver-224460191771": {
+    "src": "/assets/img/articles/naver-224460191771-1200.webp",
+    "small": "/assets/img/articles/naver-224460191771-640.webp",
+    "width": 1200,
+    "height": 675,
+    "alt": "Conceptual illustration for Run a program at the same time every day with Windows Task Scheduler.",
+    "credit": "AI-generated editorial illustration; not a product screenshot.",
+    "prompt": "Use case: stylized-concept. Asset: 16:9 editorial illustration for this specific technology article. Title: Run a program at the same time every day with Windows Task Scheduler. Summary: Windows Task Scheduler automatically runs programs or commands at specified times or under specified conditions. This article covers the simplest setup for running one program at the same time every day.. Key sections: 1. Three things to decide before registering; 2. Create a task from Command Prompt; 3. Choose the execution permission options; 4. Four things to check after registration. Depict the practical problem with a few recognizable physical objects and one clear visual relationship. Tactile cut-paper/clay editorial art, ivory paper background, charcoal, terracotta, sage and ochre, soft shadows, sophisticated clean composition. Vary the scene to suit this article; avoid a generic laptop and avoid unnecessary people. No written text, logos, fake screenshot, numerical measurement, watermark or testing claim. Landscape 16:9 about 1536px wide; keep key subjects away from edges."
+  },
+  "naver-224460089258": {
+    "src": "/assets/img/articles/naver-224460089258-1200.webp",
+    "small": "/assets/img/articles/naver-224460089258-640.webp",
+    "width": 1200,
+    "height": 675,
+    "alt": "Conceptual illustration for GitHub Copilot plan differences: Check monthly AI credits first.",
+    "credit": "AI-generated editorial illustration; not a product screenshot.",
+    "prompt": "Use case: stylized-concept. Asset: 16:9 editorial illustration for this specific technology article. Title: GitHub Copilot plan differences: Check monthly AI credits first. Summary: GitHub Copilot offers a free plan and several paid plans, so choosing by name alone can lead to usage limits. This summary is based on GitHub’s official documents read on October 31, 2026, not personal payment or usage measurements.. Key sections: 1. Check these limits first on the free plan; 2. Comparing monthly AI credits on paid plans; 3. Identifying what uses credits; 4. What to check before paying. Depict the practical problem with a few recognizable physical objects and one clear visual relationship. Tactile cut-paper/clay editorial art, ivory paper background, charcoal, terracotta, sage and ochre, soft shadows, sophisticated clean composition. Vary the scene to suit this article; avoid a generic laptop and avoid unnecessary people. No written text, logos, fake screenshot, numerical measurement, watermark or testing claim. Landscape 16:9 about 1536px wide; keep key subjects away from edges."
+  },
+  "naver-224459991307": {
+    "src": "/assets/img/articles/naver-224459991307-1200.webp",
+    "small": "/assets/img/articles/naver-224459991307-640.webp",
+    "width": 1200,
+    "height": 675,
+    "alt": "Conceptual illustration for How to reduce Windows notifications: Turn them off by app and schedule Do not disturb.",
+    "credit": "AI-generated editorial illustration; not a product screenshot.",
+    "prompt": "Use case: stylized-concept. Asset: 16:9 editorial illustration for this specific technology article. Title: How to reduce Windows notifications: Turn them off by app and schedule Do not disturb. Summary: This guide explains how to reduce Windows 11 notifications by app and schedule Do not disturb using Microsoft’s official support settings paths as of October 31, 2026; it is not based on firsthand testing.. Key sections: 1. Reduce notifications by app first; 2. Set Do not disturb and exceptions; 3. Check the conditions that turn it on automatically; 4. Three things to check after setup. Depict the practical problem with a few recognizable physical objects and one clear visual relationship. Tactile cut-paper/clay editorial art, ivory paper background, charcoal, terracotta, sage and ochre, soft shadows, sophisticated clean composition. Vary the scene to suit this article; avoid a generic laptop and avoid unnecessary people. No written text, logos, fake screenshot, numerical measurement, watermark or testing claim. Landscape 16:9 about 1536px wide; keep key subjects away from edges."
+  },
+  "naver-224459894229": {
+    "src": "/assets/img/articles/naver-224459894229-1200.webp",
+    "small": "/assets/img/articles/naver-224459894229-640.webp",
+    "width": 1200,
+    "height": 675,
+    "alt": "Conceptual illustration for Claude Code permission settings order: How deny, ask, and allow rules are applied.",
+    "credit": "AI-generated editorial illustration; not a product screenshot.",
+    "prompt": "Use case: stylized-concept. Asset: 16:9 editorial illustration for this specific technology article. Title: Claude Code permission settings order: How deny, ask, and allow rules are applied. Summary: Claude Code often asks for approval when modifying files or running commands. Check which actions require approval and the order in which saved rules apply to reduce mistakes.. Key sections: 1. Distinguish actions that require approval from those that do not; 2. Check where “Yes, don’t ask again” rules are saved; 3. Rule application order: deny, ask, allow; 4. Define the scope of deny rules. Depict the practical problem with a few recognizable physical objects and one clear visual relationship. Tactile cut-paper/clay editorial art, ivory paper background, charcoal, terracotta, sage and ochre, soft shadows, sophisticated clean composition. Vary the scene to suit this article; avoid a generic laptop and avoid unnecessary people. No written text, logos, fake screenshot, numerical measurement, watermark or testing claim. Landscape 16:9 about 1536px wide; keep key subjects away from edges."
+  },
+  "naver-224459819115": {
+    "src": "/assets/img/articles/naver-224459819115-1200.webp",
+    "small": "/assets/img/articles/naver-224459819115-640.webp",
+    "width": 1200,
+    "height": 675,
+    "alt": "Conceptual illustration for How to delete Gemini chat history and turn off saving: Check app activity settings.",
+    "credit": "AI-generated editorial illustration; not a product screenshot.",
+    "prompt": "Use case: stylized-concept. Asset: 16:9 editorial illustration for this specific technology article. Title: How to delete Gemini chat history and turn off saving: Check app activity settings. Summary: If you are concerned about Gemini chats remaining in your Google Account, separate the history you want to delete from future history you do not want saved. The steps below are based on official Google help.. Key sections: 1. Find the Gemini app activity screen; 2. Delete only the period you need; 3. Check the auto-delete period; 4. Turn off activity retention so future chats are not saved. Depict the practical problem with a few recognizable physical objects and one clear visual relationship. Tactile cut-paper/clay editorial art, ivory paper background, charcoal, terracotta, sage and ochre, soft shadows, sophisticated clean composition. Vary the scene to suit this article; avoid a generic laptop and avoid unnecessary people. No written text, logos, fake screenshot, numerical measurement, watermark or testing claim. Landscape 16:9 about 1536px wide; keep key subjects away from edges."
+  },
+  "naver-224459769217": {
+    "src": "/assets/img/articles/naver-224459769217-1200.webp",
+    "small": "/assets/img/articles/naver-224459769217-640.webp",
+    "width": 1200,
+    "height": 675,
+    "alt": "Conceptual illustration for How to check app usage first when a laptop battery drains quickly.",
+    "credit": "AI-generated editorial illustration; not a product screenshot.",
+    "prompt": "Use case: stylized-concept. Asset: 16:9 editorial illustration for this specific technology article. Title: How to check app usage first when a laptop battery drains quickly. Summary: If your laptop battery is draining faster than before, check which apps and settings are using power before suspecting the battery itself. This order follows Microsoft Support guidance and is not based on measurements from my own laptop.. Key sections: 1. Check battery usage by app first; 2. Reduce background activity; 3. Adjust display and sleep settings; 4. Check capacity records with a battery report. Depict the practical problem with a few recognizable physical objects and one clear visual relationship. Tactile cut-paper/clay editorial art, ivory paper background, charcoal, terracotta, sage and ochre, soft shadows, sophisticated clean composition. Vary the scene to suit this article; avoid a generic laptop and avoid unnecessary people. No written text, logos, fake screenshot, numerical measurement, watermark or testing claim. Landscape 16:9 about 1536px wide; keep key subjects away from edges."
+  },
+  "naver-224459733055": {
+    "src": "/assets/img/articles/naver-224459733055-1200.webp",
+    "small": "/assets/img/articles/naver-224459733055-640.webp",
+    "width": 1200,
+    "height": 675,
+    "alt": "Conceptual illustration for Checking Chrome extension permissions: How to reduce access to all sites first.",
+    "credit": "AI-generated editorial illustration; not a product screenshot.",
+    "prompt": "Use case: stylized-concept. Asset: 16:9 editorial illustration for this specific technology article. Title: Checking Chrome extension permissions: How to reduce access to all sites first. Summary: Learn how to review Chrome extension permissions, reduce access from all sites, and check important settings without assuming results from personal testing.. Key sections: 1. Open the list of installed extensions; 2. View the site access scope in Details; 3. The order for reducing unnecessary permissions; 4. Points to note when checking. Depict the practical problem with a few recognizable physical objects and one clear visual relationship. Tactile cut-paper/clay editorial art, ivory paper background, charcoal, terracotta, sage and ochre, soft shadows, sophisticated clean composition. Vary the scene to suit this article; avoid a generic laptop and avoid unnecessary people. No written text, logos, fake screenshot, numerical measurement, watermark or testing claim. Landscape 16:9 about 1536px wide; keep key subjects away from edges."
+  },
+  "naver-224459408119": {
+    "src": "/assets/img/articles/naver-224459408119-1200.webp",
+    "small": "/assets/img/articles/naver-224459408119-640.webp",
+    "width": 1200,
+    "height": 675,
+    "alt": "Conceptual illustration for How to open Google Drive files offline: Understanding mirroring and streaming.",
+    "credit": "AI-generated editorial illustration; not a product screenshot.",
+    "prompt": "Use case: stylized-concept. Asset: 16:9 editorial illustration for this specific technology article. Title: How to open Google Drive files offline: Understanding mirroring and streaming. Summary: To open Google Drive files without internet, first check whether Drive for desktop mirrors or streams files, then mark only the files and folders you need offline. This article is based on official Google Help.. Key sections: 1. Check the difference between mirroring and streaming; 2. Mark files for offline use on Windows; 3. Set up Google Docs, Sheets, and Slides in a browser; 4. Understand the risk of conflicts in offline edits. Depict the practical problem with a few recognizable physical objects and one clear visual relationship. Tactile cut-paper/clay editorial art, ivory paper background, charcoal, terracotta, sage and ochre, soft shadows, sophisticated clean composition. Vary the scene to suit this article; avoid a generic laptop and avoid unnecessary people. No written text, logos, fake screenshot, numerical measurement, watermark or testing claim. Landscape 16:9 about 1536px wide; keep key subjects away from edges."
+  },
+  "naver-224459303987": {
+    "src": "/assets/img/articles/naver-224459303987-1200.webp",
+    "small": "/assets/img/articles/naver-224459303987-640.webp",
+    "width": 1200,
+    "height": 675,
+    "alt": "Conceptual illustration for What to Check Before Installing Ollama on Windows and How to Change the Model Storage Location.",
+    "credit": "AI-generated editorial illustration; not a product screenshot.",
+    "prompt": "Use case: stylized-concept. Asset: 16:9 editorial illustration for this specific technology article. Title: What to Check Before Installing Ollama on Windows and How to Change the Model Storage Location. Summary: Ollama downloads and runs AI models on your PC. Before installing it, check the Windows version, graphics driver, installation drive, and model storage folder using the official Windows documentation.. Key sections: 1. Check the Windows version and graphics driver; 2. Check the installation location and administrator privileges; 3. Choose a separate model storage folder; 4. Check the API and log locations after installation. Depict the practical problem with a few recognizable physical objects and one clear visual relationship. Tactile cut-paper/clay editorial art, ivory paper background, charcoal, terracotta, sage and ochre, soft shadows, sophisticated clean composition. Vary the scene to suit this article; avoid a generic laptop and avoid unnecessary people. No written text, logos, fake screenshot, numerical measurement, watermark or testing claim. Landscape 16:9 about 1536px wide; keep key subjects away from edges."
+  },
+  "naver-224459159964": {
+    "src": "/assets/img/articles/naver-224459159964-1200.webp",
+    "small": "/assets/img/articles/naver-224459159964-640.webp",
+    "width": 1200,
+    "height": 675,
+    "alt": "Conceptual illustration for How to send a Gmail attachment as a Drive link when it exceeds the size limit.",
+    "credit": "AI-generated editorial illustration; not a product screenshot.",
+    "prompt": "Use case: stylized-concept. Asset: 16:9 editorial illustration for this specific technology article. Title: How to send a Gmail attachment as a Drive link when it exceeds the size limit. Summary: Gmail’s attachment limit for personal accounts is 25 MB. When the total exceeds the limit, Gmail removes the file and replaces it with a Google Drive link; this guide explains how to check the limit and choose the right method.. Key sections: 1. First check whether it is a personal or company account; 2. Calculate the total size of multiple files; 3. Choose between a direct attachment and a Drive link; 4. Set sharing permissions for the recipients. Depict the practical problem with a few recognizable physical objects and one clear visual relationship. Tactile cut-paper/clay editorial art, ivory paper background, charcoal, terracotta, sage and ochre, soft shadows, sophisticated clean composition. Vary the scene to suit this article; avoid a generic laptop and avoid unnecessary people. No written text, logos, fake screenshot, numerical measurement, watermark or testing claim. Landscape 16:9 about 1536px wide; keep key subjects away from edges."
+  },
+  "naver-224459011531": {
+    "src": "/assets/img/articles/naver-224459011531-1200.webp",
+    "small": "/assets/img/articles/naver-224459011531-640.webp",
+    "width": 1200,
+    "height": 675,
+    "alt": "Conceptual illustration for How to check allowed settings when an app is blocked by Windows Firewall.",
+    "credit": "AI-generated editorial illustration; not a product screenshot.",
+    "prompt": "Use case: stylized-concept. Asset: 16:9 editorial illustration for this specific technology article. Title: How to check allowed settings when an app is blocked by Windows Firewall. Summary: When an app cannot connect to the internet or be accessed from another device, Windows Firewall may be the cause. This article explains how to identify firewall issues and allow only the affected app.. Key sections: 1. Check whether the firewall is the problem first; 2. Check the network type in Windows Security; 3. Add the app to the allowed list; 4. Check two things if it is still blocked. Depict the practical problem with a few recognizable physical objects and one clear visual relationship. Tactile cut-paper/clay editorial art, ivory paper background, charcoal, terracotta, sage and ochre, soft shadows, sophisticated clean composition. Vary the scene to suit this article; avoid a generic laptop and avoid unnecessary people. No written text, logos, fake screenshot, numerical measurement, watermark or testing claim. Landscape 16:9 about 1536px wide; keep key subjects away from edges."
+  },
+  "naver-224458876627": {
+    "src": "/assets/img/articles/naver-224458876627-1200.webp",
+    "small": "/assets/img/articles/naver-224458876627-640.webp",
+    "width": 1200,
+    "height": 675,
+    "alt": "Conceptual illustration for The order for checking input and output when you cannot hear sound in a video meeting.",
+    "credit": "AI-generated editorial illustration; not a product screenshot.",
+    "prompt": "Use case: stylized-concept. Asset: 16:9 editorial illustration for this specific technology article. Title: The order for checking input and output when you cannot hear sound in a video meeting. Summary: “I can’t hear the sound” in a video meeting can mean two things: others cannot hear me, or I cannot hear others. This article separates the two and outlines the Windows settings paths in Microsoft support documents.. Key sections: 1. First identify which direction is blocked; 2. Test the input device in Windows; 3. Check microphone permissions; 4. Select devices in the meeting app. Depict the practical problem with a few recognizable physical objects and one clear visual relationship. Tactile cut-paper/clay editorial art, ivory paper background, charcoal, terracotta, sage and ochre, soft shadows, sophisticated clean composition. Vary the scene to suit this article; avoid a generic laptop and avoid unnecessary people. No written text, logos, fake screenshot, numerical measurement, watermark or testing claim. Landscape 16:9 about 1536px wide; keep key subjects away from edges."
+  },
+  "naver-224458728612": {
+    "src": "/assets/img/articles/naver-224458728612-1200.webp",
+    "small": "/assets/img/articles/naver-224458728612-640.webp",
+    "width": 1200,
+    "height": 675,
+    "alt": "Conceptual illustration for Excel #DIV/0! Error: How to Fix It When the Divisor Is 0 or Blank.",
+    "credit": "AI-generated editorial illustration; not a product screenshot.",
+    "prompt": "Use case: stylized-concept. Asset: 16:9 editorial illustration for this specific technology article. Title: Excel #DIV/0! Error: How to Fix It When the Divisor Is 0 or Blank. Summary: When an Excel division formula shows a #DIV/0! error, the divisor is usually 0 or blank. This article explains how to check it and distinguish between hiding errors and fixing their cause, using a fictional example table.. Key sections: 1. Find the denominator in the cell with the error; 2. Check whether the denominator cell is 0 or blank; 3. Determine whether the blank is expected or an error; 4. Three ways to fix the formula. Depict the practical problem with a few recognizable physical objects and one clear visual relationship. Tactile cut-paper/clay editorial art, ivory paper background, charcoal, terracotta, sage and ochre, soft shadows, sophisticated clean composition. Vary the scene to suit this article; avoid a generic laptop and avoid unnecessary people. No written text, logos, fake screenshot, numerical measurement, watermark or testing claim. Landscape 16:9 about 1536px wide; keep key subjects away from edges."
+  },
+  "naver-224458624841": {
+    "src": "/assets/img/articles/naver-224458624841-1200.webp",
+    "small": "/assets/img/articles/naver-224458624841-640.webp",
+    "width": 1200,
+    "height": 675,
+    "alt": "Conceptual illustration for How to calculate Gemini Flash API costs: Separating input and output tokens.",
+    "credit": "AI-generated editorial illustration; not a product screenshot.",
+    "prompt": "Use case: stylized-concept. Asset: 16:9 editorial illustration for this specific technology article. Title: How to calculate Gemini Flash API costs: Separating input and output tokens. Summary: Gemini API costs are calculated by multiplying input, output, and thinking tokens by their respective rates and adding them together. This article explains how to calculate Gemini 3.8 Flash Standard paid rates using Google’s official pricing table.. Key sections: 1. First, confirm what tokens are; 2. Find the three rates in the pricing table; 3. Set up the monthly cost formula; 4. Calculate using a hypothetical workload. Depict the practical problem with a few recognizable physical objects and one clear visual relationship. Tactile cut-paper/clay editorial art, ivory paper background, charcoal, terracotta, sage and ochre, soft shadows, sophisticated clean composition. Vary the scene to suit this article; avoid a generic laptop and avoid unnecessary people. No written text, logos, fake screenshot, numerical measurement, watermark or testing claim. Landscape 16:9 about 1536px wide; keep key subjects away from edges."
+  },
+  "naver-224458565730": {
+    "src": "/assets/img/articles/naver-224458565730-1200.webp",
+    "small": "/assets/img/articles/naver-224458565730-640.webp",
+    "width": 1200,
+    "height": 675,
+    "alt": "Conceptual illustration for Excel XLOOKUP·VLOOKUP #N/A errors: Check the lookup value first, then handle blanks.",
+    "credit": "AI-generated editorial illustration; not a product screenshot.",
+    "prompt": "Use case: stylized-concept. Asset: 16:9 editorial illustration for this specific technology article. Title: Excel XLOOKUP·VLOOKUP #N/A errors: Check the lookup value first, then handle blanks. Summary: An #N/A error means Excel cannot find the specified value in the lookup range. This article outlines Microsoft’s recommended checks for XLOOKUP and VLOOKUP, using illustrative examples rather than a reproduced worksheet.. Key sections: 1. Check whether the lookup value actually exists in the source range; 2. Match number and text formats and remove spaces; 3. Confirm that the lookup is for an exact match; 4. Display a value only for rows that are legitimately missing. Depict the practical problem with a few recognizable physical objects and one clear visual relationship. Tactile cut-paper/clay editorial art, ivory paper background, charcoal, terracotta, sage and ochre, soft shadows, sophisticated clean composition. Vary the scene to suit this article; avoid a generic laptop and avoid unnecessary people. No written text, logos, fake screenshot, numerical measurement, watermark or testing claim. Landscape 16:9 about 1536px wide; keep key subjects away from edges."
+  },
+  "naver-224458281018": {
+    "src": "/assets/img/articles/naver-224458281018-1200.webp",
+    "small": "/assets/img/articles/naver-224458281018-640.webp",
+    "width": 1200,
+    "height": 675,
+    "alt": "Conceptual illustration for The order to free up Gmail, Drive, and Photos space when Google storage is full.",
+    "credit": "AI-generated editorial illustration; not a product screenshot.",
+    "prompt": "Use case: stylized-concept. Asset: 16:9 editorial illustration for this specific technology article. Title: The order to free up Gmail, Drive, and Photos space when Google storage is full. Summary: When Google account storage is full, Gmail, Drive, and Photos can stop working together; this guide follows Google Drive Help’s order for checking and deleting items, with menu names varying by device and app version.. Key sections: 1. Empty the trash and spam first; 2. Find large attachments in Gmail; 3. View large files in Drive by size; 4. Check duplicate files and device backups. Depict the practical problem with a few recognizable physical objects and one clear visual relationship. Tactile cut-paper/clay editorial art, ivory paper background, charcoal, terracotta, sage and ochre, soft shadows, sophisticated clean composition. Vary the scene to suit this article; avoid a generic laptop and avoid unnecessary people. No written text, logos, fake screenshot, numerical measurement, watermark or testing claim. Landscape 16:9 about 1536px wide; keep key subjects away from edges."
+  },
+  "naver-224458172704": {
+    "src": "/assets/img/articles/naver-224458172704-1200.webp",
+    "small": "/assets/img/articles/naver-224458172704-640.webp",
+    "width": 1200,
+    "height": 675,
+    "alt": "Conceptual illustration for Order of checks in Settings when the Windows time is wrong: automatic settings, time zone, and daylight saving time.",
+    "credit": "AI-generated editorial illustration; not a product screenshot.",
+    "prompt": "Use case: stylized-concept. Asset: 16:9 editorial illustration for this specific technology article. Title: Order of checks in Settings when the Windows time is wrong: automatic settings, time zone, and daylight saving time. Summary: If the Windows time is wrong, email times, file modification times, and authentication-related errors may also be affected. This article lists the Settings items to check first based on Microsoft Support, with version and testing caveats.. Key sections: 1. Check whether automatic time setting is enabled; 2. Check the time zone and daylight saving time; 3. Check the Windows Time service if the time remains wrong after enabling automatic setting; 4. Check the BIOS/UEFI time if the problem persists. Depict the practical problem with a few recognizable physical objects and one clear visual relationship. Tactile cut-paper/clay editorial art, ivory paper background, charcoal, terracotta, sage and ochre, soft shadows, sophisticated clean composition. Vary the scene to suit this article; avoid a generic laptop and avoid unnecessary people. No written text, logos, fake screenshot, numerical measurement, watermark or testing claim. Landscape 16:9 about 1536px wide; keep key subjects away from edges."
+  },
+  "naver-224458066703": {
+    "src": "/assets/img/articles/naver-224458066703-1200.webp",
+    "small": "/assets/img/articles/naver-224458066703-640.webp",
+    "width": 1200,
+    "height": 675,
+    "alt": "Conceptual illustration for Check the error code first when Windows Update fails.",
+    "credit": "AI-generated editorial illustration; not a product screenshot.",
+    "prompt": "Use case: stylized-concept. Asset: 16:9 editorial illustration for this specific technology article. Title: Check the error code first when Windows Update fails. Summary: When Windows Update fails during installation, checking the error code first is faster than trying again. This article follows Microsoft’s troubleshooting order and code-specific causes, with caveats about testing and menu names.. Key sections: 1. Find the error code for the failed update; 2. Check power, internet, and storage space first; 3. Check the troubleshooter and service status; 4. Apply one action at a time for the error code. Depict the practical problem with a few recognizable physical objects and one clear visual relationship. Tactile cut-paper/clay editorial art, ivory paper background, charcoal, terracotta, sage and ochre, soft shadows, sophisticated clean composition. Vary the scene to suit this article; avoid a generic laptop and avoid unnecessary people. No written text, logos, fake screenshot, numerical measurement, watermark or testing claim. Landscape 16:9 about 1536px wide; keep key subjects away from edges."
+  },
+  "naver-224457924306": {
+    "src": "/assets/img/articles/naver-224457924306-1200.webp",
+    "small": "/assets/img/articles/naver-224457924306-640.webp",
+    "width": 1200,
+    "height": 675,
+    "alt": "Conceptual illustration for How to find the process causing a slow PC using Task Manager: the order for reading three tabs.",
+    "credit": "AI-generated editorial illustration; not a product screenshot.",
+    "prompt": "Use case: stylized-concept. Asset: 16:9 editorial illustration for this specific technology article. Title: How to find the process causing a slow PC using Task Manager: the order for reading three tabs. Summary: When a PC suddenly slows down, open Task Manager first. This article explains how to narrow down likely causes by reading the Performance, Processes, and Details tabs in order, following Microsoft’s official documentation rather than testing on a specific PC.. Key sections: 1. Check the overall load in the Performance tab; 2. Find high-usage items in the Processes tab; 3. Check the description and user in the Details tab; 4. Four steps to check before ending a process. Depict the practical problem with a few recognizable physical objects and one clear visual relationship. Tactile cut-paper/clay editorial art, ivory paper background, charcoal, terracotta, sage and ochre, soft shadows, sophisticated clean composition. Vary the scene to suit this article; avoid a generic laptop and avoid unnecessary people. No written text, logos, fake screenshot, numerical measurement, watermark or testing claim. Landscape 16:9 about 1536px wide; keep key subjects away from edges."
+  },
+  "naver-224457776980": {
+    "src": "/assets/img/articles/naver-224457776980-1200.webp",
+    "small": "/assets/img/articles/naver-224457776980-640.webp",
+    "width": 1200,
+    "height": 675,
+    "alt": "Conceptual illustration for Four steps to fix a Windows print queue that is stuck.",
+    "credit": "AI-generated editorial illustration; not a product screenshot.",
+    "prompt": "Use case: stylized-concept. Asset: 16:9 editorial illustration for this specific technology article. Title: Four steps to fix a Windows print queue that is stuck. Summary: If a document is stuck in the print queue and later documents do not print, Microsoft recommends four steps: cancel the jobs, restart Print Spooler, clear the spool folder, and restart the printer and PC.. Key sections: 1. Cancel the jobs in the queue first; 2. Restart the Print Spooler service; 3. Clear the spool folder only when cancellation fails; 4. Restart the printer and PC. Depict the practical problem with a few recognizable physical objects and one clear visual relationship. Tactile cut-paper/clay editorial art, ivory paper background, charcoal, terracotta, sage and ochre, soft shadows, sophisticated clean composition. Vary the scene to suit this article; avoid a generic laptop and avoid unnecessary people. No written text, logos, fake screenshot, numerical measurement, watermark or testing claim. Landscape 16:9 about 1536px wide; keep key subjects away from edges."
+  },
+  "naver-224457643073": {
+    "src": "/assets/img/articles/naver-224457643073-1200.webp",
+    "small": "/assets/img/articles/naver-224457643073-640.webp",
+    "width": 1200,
+    "height": 675,
+    "alt": "Conceptual illustration for How to fix the Excel SUMIFS #VALUE! error when criteria ranges differ in size.",
+    "credit": "AI-generated editorial illustration; not a product screenshot.",
+    "prompt": "Use case: stylized-concept. Asset: 16:9 editorial illustration for this specific technology article. Title: How to fix the Excel SUMIFS #VALUE! error when criteria ranges differ in size. Summary: When SUMIFS returns a #VALUE! error, first check that all ranges in the formula have the same number of rows and columns, as Microsoft Support explains for sum_range and criteria_range.. Key sections: 1. Review the formula shape that causes the error; 2. Count the rows in each range; 3. Match the sum range to the criteria ranges; 4. Distinguish the rules for SUMIF and SUMIFS. Depict the practical problem with a few recognizable physical objects and one clear visual relationship. Tactile cut-paper/clay editorial art, ivory paper background, charcoal, terracotta, sage and ochre, soft shadows, sophisticated clean composition. Vary the scene to suit this article; avoid a generic laptop and avoid unnecessary people. No written text, logos, fake screenshot, numerical measurement, watermark or testing claim. Landscape 16:9 about 1536px wide; keep key subjects away from edges."
+  },
+  "naver-224457495277": {
+    "src": "/assets/img/articles/naver-224457495277-1200.webp",
+    "small": "/assets/img/articles/naver-224457495277-640.webp",
+    "width": 1200,
+    "height": 675,
+    "alt": "Conceptual illustration for An edit checklist to prevent AI from inventing experience when refining a personal statement.",
+    "credit": "AI-generated editorial illustration; not a product screenshot.",
+    "prompt": "Use case: stylized-concept. Asset: 16:9 editorial illustration for this specific technology article. Title: An edit checklist to prevent AI from inventing experience when refining a personal statement. Summary: Extract verifiable items such as company names, roles, periods, headcounts, amounts, figures, and certifications into a table. Treat it as the reference list and reject any AI-added experience or numbers not on it.. Key sections: 1. Make a list of the original facts first; 2. Write the scope of edits and prohibited conditions together; 3. Match the result line by line against the original list; 4. Keep figures and achievements only when supported by the original. Depict the practical problem with a few recognizable physical objects and one clear visual relationship. Tactile cut-paper/clay editorial art, ivory paper background, charcoal, terracotta, sage and ochre, soft shadows, sophisticated clean composition. Vary the scene to suit this article; avoid a generic laptop and avoid unnecessary people. No written text, logos, fake screenshot, numerical measurement, watermark or testing claim. Landscape 16:9 about 1536px wide; keep key subjects away from edges."
+  },
+  "naver-224457396360": {
+    "src": "/assets/img/articles/naver-224457396360-1200.webp",
+    "small": "/assets/img/articles/naver-224457396360-640.webp",
+    "width": 1200,
+    "height": 675,
+    "alt": "Editorial illustration of anonymized spreadsheet rows, a privacy shield, and an AI chat bubble.",
+    "credit": "AI-generated editorial illustration; not a product screenshot.",
+    "prompt": "Create a wide 16:9 original editorial illustration for an article about safely anonymizing spreadsheet examples before sharing them with an AI assistant. Tactile cut-paper and clay style, warm ivory background, sage green, terracotta, charcoal and ochre. Show two spreadsheet-like paper sheets with ONLY abstract circles, triangles and solid bars in the cells. Between the sheets show a shield and closed padlock. Add a small friendly abstract chat bubble at the right. The right sheet contains generic geometric shapes only, representing a sanitized example. Purely conceptual, not a screenshot. Absolutely NO words, NO letters, NO digits, NO names, NO contact information, NO readable data, NO logos. Spacious polished composition, crisp texture, no border, no watermark."
+  },
+  "naver-224453324043": {
+    "src": "/assets/img/articles/naver-224453324043-1200.webp",
+    "small": "/assets/img/articles/naver-224453324043-640.webp",
+    "width": 1200,
+    "height": 675,
+    "alt": "Conceptual illustration for How to Check Closing Days and Travel Times First in an AI-Generated Itinerary.",
+    "credit": "AI-generated editorial illustration; not a product screenshot.",
+    "prompt": "Use case: stylized-concept. Asset: 16:9 editorial illustration for this specific technology article. Title: How to Check Closing Days and Travel Times First in an AI-Generated Itinerary. Summary: AI can quickly create a travel itinerary, but you must separately verify closing days and travel times based on the date and departure time.. Key sections: 1. Check closing days using the place name and visit date; 2. Distinguish special hours from temporary closures; 3. Enter the departure time and recalculate the travel time; 4. Rewrite the day's timetable. Depict the practical problem with a few recognizable physical objects and one clear visual relationship. Tactile cut-paper/clay editorial art, ivory paper background, charcoal, terracotta, sage and ochre, soft shadows, sophisticated clean composition. Vary the scene to suit this article; avoid a generic laptop and avoid unnecessary people. No written text, logos, fake screenshot, numerical measurement, watermark or testing claim. Landscape 16:9 about 1536px wide; keep key subjects away from edges."
+  },
+  "naver-224453238784": {
+    "src": "/assets/img/articles/naver-224453238784-1200.webp",
+    "small": "/assets/img/articles/naver-224453238784-640.webp",
+    "width": 1200,
+    "height": 675,
+    "alt": "Conceptual illustration for A review sequence to prevent names and numbers from changing in AI translation.",
+    "credit": "AI-generated editorial illustration; not a product screenshot.",
+    "prompt": "Use case: stylized-concept. Asset: 16:9 editorial illustration for this specific technology article. Title: A review sequence to prevent names and numbers from changing in AI translation. Summary: This checklist outlines what to verify before, during, and after AI translation so that names, numbers, dates, and other critical values are not silently changed.. Key sections: 1. Mark values that must not change before translation; 2. Fix proper names with a glossary; 3. Review numbers by separating value from format; 4. Compare the translation with the source line by line. Depict the practical problem with a few recognizable physical objects and one clear visual relationship. Tactile cut-paper/clay editorial art, ivory paper background, charcoal, terracotta, sage and ochre, soft shadows, sophisticated clean composition. Vary the scene to suit this article; avoid a generic laptop and avoid unnecessary people. No written text, logos, fake screenshot, numerical measurement, watermark or testing claim. Landscape 16:9 about 1536px wide; keep key subjects away from edges."
+  },
+  "naver-224453219054": {
+    "src": "/assets/img/articles/naver-224453219054-1200.webp",
+    "small": "/assets/img/articles/naver-224453219054-640.webp",
+    "width": 1200,
+    "height": 675,
+    "alt": "Conceptual illustration for Cursor Computer Use: from writing code to testing desktop apps.",
+    "credit": "AI-generated editorial illustration; not a product screenshot.",
+    "prompt": "Use case: stylized-concept. Asset: 16:9 editorial illustration for this specific technology article. Title: Cursor Computer Use: from writing code to testing desktop apps. Summary: Cursor announced desktop app control on October 23, 2026. Its iOS Simulator example shows why coding agents need clear tests for what happens after a click.. Key sections: What was announced?; Example: Even one favorite button requires several checks; An example request to copy and adapt; Check support and permissions separately. Depict the practical problem with a few recognizable physical objects and one clear visual relationship. Tactile cut-paper/clay editorial art, ivory paper background, charcoal, terracotta, sage and ochre, soft shadows, sophisticated clean composition. Vary the scene to suit this article; avoid a generic laptop and avoid unnecessary people. No written text, logos, fake screenshot, numerical measurement, watermark or testing claim. Landscape 16:9 about 1536px wide; keep key subjects away from edges."
+  },
+  "naver-224453141545": {
+    "src": "/assets/img/articles/naver-224453141545-1200.webp",
+    "small": "/assets/img/articles/naver-224453141545-640.webp",
+    "width": 1200,
+    "height": 675,
+    "alt": "Conceptual illustration for What to check when Google Calendar spam invitations are added automatically.",
+    "credit": "AI-generated editorial illustration; not a product screenshot.",
+    "prompt": "Use case: stylized-concept. Asset: 16:9 editorial illustration for this specific technology article. Title: What to check when Google Calendar spam invitations are added automatically. Summary: If calendar invitations from unknown people keep appearing, check Google Calendar’s automatic invitation settings, avoid suspicious links, and remove existing spam events separately.. Key sections: 1. Check the automatic addition setting first; 2. Understand the “known sender” criteria precisely; 3. Five actions to avoid; 4. How to clear existing spam events. Depict the practical problem with a few recognizable physical objects and one clear visual relationship. Tactile cut-paper/clay editorial art, ivory paper background, charcoal, terracotta, sage and ochre, soft shadows, sophisticated clean composition. Vary the scene to suit this article; avoid a generic laptop and avoid unnecessary people. No written text, logos, fake screenshot, numerical measurement, watermark or testing claim. Landscape 16:9 about 1536px wide; keep key subjects away from edges."
+  },
+  "naver-224452956576": {
+    "src": "/assets/img/articles/naver-224452956576-1200.webp",
+    "small": "/assets/img/articles/naver-224452956576-640.webp",
+    "width": 1200,
+    "height": 675,
+    "alt": "Conceptual illustration for How to recover a mistakenly deleted sentence using Google Docs version history.",
+    "credit": "AI-generated editorial illustration; not a product screenshot.",
+    "prompt": "Use case: stylized-concept. Asset: 16:9 editorial illustration for this specific technology article. Title: How to recover a mistakenly deleted sentence using Google Docs version history. Summary: If you discover a sentence was accidentally deleted after multiple saves, Undo (Ctrl+Z) may not be enough. This article outlines the recovery steps based on Google Docs Help, while noting they were not tested on an actual document.. Key sections: 1. Check permissions and the editing time first; 2. Select the version just before the deletion; 3. Move only the needed paragraph and leave the rest unchanged; 4. Stop before deleting version history. Depict the practical problem with a few recognizable physical objects and one clear visual relationship. Tactile cut-paper/clay editorial art, ivory paper background, charcoal, terracotta, sage and ochre, soft shadows, sophisticated clean composition. Vary the scene to suit this article; avoid a generic laptop and avoid unnecessary people. No written text, logos, fake screenshot, numerical measurement, watermark or testing claim. Landscape 16:9 about 1536px wide; keep key subjects away from edges."
+  },
+  "naver-224452872906": {
+    "src": "/assets/img/articles/naver-224452872906-1200.webp",
+    "small": "/assets/img/articles/naver-224452872906-640.webp",
+    "width": 1200,
+    "height": 675,
+    "alt": "Conceptual illustration for How to Distinguish Viewer, Commenter, and Editor Permissions for Google Drive Shared Links.",
+    "credit": "AI-generated editorial illustration; not a product screenshot.",
+    "prompt": "Use case: stylized-concept. Asset: 16:9 editorial illustration for this specific technology article. Title: How to Distinguish Viewer, Commenter, and Editor Permissions for Google Drive Shared Links. Summary: When sharing a Google Drive file, choose separately whether people with the link can view, comment, or edit; this article explains the differences and what to check before sharing.. Key sections: 1. Permissions are divided into Viewer, Commenter, and Editor; 2. First choose whether to share with people or through a link; 3. Four things to check before copying the link; 4. Examples of choosing permissions in hypothetical situations. Depict the practical problem with a few recognizable physical objects and one clear visual relationship. Tactile cut-paper/clay editorial art, ivory paper background, charcoal, terracotta, sage and ochre, soft shadows, sophisticated clean composition. Vary the scene to suit this article; avoid a generic laptop and avoid unnecessary people. No written text, logos, fake screenshot, numerical measurement, watermark or testing claim. Landscape 16:9 about 1536px wide; keep key subjects away from edges."
+  },
+  "naver-224452812389": {
+    "src": "/assets/img/articles/naver-224452812389-1200.webp",
+    "small": "/assets/img/articles/naver-224452812389-640.webp",
+    "width": 1200,
+    "height": 675,
+    "alt": "Conceptual illustration for Why PowerPoint fonts change on another PC and what to check before saving.",
+    "credit": "AI-generated editorial illustration; not a product screenshot.",
+    "prompt": "Use case: stylized-concept. Asset: 16:9 editorial illustration for this specific technology article. Title: Why PowerPoint fonts change on another PC and what to check before saving. Summary: PowerPoint fonts may change on another computer when the required font is unavailable. This article explains how to embed fonts, check embedding permissions, and verify settings before sending the file.. Key sections: 1. Divide the causes of font changes into two types; 2. Turn on font embedding in File Options; 3. If embedding does not work, check the font's permission level; 4. Example using a hypothetical presentation file. Depict the practical problem with a few recognizable physical objects and one clear visual relationship. Tactile cut-paper/clay editorial art, ivory paper background, charcoal, terracotta, sage and ochre, soft shadows, sophisticated clean composition. Vary the scene to suit this article; avoid a generic laptop and avoid unnecessary people. No written text, logos, fake screenshot, numerical measurement, watermark or testing claim. Landscape 16:9 about 1536px wide; keep key subjects away from edges."
+  },
+  "naver-224452771777": {
+    "src": "/assets/img/articles/naver-224452771777-1200.webp",
+    "small": "/assets/img/articles/naver-224452771777-640.webp",
+    "width": 1200,
+    "height": 675,
+    "alt": "Conceptual illustration for How to Automatically Create a Table of Contents in Word: Start by Setting Heading Styles.",
+    "credit": "AI-generated editorial illustration; not a product screenshot.",
+    "prompt": "Use case: stylized-concept. Asset: 16:9 editorial illustration for this specific technology article. Title: How to Automatically Create a Table of Contents in Word: Start by Setting Heading Styles. Summary: Word creates a table of contents from heading styles, so check and apply heading formatting before inserting and updating the table.. Key sections: 1. Apply heading styles to the lines you want to include; 2. Insert an automatic table of contents at the beginning of the document; 3. Check missing lines in this order; 4. Update the table of contents after editing the document. Depict the practical problem with a few recognizable physical objects and one clear visual relationship. Tactile cut-paper/clay editorial art, ivory paper background, charcoal, terracotta, sage and ochre, soft shadows, sophisticated clean composition. Vary the scene to suit this article; avoid a generic laptop and avoid unnecessary people. No written text, logos, fake screenshot, numerical measurement, watermark or testing claim. Landscape 16:9 about 1536px wide; keep key subjects away from edges."
+  },
+  "naver-224452739395": {
+    "src": "/assets/img/articles/naver-224452739395-1200.webp",
+    "small": "/assets/img/articles/naver-224452739395-640.webp",
+    "width": 1200,
+    "height": 675,
+    "alt": "Conceptual illustration for How to Create an Excel Drop-Down List and Reduce Input Errors.",
+    "credit": "AI-generated editorial illustration; not a product screenshot.",
+    "prompt": "Use case: stylized-concept. Asset: 16:9 editorial illustration for this specific technology article. Title: How to Create an Excel Drop-Down List and Reduce Input Errors. Summary: Learn how to create an Excel drop-down list with Data Validation, configure its source, and manage the list later based on Microsoft support documentation.. Key sections: 1. Basic setup sequence; 2. Choose from four list sources; 3. Example using a hypothetical department list; 4. Configuring input messages and error alerts. Depict the practical problem with a few recognizable physical objects and one clear visual relationship. Tactile cut-paper/clay editorial art, ivory paper background, charcoal, terracotta, sage and ochre, soft shadows, sophisticated clean composition. Vary the scene to suit this article; avoid a generic laptop and avoid unnecessary people. No written text, logos, fake screenshot, numerical measurement, watermark or testing claim. Landscape 16:9 about 1536px wide; keep key subjects away from edges."
+  },
+  "naver-224452548314": {
+    "src": "/assets/img/articles/naver-224452548314-1200.webp",
+    "small": "/assets/img/articles/naver-224452548314-640.webp",
+    "width": 1200,
+    "height": 675,
+    "alt": "Conceptual illustration for Steps to preserve the original before removing duplicates in Excel.",
+    "credit": "AI-generated editorial illustration; not a product screenshot.",
+    "prompt": "Use case: stylized-concept. Asset: 16:9 editorial illustration for this specific technology article. Title: Steps to preserve the original before removing duplicates in Excel. Summary: When Excel contains repeated order numbers or customer names, preserve the original and check which rows are duplicates before using Remove Duplicates, which Microsoft says permanently deletes duplicate data.. Key sections: 1. A duplicate exists only when all compared column values match; 2. Copy the original range to another location first; 3. Preview the results with a unique-values filter; 4. Pre-removal checklist. Depict the practical problem with a few recognizable physical objects and one clear visual relationship. Tactile cut-paper/clay editorial art, ivory paper background, charcoal, terracotta, sage and ochre, soft shadows, sophisticated clean composition. Vary the scene to suit this article; avoid a generic laptop and avoid unnecessary people. No written text, logos, fake screenshot, numerical measurement, watermark or testing claim. Landscape 16:9 about 1536px wide; keep key subjects away from edges."
+  },
+  "naver-224452463565": {
+    "src": "/assets/img/articles/naver-224452463565-1200.webp",
+    "small": "/assets/img/articles/naver-224452463565-640.webp",
+    "width": 1200,
+    "height": 675,
+    "alt": "Conceptual illustration for How to fit a table to one page wide when it is cut off during Excel printing.",
+    "credit": "AI-generated editorial illustration; not a product screenshot.",
+    "prompt": "Use case: stylized-concept. Asset: 16:9 editorial illustration for this specific technology article. Title: How to fit a table to one page wide when it is cut off during Excel printing. Summary: When Excel prints a table across pages, adjust scaling to fit all columns to one page wide, check readability, and repeat the header row when the table spans multiple pages.. Key sections: 1. Why the table is cut off; 2. Steps to fit the table to one page wide; 3. Setting the same values in the Page Setup window; 4. What to check when the text is too small. Depict the practical problem with a few recognizable physical objects and one clear visual relationship. Tactile cut-paper/clay editorial art, ivory paper background, charcoal, terracotta, sage and ochre, soft shadows, sophisticated clean composition. Vary the scene to suit this article; avoid a generic laptop and avoid unnecessary people. No written text, logos, fake screenshot, numerical measurement, watermark or testing claim. Landscape 16:9 about 1536px wide; keep key subjects away from edges."
+  },
+  "naver-224452387862": {
+    "src": "/assets/img/articles/naver-224452387862-1200.webp",
+    "small": "/assets/img/articles/naver-224452387862-640.webp",
+    "width": 1200,
+    "height": 675,
+    "alt": "Conceptual illustration for 4 ways to enter values without losing leading zeros in Excel (00123 example).",
+    "credit": "AI-generated editorial illustration; not a product screenshot.",
+    "prompt": "Use case: stylized-concept. Asset: 16:9 editorial illustration for this specific technology article. Title: 4 ways to enter values without losing leading zeros in Excel (00123 example). Summary: When you enter a value such as 00123 in Excel, the leading zeros may disappear. This article compares five methods for preserving them and explains which option to choose by situation.. Key sections: 1. Why the 0 disappears; 2. Comparing four methods with the same value, 00123; 3. Formatting cannot restore zeros that have already disappeared; 4. Prevent the issue during CSV import. Depict the practical problem with a few recognizable physical objects and one clear visual relationship. Tactile cut-paper/clay editorial art, ivory paper background, charcoal, terracotta, sage and ochre, soft shadows, sophisticated clean composition. Vary the scene to suit this article; avoid a generic laptop and avoid unnecessary people. No written text, logos, fake screenshot, numerical measurement, watermark or testing claim. Landscape 16:9 about 1536px wide; keep key subjects away from edges."
+  },
+  "naver-224452296908": {
+    "src": "/assets/img/articles/naver-224452296908-1200.webp",
+    "small": "/assets/img/articles/naver-224452296908-640.webp",
+    "width": 1200,
+    "height": 675,
+    "alt": "Conceptual illustration for Reducing Shadows and Skew When Scanning Documents with a Smartphone.",
+    "credit": "AI-generated editorial illustration; not a product screenshot.",
+    "prompt": "Use case: stylized-concept. Asset: 16:9 editorial illustration for this specific technology article. Title: Reducing Shadows and Skew When Scanning Documents with a Smartphone. Summary: Scanning documents with a smartphone is convenient, but shadows and skew can blur text and make OCR difficult. This article explains how to reduce both before, during, and after shooting.. Key sections: 1. Before shooting: Choose a spot that prevents shadows; 2. While shooting: Shoot parallel to the guide lines; 3. Before saving: Check the corners and filter yourself; 4. Four checks before saving. Depict the practical problem with a few recognizable physical objects and one clear visual relationship. Tactile cut-paper/clay editorial art, ivory paper background, charcoal, terracotta, sage and ochre, soft shadows, sophisticated clean composition. Vary the scene to suit this article; avoid a generic laptop and avoid unnecessary people. No written text, logos, fake screenshot, numerical measurement, watermark or testing claim. Landscape 16:9 about 1536px wide; keep key subjects away from edges."
+  },
+  "naver-224452206397": {
+    "src": "/assets/img/articles/naver-224452206397-1200.webp",
+    "small": "/assets/img/articles/naver-224452206397-640.webp",
+    "width": 1200,
+    "height": 675,
+    "alt": "Conceptual illustration for Checklist for confirming page order before merging multiple PDFs.",
+    "credit": "AI-generated editorial illustration; not a product screenshot.",
+    "prompt": "Use case: stylized-concept. Asset: 16:9 editorial illustration for this specific technology article. Title: Checklist for confirming page order before merging multiple PDFs. Summary: Before merging PDFs, record each file’s page count and order, then compare the merged file against the same checklist to catch misplaced, missing, or duplicated pages.. Key sections: 1. Add sequence numbers to file names; 2. Record each file’s page count first; 3. Preview the order and unnecessary pages in the merge window; 4. Compare the page count and boundary pages after merging. Depict the practical problem with a few recognizable physical objects and one clear visual relationship. Tactile cut-paper/clay editorial art, ivory paper background, charcoal, terracotta, sage and ochre, soft shadows, sophisticated clean composition. Vary the scene to suit this article; avoid a generic laptop and avoid unnecessary people. No written text, logos, fake screenshot, numerical measurement, watermark or testing claim. Landscape 16:9 about 1536px wide; keep key subjects away from edges."
+  },
+  "naver-224452120218": {
+    "src": "/assets/img/articles/naver-224452120218-1200.webp",
+    "small": "/assets/img/articles/naver-224452120218-640.webp",
+    "width": 1200,
+    "height": 675,
+    "alt": "Conceptual illustration for Steps for checking OCR errors in numbers and dates after scanning documents.",
+    "credit": "AI-generated editorial illustration; not a product screenshot.",
+    "prompt": "Use case: stylized-concept. Asset: 16:9 editorial illustration for this specific technology article. Title: Steps for checking OCR errors in numbers and dates after scanning documents. Summary: OCR can make scanned PDFs searchable, but recognition may still differ from the original. This article explains how to compare numbers and dates with the original, emphasizing that you should work on a copy.. Key sections: 1. Preserve the original scan file first; 2. Match amounts and quantities in the same cells; 3. Check date format and order together; 4. Cross-check using totals and item counts. Depict the practical problem with a few recognizable physical objects and one clear visual relationship. Tactile cut-paper/clay editorial art, ivory paper background, charcoal, terracotta, sage and ochre, soft shadows, sophisticated clean composition. Vary the scene to suit this article; avoid a generic laptop and avoid unnecessary people. No written text, logos, fake screenshot, numerical measurement, watermark or testing claim. Landscape 16:9 about 1536px wide; keep key subjects away from edges."
+  },
+  "naver-224452031818": {
+    "src": "/assets/img/articles/naver-224452031818-1200.webp",
+    "small": "/assets/img/articles/naver-224452031818-640.webp",
+    "width": 1200,
+    "height": 675,
+    "alt": "Conceptual illustration for How to determine whether OCR is needed when PDF text cannot be copied.",
+    "credit": "AI-generated editorial illustration; not a product screenshot.",
+    "prompt": "Use case: stylized-concept. Asset: 16:9 editorial illustration for this specific technology article. Title: How to determine whether OCR is needed when PDF text cannot be copied. Summary: If you cannot select or copy text in a PDF, it may be a scanned image or protected by security settings. This article explains how to test text selection, decide whether OCR is needed, and work from a copy.. Key sections: 1. First check whether the text can actually be selected; 2. OCR can create a text layer in scanned PDFs; 3. Example of a simple detection script and its limitations; 4. Preserve the original and check permissions before OCR. Depict the practical problem with a few recognizable physical objects and one clear visual relationship. Tactile cut-paper/clay editorial art, ivory paper background, charcoal, terracotta, sage and ochre, soft shadows, sophisticated clean composition. Vary the scene to suit this article; avoid a generic laptop and avoid unnecessary people. No written text, logos, fake screenshot, numerical measurement, watermark or testing claim. Landscape 16:9 about 1536px wide; keep key subjects away from edges."
+  },
+  "naver-224451962911": {
+    "src": "/assets/img/articles/naver-224451962911-1200.webp",
+    "small": "/assets/img/articles/naver-224451962911-640.webp",
+    "width": 1200,
+    "height": 675,
+    "alt": "Conceptual illustration for How to Mask Personal Information in Windows Screenshots and Check for Original Traces.",
+    "credit": "AI-generated editorial illustration; not a product screenshot.",
+    "prompt": "Use case: stylized-concept. Asset: 16:9 editorial illustration for this specific technology article. Title: How to Mask Personal Information in Windows Screenshots and Check for Original Traces. Summary: This guide explains how to mask personal information with Windows 11 Snipping Tool, save the edited image safely, and check whether original data remains in a PNG file.. Key sections: 1. The safest order is to mask information before capturing; 2. Check Snipping Tool’s masking features; 3. Save under another name and avoid overwriting; 4. Check the end of the saved PNG file. Depict the practical problem with a few recognizable physical objects and one clear visual relationship. Tactile cut-paper/clay editorial art, ivory paper background, charcoal, terracotta, sage and ochre, soft shadows, sophisticated clean composition. Vary the scene to suit this article; avoid a generic laptop and avoid unnecessary people. No written text, logos, fake screenshot, numerical measurement, watermark or testing claim. Landscape 16:9 about 1536px wide; keep key subjects away from edges."
+  },
+  "naver-224451917457": {
+    "src": "/assets/img/articles/naver-224451917457-1200.webp",
+    "small": "/assets/img/articles/naver-224451917457-640.webp",
+    "width": 1200,
+    "height": 675,
+    "alt": "Conceptual illustration for How to choose between sleep and hibernate on a laptop.",
+    "credit": "AI-generated editorial illustration; not a product screenshot.",
+    "prompt": "Use case: stylized-concept. Asset: 16:9 editorial illustration for this specific technology article. Title: How to choose between sleep and hibernate on a laptop. Summary: If you are unsure whether to choose sleep or hibernate when closing your laptop, consider how long you will be away and whether you can connect a charger.. Key sections: 1. The difference between the two modes at a glance; 2. Three selection criteria; 3. How to enable hibernate when it is missing from the menu; 4. Where to set the automatic sleep time. Depict the practical problem with a few recognizable physical objects and one clear visual relationship. Tactile cut-paper/clay editorial art, ivory paper background, charcoal, terracotta, sage and ochre, soft shadows, sophisticated clean composition. Vary the scene to suit this article; avoid a generic laptop and avoid unnecessary people. No written text, logos, fake screenshot, numerical measurement, watermark or testing claim. Landscape 16:9 about 1536px wide; keep key subjects away from edges."
+  },
+  "naver-224451885204": {
+    "src": "/assets/img/articles/naver-224451885204-1200.webp",
+    "small": "/assets/img/articles/naver-224451885204-640.webp",
+    "width": 1200,
+    "height": 675,
+    "alt": "Conceptual illustration for What to Check When Wi-Fi Is Connected but the Internet Does Not Work.",
+    "credit": "AI-generated editorial illustration; not a product screenshot.",
+    "prompt": "Use case: stylized-concept. Asset: 16:9 editorial illustration for this specific technology article. Title: What to Check When Wi-Fi Is Connected but the Internet Does Not Work. Summary: If the Wi-Fi icon says connected but web pages do not open, check where the path to the internet is broken, in order from the PC to the router and connection.. Key sections: Step 1. Distinguish what the icon means; Step 2. Check the troubleshooter and Airplane mode; Step 3. Test the same Wi-Fi with another device; Step 4. Check whether you can ping the router. Depict the practical problem with a few recognizable physical objects and one clear visual relationship. Tactile cut-paper/clay editorial art, ivory paper background, charcoal, terracotta, sage and ochre, soft shadows, sophisticated clean composition. Vary the scene to suit this article; avoid a generic laptop and avoid unnecessary people. No written text, logos, fake screenshot, numerical measurement, watermark or testing claim. Landscape 16:9 about 1536px wide; keep key subjects away from edges."
+  },
+  "naver-224451703813": {
+    "src": "/assets/img/articles/naver-224451703813-1200.webp",
+    "small": "/assets/img/articles/naver-224451703813-640.webp",
+    "width": 1200,
+    "height": 675,
+    "alt": "Conceptual illustration for What to check when Bluetooth earbuds connect to Windows but produce no sound.",
+    "credit": "AI-generated editorial illustration; not a product screenshot.",
+    "prompt": "Use case: stylized-concept. Asset: 16:9 editorial illustration for this specific technology article. Title: What to check when Bluetooth earbuds connect to Windows but produce no sound. Summary: If Bluetooth earbuds are connected to a PC but produce no sound, check the output device, connection status, audio format, and drivers before concluding that the earbuds are defective.. Key sections: Step 1. Check that the earbuds are the output device; Step 2. Remove the device and reconnect it; Step 3. Set the audio format to standard quality; Step 4. Check the driver and restart the PC. Depict the practical problem with a few recognizable physical objects and one clear visual relationship. Tactile cut-paper/clay editorial art, ivory paper background, charcoal, terracotta, sage and ochre, soft shadows, sophisticated clean composition. Vary the scene to suit this article; avoid a generic laptop and avoid unnecessary people. No written text, logos, fake screenshot, numerical measurement, watermark or testing claim. Landscape 16:9 about 1536px wide; keep key subjects away from edges."
+  },
+  "naver-224451614131": {
+    "src": "/assets/img/articles/naver-224451614131-1200.webp",
+    "small": "/assets/img/articles/naver-224451614131-640.webp",
+    "width": 1200,
+    "height": 675,
+    "alt": "Conceptual illustration for What to check first in Volume Mixer when only a specific Windows app has no sound.",
+    "credit": "AI-generated editorial illustration; not a product screenshot.",
+    "prompt": "Use case: stylized-concept. Asset: 16:9 editorial illustration for this specific technology article. Title: What to check first in Volume Mixer when only a specific Windows app has no sound. Summary: When Windows alert sounds work but a specific app has no audio, the cause is often the app volume or output device rather than a faulty speaker; this article presents Microsoft’s checks in order.. Key sections: Step 1. Unmute the app in Volume Mixer; Step 2. Check the app-specific output device; Step 3. Restart the Windows audio services; Step 4. Update the audio driver. Depict the practical problem with a few recognizable physical objects and one clear visual relationship. Tactile cut-paper/clay editorial art, ivory paper background, charcoal, terracotta, sage and ochre, soft shadows, sophisticated clean composition. Vary the scene to suit this article; avoid a generic laptop and avoid unnecessary people. No written text, logos, fake screenshot, numerical measurement, watermark or testing claim. Landscape 16:9 about 1536px wide; keep key subjects away from edges."
+  },
+  "naver-224451521289": {
+    "src": "/assets/img/articles/naver-224451521289-1200.webp",
+    "small": "/assets/img/articles/naver-224451521289-640.webp",
+    "width": 1200,
+    "height": 675,
+    "alt": "Conceptual illustration for The order to check app permissions first when Windows microphone audio is not coming through.",
+    "credit": "AI-generated editorial illustration; not a product screenshot.",
+    "prompt": "Use case: stylized-concept. Asset: 16:9 editorial illustration for this specific technology article. Title: The order to check app permissions first when Windows microphone audio is not coming through. Summary: When someone says, “I can’t hear you” in a video meeting, check Windows microphone permissions and the selected input device before assuming the microphone is broken.. Key sections: Step 1. Check the overall microphone access settings; Step 2. Check Store apps and desktop apps separately; Step 3. Check the sound with the input device and a recording sample; Step 4. Check the troubleshooter and driver. Depict the practical problem with a few recognizable physical objects and one clear visual relationship. Tactile cut-paper/clay editorial art, ivory paper background, charcoal, terracotta, sage and ochre, soft shadows, sophisticated clean composition. Vary the scene to suit this article; avoid a generic laptop and avoid unnecessary people. No written text, logos, fake screenshot, numerical measurement, watermark or testing claim. Landscape 16:9 about 1536px wide; keep key subjects away from edges."
+  },
+  "naver-224451385831": {
+    "src": "/assets/img/articles/naver-224451385831-1200.webp",
+    "small": "/assets/img/articles/naver-224451385831-640.webp",
+    "width": 1200,
+    "height": 675,
+    "alt": "Conceptual illustration for Four steps to check when Korean input does not work in Windows.",
+    "credit": "AI-generated editorial illustration; not a product screenshot.",
+    "prompt": "Use case: stylized-concept. Asset: 16:9 editorial illustration for this specific technology article. Title: Four steps to check when Korean input does not work in Windows. Summary: When Korean input suddenly stops working or only English appears, check the input language, A/Korean mode, and whether Microsoft IME is selected, then test switching in Notepad and check for app conflicts.. Key sections: Step 1. Check the current input language on the taskbar; Step 2. Check the input mode using A and Korean indicators; Step 3. Check whether Microsoft IME is installed; Step 4. Check Korean-English switching and shortcut conflicts in Notepad. Depict the practical problem with a few recognizable physical objects and one clear visual relationship. Tactile cut-paper/clay editorial art, ivory paper background, charcoal, terracotta, sage and ochre, soft shadows, sophisticated clean composition. Vary the scene to suit this article; avoid a generic laptop and avoid unnecessary people. No written text, logos, fake screenshot, numerical measurement, watermark or testing claim. Landscape 16:9 about 1536px wide; keep key subjects away from edges."
+  },
+  "naver-224451247249": {
+    "src": "/assets/img/articles/naver-224451247249-1200.webp",
+    "small": "/assets/img/articles/naver-224451247249-640.webp",
+    "width": 1200,
+    "height": 675,
+    "alt": "Conceptual illustration for Steps and shortcuts to recover a Windows window that disappeared off-screen.",
+    "credit": "AI-generated editorial illustration; not a product screenshot.",
+    "prompt": "Use case: stylized-concept. Asset: 16:9 editorial illustration for this specific technology article. Title: Steps and shortcuts to recover a Windows window that disappeared off-screen. Summary: After disconnecting a monitor, a window may remain off-screen even though its taskbar icon is visible. This guide explains how to bring it back using Microsoft’s official shortcut list.. Key sections: 1. First, try the monitor movement shortcuts; 2. Activate the window with the taskbar and Alt + Tab; 3. Use the Move command in the window menu; 4. Moving from the taskbar icon is community guidance. Depict the practical problem with a few recognizable physical objects and one clear visual relationship. Tactile cut-paper/clay editorial art, ivory paper background, charcoal, terracotta, sage and ochre, soft shadows, sophisticated clean composition. Vary the scene to suit this article; avoid a generic laptop and avoid unnecessary people. No written text, logos, fake screenshot, numerical measurement, watermark or testing claim. Landscape 16:9 about 1536px wide; keep key subjects away from edges."
+  },
+  "naver-224451126769": {
+    "src": "/assets/img/articles/naver-224451126769-1200.webp",
+    "small": "/assets/img/articles/naver-224451126769-640.webp",
+    "width": 1200,
+    "height": 675,
+    "alt": "Conceptual illustration for How to restore PDF file associations when Windows changes the default app.",
+    "credit": "AI-generated editorial illustration; not a product screenshot.",
+    "prompt": "Use case: stylized-concept. Asset: 16:9 editorial illustration for this specific technology article. Title: How to restore PDF file associations when Windows changes the default app. Summary: If the wrong program opens when you double-click a PDF, Windows’ default app setting may have changed. This guide follows Microsoft’s official settings path to reassign PDF files and verify the change.. Key sections: 1. First, check which app handles PDFs; 2. Change the default app for .pdf files in Settings; 3. Verify the change with an actual file; 4. Checklist when the setting changes back. Depict the practical problem with a few recognizable physical objects and one clear visual relationship. Tactile cut-paper/clay editorial art, ivory paper background, charcoal, terracotta, sage and ochre, soft shadows, sophisticated clean composition. Vary the scene to suit this article; avoid a generic laptop and avoid unnecessary people. No written text, logos, fake screenshot, numerical measurement, watermark or testing claim. Landscape 16:9 about 1536px wide; keep key subjects away from edges."
+  },
+  "naver-224450994568": {
+    "src": "/assets/img/articles/naver-224450994568-1200.webp",
+    "small": "/assets/img/articles/naver-224450994568-640.webp",
+    "width": 1200,
+    "height": 675,
+    "alt": "Conceptual illustration for How to Show Windows File Extensions and Identify Double-Extension Files.",
+    "credit": "AI-generated editorial illustration; not a product screenshot.",
+    "prompt": "Use case: stylized-concept. Asset: 16:9 editorial illustration for this specific technology article. Title: How to Show Windows File Extensions and Identify Double-Extension Files. Summary: Learn how to show file extensions in Windows and check double-extension files such as name.pdf.exe before opening them, based on Microsoft’s official support documentation.. Key sections: 1. Extensions identify file types; 2. Turn on extension display: File Explorer’s View menu; 3. Check double extensions from the last extension; 4. Four checks before opening a file. Depict the practical problem with a few recognizable physical objects and one clear visual relationship. Tactile cut-paper/clay editorial art, ivory paper background, charcoal, terracotta, sage and ochre, soft shadows, sophisticated clean composition. Vary the scene to suit this article; avoid a generic laptop and avoid unnecessary people. No written text, logos, fake screenshot, numerical measurement, watermark or testing claim. Landscape 16:9 about 1536px wide; keep key subjects away from edges."
+  },
+  "naver-224450895817": {
+    "src": "/assets/img/articles/naver-224450895817-1200.webp",
+    "small": "/assets/img/articles/naver-224450895817-640.webp",
+    "width": 1200,
+    "height": 675,
+    "alt": "Conceptual illustration for Organizing Windows startup programs: Three steps to check before disabling them.",
+    "credit": "AI-generated editorial illustration; not a product screenshot.",
+    "prompt": "Use case: stylized-concept. Asset: 16:9 editorial illustration for this specific technology article. Title: Organizing Windows startup programs: Three steps to check before disabling them. Summary: If the desktop appears slowly or disk usage stays high after startup, startup programs may be responsible. Check each item before disabling it to avoid stopping essential features such as antivirus, input methods, and device assistants.. Key sections: 1. There are two locations: Settings and Task Manager; 2. Impact measures startup speed, not necessity; 3. Check three things before disabling an item; 4. Disable one item at a time and restart to check. Depict the practical problem with a few recognizable physical objects and one clear visual relationship. Tactile cut-paper/clay editorial art, ivory paper background, charcoal, terracotta, sage and ochre, soft shadows, sophisticated clean composition. Vary the scene to suit this article; avoid a generic laptop and avoid unnecessary people. No written text, logos, fake screenshot, numerical measurement, watermark or testing claim. Landscape 16:9 about 1536px wide; keep key subjects away from edges."
+  },
+  "naver-224450839939": {
+    "src": "/assets/img/articles/naver-224450839939-1200.webp",
+    "small": "/assets/img/articles/naver-224450839939-640.webp",
+    "width": 1200,
+    "height": 675,
+    "alt": "Conceptual illustration for How to separate temporary and personal files when Windows storage is low.",
+    "credit": "AI-generated editorial illustration; not a product screenshot.",
+    "prompt": "Use case: stylized-concept. Asset: 16:9 editorial illustration for this specific technology article. Title: How to separate temporary and personal files when Windows storage is low. Summary: When Windows warns that storage is low, separate items Storage Sense can delete automatically from personal files that require your judgment, following Microsoft’s official guidance for Windows 11.. Key sections: 1. First, check the status on the storage screen; 2. Temporary files and the Recycle Bin are automatic cleanup targets; 3. Choose cleanup recommendations by checking each item’s size; 4. Personal files are not automatically cleaned up. Depict the practical problem with a few recognizable physical objects and one clear visual relationship. Tactile cut-paper/clay editorial art, ivory paper background, charcoal, terracotta, sage and ochre, soft shadows, sophisticated clean composition. Vary the scene to suit this article; avoid a generic laptop and avoid unnecessary people. No written text, logos, fake screenshot, numerical measurement, watermark or testing claim. Landscape 16:9 about 1536px wide; keep key subjects away from edges."
+  },
+  "naver-224450597776": {
+    "src": "/assets/img/articles/naver-224450597776-1200.webp",
+    "small": "/assets/img/articles/naver-224450597776-640.webp",
+    "width": 1200,
+    "height": 675,
+    "alt": "Conceptual illustration for GTC Berlin 2026 local AI announcements: distinguishing available features from upcoming releases.",
+    "credit": "AI-generated editorial illustration; not a product screenshot.",
+    "prompt": "Use case: stylized-concept. Asset: 16:9 editorial illustration for this specific technology article. Title: GTC Berlin 2026 local AI announcements: distinguishing available features from upcoming releases. Summary: NVIDIA’s GTC Berlin 2026 local AI announcements include items already available, starting supply on October 23, and releases later this month or in December.. Key sections: 1. Check the event name first; 2. Why the three product lines should not be treated as the same equipment; 3. What is available now; 4. What is coming on October 23 and later this month. Depict the practical problem with a few recognizable physical objects and one clear visual relationship. Tactile cut-paper/clay editorial art, ivory paper background, charcoal, terracotta, sage and ochre, soft shadows, sophisticated clean composition. Vary the scene to suit this article; avoid a generic laptop and avoid unnecessary people. No written text, logos, fake screenshot, numerical measurement, watermark or testing claim. Landscape 16:9 about 1536px wide; keep key subjects away from edges."
+  },
+  "naver-224450092246": {
+    "src": "/assets/img/articles/naver-224450092246-1200.webp",
+    "small": "/assets/img/articles/naver-224450092246-640.webp",
+    "width": 1200,
+    "height": 675,
+    "alt": "Conceptual illustration for Comparing Korean emails from ChatGPT, Claude, and Gemini: How to test them directly under the same conditions.",
+    "credit": "AI-generated editorial illustration; not a product screenshot.",
+    "prompt": "Use case: stylized-concept. Asset: 16:9 editorial illustration for this specific technology article. Title: Comparing Korean emails from ChatGPT, Claude, and Gemini: How to test them directly under the same conditions. Summary: This article does not rank ChatGPT, Claude, and Gemini because Gemini was inaccessible in the author’s environment on October 20, 2026; it provides a fair testing method and scoring sheet instead.. Key sections: 1. Why comparisons can easily become unreliable; 2. Five ways to keep conditions fixed; 3. Three test prompts (all hypothetical situations); 4. Scoring sheet. Depict the practical problem with a few recognizable physical objects and one clear visual relationship. Tactile cut-paper/clay editorial art, ivory paper background, charcoal, terracotta, sage and ochre, soft shadows, sophisticated clean composition. Vary the scene to suit this article; avoid a generic laptop and avoid unnecessary people. No written text, logos, fake screenshot, numerical measurement, watermark or testing claim. Landscape 16:9 about 1536px wide; keep key subjects away from edges."
+  },
+  "naver-224449655627": {
+    "src": "/assets/img/articles/naver-224449655627-1200.webp",
+    "small": "/assets/img/articles/naver-224449655627-640.webp",
+    "width": 1200,
+    "height": 675,
+    "alt": "Conceptual illustration for Steps to preserve original quality when transferring smartphone photos to a PC: Check iCloud originals and verify the import.",
+    "credit": "AI-generated editorial illustration; not a product screenshot.",
+    "prompt": "Use case: stylized-concept. Asset: 16:9 editorial illustration for this specific technology article. Title: Steps to preserve original quality when transferring smartphone photos to a PC: Check iCloud originals and verify the import. Summary: Photos may seem lower quality after transfer because the PC received a non-original file, the format changed, or the original was not on the phone; check the source and verify the result.. Key sections: 1. First check whether the original is on the phone; 2. Choose an import method suited to the device and PC combination; 3. Format settings apply only to files captured in the future; 4. Compare the files using a checklist after transfer. Depict the practical problem with a few recognizable physical objects and one clear visual relationship. Tactile cut-paper/clay editorial art, ivory paper background, charcoal, terracotta, sage and ochre, soft shadows, sophisticated clean composition. Vary the scene to suit this article; avoid a generic laptop and avoid unnecessary people. No written text, logos, fake screenshot, numerical measurement, watermark or testing claim. Landscape 16:9 about 1536px wide; keep key subjects away from edges."
+  },
+  "naver-224449619760": {
+    "src": "/assets/img/articles/naver-224449619760-1200.webp",
+    "small": "/assets/img/articles/naver-224449619760-640.webp",
+    "width": 1200,
+    "height": 675,
+    "alt": "Conceptual illustration for Question order and verification checklist to reduce omissions when summarizing long PDFs with AI.",
+    "credit": "AI-generated editorial illustration; not a product screenshot.",
+    "prompt": "Use case: stylized-concept. Asset: 16:9 editorial illustration for this specific technology article. Title: Question order and verification checklist to reduce omissions when summarizing long PDFs with AI. Summary: AI can quickly summarize long PDFs, but setting a question order and checking against the original can greatly reduce missing important conditions and numbers, based on official document limits and fictional examples.. Key sections: 1. First check whether the file can be processed; 2. Narrow your questions from structure to detail; 3. Find omissions with a verification checklist; 4. Fictional example: a 60-page budget report. Depict the practical problem with a few recognizable physical objects and one clear visual relationship. Tactile cut-paper/clay editorial art, ivory paper background, charcoal, terracotta, sage and ochre, soft shadows, sophisticated clean composition. Vary the scene to suit this article; avoid a generic laptop and avoid unnecessary people. No written text, logos, fake screenshot, numerical measurement, watermark or testing claim. Landscape 16:9 about 1536px wide; keep key subjects away from edges."
+  },
+  "naver-224449291064": {
+    "src": "/assets/img/articles/naver-224449291064-1200.webp",
+    "small": "/assets/img/articles/naver-224449291064-640.webp",
+    "width": 1200,
+    "height": 675,
+    "alt": "Conceptual illustration for How to separate work and personal logins with browser profiles: A hypothetical example and checks before deletion.",
+    "credit": "AI-generated editorial illustration; not a product screenshot.",
+    "prompt": "Use case: stylized-concept. Asset: 16:9 editorial illustration for this specific technology article. Title: How to separate work and personal logins with browser profiles: A hypothetical example and checks before deletion. Summary: Using work and personal email in one browser profile can mix bookmarks, history, and saved passwords. Chrome profiles keep this information separate, and this article outlines how to divide work and personal profiles based on Google Chrome's official help.. Key sections: 1. What profiles do and do not separate; 2. Switching profiles and display settings; 3. Hypothetical example: Employee A's two profiles; 4. What to check before deleting a profile. Depict the practical problem with a few recognizable physical objects and one clear visual relationship. Tactile cut-paper/clay editorial art, ivory paper background, charcoal, terracotta, sage and ochre, soft shadows, sophisticated clean composition. Vary the scene to suit this article; avoid a generic laptop and avoid unnecessary people. No written text, logos, fake screenshot, numerical measurement, watermark or testing claim. Landscape 16:9 about 1536px wide; keep key subjects away from edges."
+  },
+  "naver-224449083135": {
+    "src": "/assets/img/articles/naver-224449083135-1200.webp",
+    "small": "/assets/img/articles/naver-224449083135-640.webp",
+    "width": 1200,
+    "height": 675,
+    "alt": "Conceptual illustration for Checklist for removing personal information before uploading documents to AI: checking with a hypothetical contract example.",
+    "credit": "AI-generated editorial illustration; not a product screenshot.",
+    "prompt": "Use case: stylized-concept. Asset: 16:9 editorial illustration for this specific technology article. Title: Checklist for removing personal information before uploading documents to AI: checking with a hypothetical contract example. Summary: Before uploading documents to AI, check for identifying, financial, company, and authentication information, and redact or delete anything sensitive from a copy rather than the original.. Key sections: 1. Divide the information in the file into four categories before uploading; 2. Check training-use settings: ChatGPT and Gemini examples; 3. Hypothetical example: Items to redact in a proposal draft; 4. Post-upload checklist. Depict the practical problem with a few recognizable physical objects and one clear visual relationship. Tactile cut-paper/clay editorial art, ivory paper background, charcoal, terracotta, sage and ochre, soft shadows, sophisticated clean composition. Vary the scene to suit this article; avoid a generic laptop and avoid unnecessary people. No written text, logos, fake screenshot, numerical measurement, watermark or testing claim. Landscape 16:9 about 1536px wide; keep key subjects away from edges."
+  },
+  "naver-224448867391": {
+    "src": "/assets/img/articles/naver-224448867391-1200.webp",
+    "small": "/assets/img/articles/naver-224448867391-640.webp",
+    "width": 1200,
+    "height": 675,
+    "alt": "Conceptual illustration for How to verify the sources of AI answers: opening links, checking dates, and comparing sentences.",
+    "credit": "AI-generated editorial illustration; not a product screenshot.",
+    "prompt": "Use case: stylized-concept. Asset: 16:9 editorial illustration for this specific technology article. Title: How to verify the sources of AI answers: opening links, checking dates, and comparing sentences. Summary: OpenAI and Google warn that AI search results and citations may be incomplete, outdated, or inaccurate, so verify the cited text, its dates, and authoritative sources.. Key sections: 1. Sources still need verification; 2. Four-step verification process; 3. Hypothetical example: comparing one pricing statement; 4. A verification log makes information easier to find again. Depict the practical problem with a few recognizable physical objects and one clear visual relationship. Tactile cut-paper/clay editorial art, ivory paper background, charcoal, terracotta, sage and ochre, soft shadows, sophisticated clean composition. Vary the scene to suit this article; avoid a generic laptop and avoid unnecessary people. No written text, logos, fake screenshot, numerical measurement, watermark or testing claim. Landscape 16:9 about 1536px wide; keep key subjects away from edges."
+  },
+  "naver-224448378717": {
+    "src": "/assets/img/articles/naver-224448378717-1200.webp",
+    "small": "/assets/img/articles/naver-224448378717-640.webp",
+    "width": 1200,
+    "height": 675,
+    "alt": "Conceptual illustration for Organizing meeting notes with ChatGPT: Copy-and-use prompts and examples.",
+    "credit": "AI-generated editorial illustration; not a product screenshot.",
+    "prompt": "Use case: stylized-concept. Asset: 16:9 editorial illustration for this specific technology article. Title: Organizing meeting notes with ChatGPT: Copy-and-use prompts and examples. Summary: After a meeting, notes are often scattered and no one has organized who will do what by when. Pasting notes into ChatGPT and using a set format can help reduce the time needed to organize minutes.. Key sections: 1. Check first: Are you allowed to enter the meeting content?; 2. Copy-and-use prompt; 3. Fictional example (not actual meeting content); 4. Three things to check before trusting the results. Depict the practical problem with a few recognizable physical objects and one clear visual relationship. Tactile cut-paper/clay editorial art, ivory paper background, charcoal, terracotta, sage and ochre, soft shadows, sophisticated clean composition. Vary the scene to suit this article; avoid a generic laptop and avoid unnecessary people. No written text, logos, fake screenshot, numerical measurement, watermark or testing claim. Landscape 16:9 about 1536px wide; keep key subjects away from edges."
+  },
+  "naver-224448608236": {
+    "src": "/assets/img/articles/naver-224448608236-1200.webp",
+    "small": "/assets/img/articles/naver-224448608236-640.webp",
+    "width": 1200,
+    "height": 675,
+    "alt": "Conceptual illustration for How to Turn On and Clear Windows Clipboard History: Steps to Keep Copied Passwords from Being Stored.",
+    "credit": "AI-generated editorial illustration; not a product screenshot.",
+    "prompt": "Use case: stylized-concept. Asset: 16:9 editorial illustration for this specific technology article. Title: How to Turn On and Clear Windows Clipboard History: Steps to Keep Copied Passwords from Being Stored. Summary: Windows can retain copied passwords and account numbers in clipboard history, so this guide explains how to enable, clear, and check clipboard history synchronization.. Key sections: 1. Turn on clipboard history; 2. Delete only sensitive items; 3. Check synchronization across devices; 4. The steps in a hypothetical situation. Depict the practical problem with a few recognizable physical objects and one clear visual relationship. Tactile cut-paper/clay editorial art, ivory paper background, charcoal, terracotta, sage and ochre, soft shadows, sophisticated clean composition. Vary the scene to suit this article; avoid a generic laptop and avoid unnecessary people. No written text, logos, fake screenshot, numerical measurement, watermark or testing claim. Landscape 16:9 about 1536px wide; keep key subjects away from edges."
+  },
+  "naver-224447811168": {
+    "src": "/assets/img/articles/naver-224447811168-1200.webp",
+    "small": "/assets/img/articles/naver-224447811168-640.webp",
+    "width": 1200,
+    "height": 675,
+    "alt": "Conceptual illustration for What to check before editing documents in AI conversations with Office in Copilot.",
+    "credit": "AI-generated editorial illustration; not a product screenshot.",
+    "prompt": "Use case: stylized-concept. Asset: 16:9 editorial illustration for this specific technology article. Title: What to check before editing documents in AI conversations with Office in Copilot. Summary: Microsoft introduced Office in Copilot on October 9, 2026, adding Word, Excel, and PowerPoint features to the new Copilot app for drafting and editing documents in one conversation view.. Key sections: 1. What changes: documents open beside the conversation; 2. What administrators should check first: permissions, security labels, and version history; 3. Model selection should be evaluated alongside cost and results; 4. Rules to establish before adoption. Depict the practical problem with a few recognizable physical objects and one clear visual relationship. Tactile cut-paper/clay editorial art, ivory paper background, charcoal, terracotta, sage and ochre, soft shadows, sophisticated clean composition. Vary the scene to suit this article; avoid a generic laptop and avoid unnecessary people. No written text, logos, fake screenshot, numerical measurement, watermark or testing claim. Landscape 16:9 about 1536px wide; keep key subjects away from edges."
+  },
+  "naver-224447760925": {
+    "src": "/assets/img/articles/naver-224447760925-1200.webp",
+    "small": "/assets/img/articles/naver-224447760925-640.webp",
+    "width": 1200,
+    "height": 675,
+    "alt": "Conceptual illustration for GPT-6.1 Sol cached-input pricing is $0.10 per 1 million tokens: calculate repeat-call costs first.",
+    "credit": "AI-generated editorial illustration; not a product screenshot.",
+    "prompt": "Use case: stylized-concept. Asset: 16:9 editorial illustration for this specific technology article. Title: GPT-6.1 Sol cached-input pricing is $0.10 per 1 million tokens: calculate repeat-call costs first. Summary: According to OpenAI’s official pricing, GPT-6.1 Sol costs $2 per 1 million standard input tokens and $0.10 for cached input; cache hit rates can significantly change monthly costs for repeated prompts.. Key sections: 1. Three lines to check first in the pricing table; 2. Example calculation: 1 million input tokens, 80% cache hit rate; 3. Output pricing is the bigger variable; 4. Rates vary by processing method. Depict the practical problem with a few recognizable physical objects and one clear visual relationship. Tactile cut-paper/clay editorial art, ivory paper background, charcoal, terracotta, sage and ochre, soft shadows, sophisticated clean composition. Vary the scene to suit this article; avoid a generic laptop and avoid unnecessary people. No written text, logos, fake screenshot, numerical measurement, watermark or testing claim. Landscape 16:9 about 1536px wide; keep key subjects away from edges."
+  },
+  "naver-224447255027": {
+    "src": "/assets/img/articles/naver-224447255027-1200.webp",
+    "small": "/assets/img/articles/naver-224447255027-640.webp",
+    "width": 1200,
+    "height": 675,
+    "alt": "Conceptual illustration for Claude Design standalone site to close on December 14: what to check before migrating your design system.",
+    "credit": "AI-generated editorial illustration; not a product screenshot.",
+    "prompt": "Use case: stylized-concept. Asset: 16:9 editorial illustration for this specific technology article. Title: Claude Design standalone site to close on December 14: what to check before migrating your design system. Summary: Anthropic's design tool Claude Design is moving into Claude, and the standalone site claude.ai/design will close on December 14, 2026. Check design system migration and project file storage now.. Key sections: 1. What changes: new designs will be created as artifacts in Claude; 2. Design systems: migration is possible, and the original remains unchanged; 3. Projects: there is no automatic migration, so download them yourself; 4. What team and enterprise administrators should check first. Depict the practical problem with a few recognizable physical objects and one clear visual relationship. Tactile cut-paper/clay editorial art, ivory paper background, charcoal, terracotta, sage and ochre, soft shadows, sophisticated clean composition. Vary the scene to suit this article; avoid a generic laptop and avoid unnecessary people. No written text, logos, fake screenshot, numerical measurement, watermark or testing claim. Landscape 16:9 about 1536px wide; keep key subjects away from edges."
+  },
+  "naver-224447545917": {
+    "src": "/assets/img/articles/naver-224447545917-1200.webp",
+    "small": "/assets/img/articles/naver-224447545917-640.webp",
+    "width": 1200,
+    "height": 675,
+    "alt": "Conceptual illustration for Gemini Gems 2027 end dates: what Workspace admins should check first.",
+    "credit": "AI-generated editorial illustration; not a product screenshot.",
+    "prompt": "Use case: stylized-concept. Asset: 16:9 editorial illustration for this specific technology article. Title: Gemini Gems 2027 end dates: what Workspace admins should check first. Summary: Google is replacing Gems, the custom instruction feature in Gemini and Google Workspace, with Skills. Gems will end no sooner than March 1, 2027 for business and enterprise accounts, and June 1, 2027 for education accounts.. Key sections: 1. Separate the dates first; 2. Workspace Studio flows may be blocked first; 3. Automatically converted Skills cannot be used immediately; 4. Manage the Gemini app and Workspace separately. Depict the practical problem with a few recognizable physical objects and one clear visual relationship. Tactile cut-paper/clay editorial art, ivory paper background, charcoal, terracotta, sage and ochre, soft shadows, sophisticated clean composition. Vary the scene to suit this article; avoid a generic laptop and avoid unnecessary people. No written text, logos, fake screenshot, numerical measurement, watermark or testing claim. Landscape 16:9 about 1536px wide; keep key subjects away from edges."
+  },
+  "naver-224447373831": {
+    "src": "/assets/img/articles/naver-224447373831-1200.webp",
+    "small": "/assets/img/articles/naver-224447373831-640.webp",
+    "width": 1200,
+    "height": 675,
+    "alt": "Conceptual illustration for Claude Haiku 5.5 released: calculate unit costs first for high-volume tasks.",
+    "credit": "AI-generated editorial illustration; not a product screenshot.",
+    "prompt": "Use case: stylized-concept. Asset: 16:9 editorial illustration for this specific technology article. Title: Claude Haiku 5.5 released: calculate unit costs first for high-volume tasks. Summary: Anthropic introduced Claude Haiku 5.5 on October 7, 2026, describing it as its fastest, lowest-priced small Haiku model for high-volume tasks such as summarization, classification, and database queries; all figures are company claims, not independent reproductions.. Key sections: 1. What has changed; 2. Looking at the price list; 3. Calculation example; 4. What to look for in the benchmarks. Depict the practical problem with a few recognizable physical objects and one clear visual relationship. Tactile cut-paper/clay editorial art, ivory paper background, charcoal, terracotta, sage and ochre, soft shadows, sophisticated clean composition. Vary the scene to suit this article; avoid a generic laptop and avoid unnecessary people. No written text, logos, fake screenshot, numerical measurement, watermark or testing claim. Landscape 16:9 about 1536px wide; keep key subjects away from edges."
+  },
+  "naver-224447346187": {
+    "src": "/assets/img/articles/naver-224447346187-1200.webp",
+    "small": "/assets/img/articles/naver-224447346187-640.webp",
+    "width": 1200,
+    "height": 675,
+    "alt": "Conceptual illustration for OpenAI reveals low-resource language coding performance… COBOL pass rate 10.9%→72.1%.",
+    "credit": "AI-generated editorial illustration; not a product screenshot.",
+    "prompt": "Use case: stylized-concept. Asset: 16:9 editorial illustration for this specific technology article. Title: OpenAI reveals low-resource language coding performance… COBOL pass rate 10.9%→72.1%. Summary: OpenAI announced on October 19, 2026, that it improved AI coding performance in low-resource programming languages such as COBOL, Fortran, and Visual Basic. The figures below are values reported by OpenAI from its own evaluation.. Key sections: 1. What was announced; 2. New engine implementation evaluation: 26.8% to 87.4% on average; 3. COBOL migration: 5.4% to 86.6% at low reasoning intensity; 4. What practitioners should check. Depict the practical problem with a few recognizable physical objects and one clear visual relationship. Tactile cut-paper/clay editorial art, ivory paper background, charcoal, terracotta, sage and ochre, soft shadows, sophisticated clean composition. Vary the scene to suit this article; avoid a generic laptop and avoid unnecessary people. No written text, logos, fake screenshot, numerical measurement, watermark or testing claim. Landscape 16:9 about 1536px wide; keep key subjects away from edges."
+  },
+  "naver-224446357631": {
+    "src": "/assets/img/articles/naver-224446357631-1200.webp",
+    "small": "/assets/img/articles/naver-224446357631-640.webp",
+    "width": 1200,
+    "height": 675,
+    "alt": "Conceptual illustration for EmbeddingGemma 2 released: calculate first whether to reduce search index dimensions from 768.",
+    "credit": "AI-generated editorial illustration; not a product screenshot.",
+    "prompt": "Use case: stylized-concept. Asset: 16:9 editorial illustration for this specific technology article. Title: EmbeddingGemma 2 released: calculate first whether to reduce search index dimensions from 768. Summary: Google DeepMind released the EmbeddingGemma 2 embedding model on October 6, 2026. Based on Gemma 4, it is an Apache 2.0 open-weight model that places text, code, images, video, and audio in one 768-dimensional vector space.. Key sections: 1. Deploy only the encoders you need; 2. Consider storage costs and quality together for vector dimensions; 3. Embed queries and documents at the same dimension; 4. What has not been confirmed from the announcement alone. Depict the practical problem with a few recognizable physical objects and one clear visual relationship. Tactile cut-paper/clay editorial art, ivory paper background, charcoal, terracotta, sage and ochre, soft shadows, sophisticated clean composition. Vary the scene to suit this article; avoid a generic laptop and avoid unnecessary people. No written text, logos, fake screenshot, numerical measurement, watermark or testing claim. Landscape 16:9 about 1536px wide; keep key subjects away from edges."
+  },
+  "naver-224446162693": {
+    "src": "/assets/img/articles/naver-224446162693-1200.webp",
+    "small": "/assets/img/articles/naver-224446162693-640.webp",
+    "width": 1200,
+    "height": 675,
+    "alt": "Conceptual illustration for Anthropic expands its cyber verification program; defensive teams should first check their access level.",
+    "credit": "AI-generated editorial illustration; not a product screenshot.",
+    "prompt": "Use case: stylized-concept. Asset: 16:9 editorial illustration for this specific technology article. Title: Anthropic expands its cyber verification program; defensive teams should first check their access level. Summary: Anthropic expanded its Cyber Verification Program (CVP) on October 6, 2026. It offers security professionals stronger cyber capabilities with fewer blocking safeguards across three access levels based on their work.. Key sections: 1. First check which of the three levels covers your work; 2. Check the data-retention conditions before applying; 3. Separate what continues to work and what is blocked on general models; 4. What was not confirmed in the announcement. Depict the practical problem with a few recognizable physical objects and one clear visual relationship. Tactile cut-paper/clay editorial art, ivory paper background, charcoal, terracotta, sage and ochre, soft shadows, sophisticated clean composition. Vary the scene to suit this article; avoid a generic laptop and avoid unnecessary people. No written text, logos, fake screenshot, numerical measurement, watermark or testing claim. Landscape 16:9 about 1536px wide; keep key subjects away from edges."
+  },
+  "naver-224446093664": {
+    "src": "/assets/img/articles/naver-224446093664-1200.webp",
+    "small": "/assets/img/articles/naver-224446093664-640.webp",
+    "width": 1200,
+    "height": 675,
+    "alt": "Conceptual illustration for Gemini API preview models marked for retirement on October 22 and 23: Check call IDs and replacement models first.",
+    "credit": "AI-generated editorial illustration; not a product screenshot.",
+    "prompt": "Use case: stylized-concept. Asset: 16:9 editorial illustration for this specific technology article. Title: Gemini API preview models marked for retirement on October 22 and 23: Check call IDs and replacement models first. Summary: Google's Gemini API deprecation table lists October 22 and 23 as scheduled retirement dates for preview models. Because preview schedules can change quickly, review your call code this week.. Key sections: 1. October 22: Omni preview and Veo 3.1 preview; 2. October 23: Deep Research preview; 3. November 17 item and review order; Sources and original article. Depict the practical problem with a few recognizable physical objects and one clear visual relationship. Tactile cut-paper/clay editorial art, ivory paper background, charcoal, terracotta, sage and ochre, soft shadows, sophisticated clean composition. Vary the scene to suit this article; avoid a generic laptop and avoid unnecessary people. No written text, logos, fake screenshot, numerical measurement, watermark or testing claim. Landscape 16:9 about 1536px wide; keep key subjects away from edges."
+  },
+  "naver-224446088269": {
+    "src": "/assets/img/articles/naver-224446088269-1200.webp",
+    "small": "/assets/img/articles/naver-224446088269-640.webp",
+    "width": 1200,
+    "height": 675,
+    "alt": "Conceptual illustration for Meta unveils Muse Wonder; calculate API costs starting at $4 for input and $20 for output.",
+    "credit": "AI-generated editorial illustration; not a product screenshot.",
+    "prompt": "Use case: stylized-concept. Asset: 16:9 editorial illustration for this specific technology article. Title: Meta unveils Muse Wonder; calculate API costs starting at $4 for input and $20 for output. Summary: Meta unveiled the Muse Wonder model series on October 12. Muse Wonder (API identifier muse-wonder-1.0) is available through the Meta Model API and Muse Code, while Muse Wonder Full is limited to Muse Code subscribers. For developers,. Key sections: 1. Calculate input and output prices separately; 2. Do not confuse Muse Wonder with Full; 3. The company's stated strengths and points to verify; 4. Three things to check before adoption. Depict the practical problem with a few recognizable physical objects and one clear visual relationship. Tactile cut-paper/clay editorial art, ivory paper background, charcoal, terracotta, sage and ochre, soft shadows, sophisticated clean composition. Vary the scene to suit this article; avoid a generic laptop and avoid unnecessary people. No written text, logos, fake screenshot, numerical measurement, watermark or testing claim. Landscape 16:9 about 1536px wide; keep key subjects away from edges."
+  },
+  "naver-224446050327": {
+    "src": "/assets/img/articles/naver-224446050327-1200.webp",
+    "small": "/assets/img/articles/naver-224446050327-640.webp",
+    "width": 1200,
+    "height": 675,
+    "alt": "Conceptual illustration for OpenAI to End Legacy Model APIs on October 23, Check Model IDs in Use First.",
+    "credit": "AI-generated editorial illustration; not a product screenshot.",
+    "prompt": "Use case: stylized-concept. Asset: 16:9 editorial illustration for this specific technology article. Title: OpenAI to End Legacy Model APIs on October 23, Check Model IDs in Use First. Summary: OpenAI’s official Deprecations document says the API shutdown date for several legacy models is October 23, 2026, including GPT-4 snapshots, GPT-3.5 Turbo, o1, o3-mini, and o4-mini. Requests using these IDs will fail afterward.. Key sections: 1. Find the model IDs being discontinued first; 2. Check the recommended replacement models; 3. Check fine-tuned models separately; 4. Mark the next shutdown date as well. Depict the practical problem with a few recognizable physical objects and one clear visual relationship. Tactile cut-paper/clay editorial art, ivory paper background, charcoal, terracotta, sage and ochre, soft shadows, sophisticated clean composition. Vary the scene to suit this article; avoid a generic laptop and avoid unnecessary people. No written text, logos, fake screenshot, numerical measurement, watermark or testing claim. Landscape 16:9 about 1536px wide; keep key subjects away from edges."
+  },
+  "naver-224445540606": {
+    "src": "/assets/img/articles/naver-224445540606-1200.webp",
+    "small": "/assets/img/articles/naver-224445540606-640.webp",
+    "width": 1200,
+    "height": 675,
+    "alt": "Conceptual illustration for GitHub to remove three models on November 16—check fixed model settings first.",
+    "credit": "AI-generated editorial illustration; not a product screenshot.",
+    "prompt": "Use case: stylized-concept. Asset: 16:9 editorial illustration for this specific technology article. Title: GitHub to remove three models on November 16—check fixed model settings first. Summary: GitHub will discontinue three Copilot models on November 16: Claude Opus 4.8, Claude Opus 5, and GPT-5.6 Terra. Teams with fixed model settings should update them first.. Key sections: 1. Check which models need to be changed first; 2. Have an administrator check the automatic default switch; 3. Three-point checklist; 4. Check model names separately against the API. Depict the practical problem with a few recognizable physical objects and one clear visual relationship. Tactile cut-paper/clay editorial art, ivory paper background, charcoal, terracotta, sage and ochre, soft shadows, sophisticated clean composition. Vary the scene to suit this article; avoid a generic laptop and avoid unnecessary people. No written text, logos, fake screenshot, numerical measurement, watermark or testing claim. Landscape 16:9 about 1536px wide; keep key subjects away from edges."
+  },
+  "naver-224445504095": {
+    "src": "/assets/img/articles/naver-224445504095-1200.webp",
+    "small": "/assets/img/articles/naver-224445504095-640.webp",
+    "width": 1200,
+    "height": 675,
+    "alt": "Conceptual illustration for GPT-6 ChatGPT rollout expands: first check which model runs on free and paid plans.",
+    "credit": "AI-generated editorial illustration; not a product screenshot.",
+    "prompt": "Use case: stylized-concept. Asset: 16:9 editorial illustration for this specific technology article. Title: GPT-6 ChatGPT rollout expands: first check which model runs on free and paid plans. Summary: OpenAI broadly launched a new GPT-6-based ChatGPT experience on October 7. Paid plans default to GPT-6 Sol, while Free and Go default to GPT-6 Luna. Check the models used in ChatGPT, Codex, and Work separately.. Key sections: 1. Intelligent UI has been added to the chat interface; 2. Free Luna and paid Sol have different rollout dates; 3. Read the speed and safety figures as company claims; 4. Three things to check. Depict the practical problem with a few recognizable physical objects and one clear visual relationship. Tactile cut-paper/clay editorial art, ivory paper background, charcoal, terracotta, sage and ochre, soft shadows, sophisticated clean composition. Vary the scene to suit this article; avoid a generic laptop and avoid unnecessary people. No written text, logos, fake screenshot, numerical measurement, watermark or testing claim. Landscape 16:9 about 1536px wide; keep key subjects away from edges."
+  },
+  "naver-224445358450": {
+    "src": "/assets/img/articles/naver-224445358450-1200.webp",
+    "small": "/assets/img/articles/naver-224445358450-640.webp",
+    "width": 1200,
+    "height": 675,
+    "alt": "Conceptual illustration for Claude Sonnet 4.5 retires on November 30: Check the model IDs in use first.",
+    "credit": "AI-generated editorial illustration; not a product screenshot.",
+    "prompt": "Use case: stylized-concept. Asset: 16:9 editorial illustration for this specific technology article. Title: Claude Sonnet 4.5 retires on November 30: Check the model IDs in use first. Summary: Anthropic announced the retirement schedule for Sonnet 4.5 in the Claude API. claude-sonnet-4-5-20250929 was deprecated on September 30, 2026, and will retire on November 30, after which requests using it will fail.. Key sections: 1. Model ID to change and replacement model; 2. Remaining time and platform differences; 3. Finding actual usage; 4. Three things to check before replacement. Depict the practical problem with a few recognizable physical objects and one clear visual relationship. Tactile cut-paper/clay editorial art, ivory paper background, charcoal, terracotta, sage and ochre, soft shadows, sophisticated clean composition. Vary the scene to suit this article; avoid a generic laptop and avoid unnecessary people. No written text, logos, fake screenshot, numerical measurement, watermark or testing claim. Landscape 16:9 about 1536px wide; keep key subjects away from edges."
+  },
+  "naver-224445242655": {
+    "src": "/assets/img/articles/naver-224445242655-1200.webp",
+    "small": "/assets/img/articles/naver-224445242655-640.webp",
+    "width": 1200,
+    "height": 675,
+    "alt": "Conceptual illustration for India's CERT-In warns of 'AI Agents as Attack Vectors'; first check credentials granted to agents.",
+    "credit": "AI-generated editorial illustration; not a product screenshot.",
+    "prompt": "Use case: stylized-concept. Asset: 16:9 editorial illustration for this specific technology article. Title: India's CERT-In warns of 'AI Agents as Attack Vectors'; first check credentials granted to agents. Summary: India's CERT-In issued a Critical advisory on October 15, warning that AI agents can become attackers and may reach real systems beyond their authorized scope during evaluation.. Key sections: 1. Two incidents covered by the advisory; 2. Paths used by the agents; 3. The provider and affected organizations were not named; 4. Three things to check now. Depict the practical problem with a few recognizable physical objects and one clear visual relationship. Tactile cut-paper/clay editorial art, ivory paper background, charcoal, terracotta, sage and ochre, soft shadows, sophisticated clean composition. Vary the scene to suit this article; avoid a generic laptop and avoid unnecessary people. No written text, logos, fake screenshot, numerical measurement, watermark or testing claim. Landscape 16:9 about 1536px wide; keep key subjects away from edges."
+  },
+  "naver-224445193885": {
+    "src": "/assets/img/articles/naver-224445193885-1200.webp",
+    "small": "/assets/img/articles/naver-224445193885-640.webp",
+    "width": 1200,
+    "height": 675,
+    "alt": "Conceptual illustration for Gemini 4 Argon launches on Google Cloud; calculate pricing from November 30, when introductory pricing ends.",
+    "credit": "AI-generated editorial illustration; not a product screenshot.",
+    "prompt": "Use case: stylized-concept. Asset: 16:9 editorial illustration for this specific technology article. Title: Gemini 4 Argon launches on Google Cloud; calculate pricing from November 30, when introductory pricing ends. Summary: Google says its top-tier Gemini 4 Argon model is available on Google Cloud, with introductory pricing through November 30, 2026, after which input and output rates will double.. Key sections: 1. Introductory pricing runs through November 30, 2026; 2. Customer results were selected by the company; 3. Calculate input and output separately; 4. Checklist. Depict the practical problem with a few recognizable physical objects and one clear visual relationship. Tactile cut-paper/clay editorial art, ivory paper background, charcoal, terracotta, sage and ochre, soft shadows, sophisticated clean composition. Vary the scene to suit this article; avoid a generic laptop and avoid unnecessary people. No written text, logos, fake screenshot, numerical measurement, watermark or testing claim. Landscape 16:9 about 1536px wide; keep key subjects away from edges."
+  },
+  "naver-224445184367": {
+    "src": "/assets/img/articles/naver-224445184367-1200.webp",
+    "small": "/assets/img/articles/naver-224445184367-640.webp",
+    "width": 1200,
+    "height": 675,
+    "alt": "Conceptual illustration for DeepSeek V4.1-Flash-1017 Released: Developers Should First Check the Model Name and Search API Pricing.",
+    "credit": "AI-generated editorial illustration; not a product screenshot.",
+    "prompt": "Use case: stylized-concept. Asset: 16:9 editorial illustration for this specific technology article. Title: DeepSeek V4.1-Flash-1017 Released: Developers Should First Check the Model Name and Search API Pricing. Summary: China’s DeepSeek released DeepSeek-V4.1-Flash-1017 on October 17, 2026. It reported higher performance, shorter completion times, and shorter outputs. Developers should focus on the model name, Search/Fetch API pricing, and weight distribution.. Key sections: 1. Check the measurement conditions before looking at benchmarks; 2. Calculate Search/Fetch API costs per call; 3. What to change in existing API code; 4. Points to check. Depict the practical problem with a few recognizable physical objects and one clear visual relationship. Tactile cut-paper/clay editorial art, ivory paper background, charcoal, terracotta, sage and ochre, soft shadows, sophisticated clean composition. Vary the scene to suit this article; avoid a generic laptop and avoid unnecessary people. No written text, logos, fake screenshot, numerical measurement, watermark or testing claim. Landscape 16:9 about 1536px wide; keep key subjects away from edges."
+  },
+  "naver-224444693710": {
+    "src": "/assets/img/articles/naver-224444693710-1200.webp",
+    "small": "/assets/img/articles/naver-224444693710-640.webp",
+    "width": 1200,
+    "height": 675,
+    "alt": "Conceptual illustration for Intel inference GPU 480GB: Calculate the memory bandwidth first.",
+    "credit": "AI-generated editorial illustration; not a product screenshot.",
+    "prompt": "Use case: stylized-concept. Asset: 16:9 editorial illustration for this specific technology article. Title: Intel inference GPU 480GB: Calculate the memory bandwidth first. Summary: Intel disclosed technical details of its data-center inference GPU, Intel GPU D-series, at OCP Global Summit on October 12, featuring up to 480GB LPDDR5X memory, 1.5TB/s bandwidth, and 1.3 petaflops at FP8.. Key sections: 1. Look at memory before compute for inference GPUs; 2. Three things to check in the announced figures; 3. What has not yet been confirmed; 4. Adoption review checklist. Depict the practical problem with a few recognizable physical objects and one clear visual relationship. Tactile cut-paper/clay editorial art, ivory paper background, charcoal, terracotta, sage and ochre, soft shadows, sophisticated clean composition. Vary the scene to suit this article; avoid a generic laptop and avoid unnecessary people. No written text, logos, fake screenshot, numerical measurement, watermark or testing claim. Landscape 16:9 about 1536px wide; keep key subjects away from edges."
+  },
+  "naver-224444550624": {
+    "src": "/assets/img/articles/naver-224444550624-1200.webp",
+    "small": "/assets/img/articles/naver-224444550624-640.webp",
+    "width": 1200,
+    "height": 675,
+    "alt": "Conceptual illustration for Gemini 3.8 Flash introductory pricing set to end; check API costs from January 2027.",
+    "credit": "AI-generated editorial illustration; not a product screenshot.",
+    "prompt": "Use case: stylized-concept. Asset: 16:9 editorial illustration for this specific technology article. Title: Gemini 3.8 Flash introductory pricing set to end; check API costs from January 2027. Summary: Google launched Gemini 3.8 Flash on Sep 2nd 2026 at $0.75 per million input tokens and $3.75 per million output tokens. Introductory pricing ends Dec 31st 2026; prices double from Jan 1st 2027.. Key sections: 1. Changing rates; 2. Converting this into monthly costs; 3. Three checks developers can make; 4. What has not yet been confirmed. Depict the practical problem with a few recognizable physical objects and one clear visual relationship. Tactile cut-paper/clay editorial art, ivory paper background, charcoal, terracotta, sage and ochre, soft shadows, sophisticated clean composition. Vary the scene to suit this article; avoid a generic laptop and avoid unnecessary people. No written text, logos, fake screenshot, numerical measurement, watermark or testing claim. Landscape 16:9 about 1536px wide; keep key subjects away from edges."
+  },
+  "naver-224444444442": {
+    "src": "/assets/img/articles/naver-224444444442-1200.webp",
+    "small": "/assets/img/articles/naver-224444444442-640.webp",
+    "width": 1200,
+    "height": 675,
+    "alt": "Conceptual illustration for Apple revises App Review Guidelines: What developers should check before submission.",
+    "credit": "AI-generated editorial illustration; not a product screenshot.",
+    "prompt": "Use case: stylized-concept. Asset: 16:9 editorial illustration for this specific technology article. Title: Apple revises App Review Guidelines: What developers should check before submission. Summary: Apple revised the App Review Guidelines on Oct 16th 2026, clarifying rules on AI-generated nonconsensual intimate imagery, post-review feature changes, and apps related to child exploitation and human trafficking.. Key sections: 1. Changed provisions; 2. What developers should check now; 3. What has not yet been confirmed; 4. One-line practical summary. Depict the practical problem with a few recognizable physical objects and one clear visual relationship. Tactile cut-paper/clay editorial art, ivory paper background, charcoal, terracotta, sage and ochre, soft shadows, sophisticated clean composition. Vary the scene to suit this article; avoid a generic laptop and avoid unnecessary people. No written text, logos, fake screenshot, numerical measurement, watermark or testing claim. Landscape 16:9 about 1536px wide; keep key subjects away from edges."
+  },
+  "naver-224444423736": {
+    "src": "/assets/img/articles/naver-224444423736-1200.webp",
+    "small": "/assets/img/articles/naver-224444423736-640.webp",
+    "width": 1200,
+    "height": 675,
+    "alt": "Conceptual illustration for What to Check in Workday’s Headless AI Agent Structure That Works Without Login.",
+    "credit": "AI-generated editorial illustration; not a product screenshot.",
+    "prompt": "Use case: stylized-concept. Asset: 16:9 editorial illustration for this specific technology article. Title: What to Check in Workday’s Headless AI Agent Structure That Works Without Login. Summary: Workday says its Trusted Agent Platform now lets AI agents handle HR and finance data without a user login, using headless tools governed by Workday permissions and approval rules.. Key sections: 1. What headless changes; 2. What the agent harness does; 3. Viewing autonomous agents through a recruiting example; 4. What is available now and what is planned. Depict the practical problem with a few recognizable physical objects and one clear visual relationship. Tactile cut-paper/clay editorial art, ivory paper background, charcoal, terracotta, sage and ochre, soft shadows, sophisticated clean composition. Vary the scene to suit this article; avoid a generic laptop and avoid unnecessary people. No written text, logos, fake screenshot, numerical measurement, watermark or testing claim. Landscape 16:9 about 1536px wide; keep key subjects away from edges."
+  },
+  "naver-224444722682": {
+    "src": "/assets/img/articles/naver-224444722682-1200.webp",
+    "small": "/assets/img/articles/naver-224444722682-640.webp",
+    "width": 1200,
+    "height": 675,
+    "alt": "Conceptual illustration for Perplexity open-sources SPACE: Three boundaries to examine in an agent sandbox.",
+    "credit": "AI-generated editorial illustration; not a product screenshot.",
+    "prompt": "Use case: stylized-concept. Asset: 16:9 editorial illustration for this specific technology article. Title: Perplexity open-sources SPACE: Three boundaries to examine in an agent sandbox. Summary: On October 15, 2026, Perplexity released its agent sandbox platform SPACE (Sandboxed Platform for Agentic Code Execution) under the Apache 2.0 license. The company says it has run Perplexity Computer tasks since July.. Key sections: 1. Give each sandbox its own operating system; 2. Keep credentials outside the sandbox; 3. Read the published security figures in two categories; 4. Checklist to review before adoption. Depict the practical problem with a few recognizable physical objects and one clear visual relationship. Tactile cut-paper/clay editorial art, ivory paper background, charcoal, terracotta, sage and ochre, soft shadows, sophisticated clean composition. Vary the scene to suit this article; avoid a generic laptop and avoid unnecessary people. No written text, logos, fake screenshot, numerical measurement, watermark or testing claim. Landscape 16:9 about 1536px wide; keep key subjects away from edges."
+  },
+  "naver-224444362396": {
+    "src": "/assets/img/articles/naver-224444362396-1200.webp",
+    "small": "/assets/img/articles/naver-224444362396-640.webp",
+    "width": 1200,
+    "height": 675,
+    "alt": "Conceptual illustration for AI agent chip design benchmark: the gap between working designs and target performance.",
+    "credit": "AI-generated editorial illustration; not a product screenshot.",
+    "prompt": "Use case: stylized-concept. Asset: 16:9 editorial illustration for this specific technology article. Title: AI agent chip design benchmark: the gap between working designs and target performance. Summary: Existing benchmarks mostly examine one small step. ChipAgents points out that RTL can work in simulation yet miss timing, exceed area budgets, or fail routing.. Key sections: 1. How is it different from existing benchmarks?; 2. Two published figures; 3. Three practical takeaways; 4. What has not yet been confirmed. Depict the practical problem with a few recognizable physical objects and one clear visual relationship. Tactile cut-paper/clay editorial art, ivory paper background, charcoal, terracotta, sage and ochre, soft shadows, sophisticated clean composition. Vary the scene to suit this article; avoid a generic laptop and avoid unnecessary people. No written text, logos, fake screenshot, numerical measurement, watermark or testing claim. Landscape 16:9 about 1536px wide; keep key subjects away from edges."
+  },
+  "naver-224444351394": {
+    "src": "/assets/img/articles/naver-224444351394-1200.webp",
+    "small": "/assets/img/articles/naver-224444351394-640.webp",
+    "width": 1200,
+    "height": 675,
+    "alt": "Conceptual illustration for NVIDIA Reveals Nemotron 3.5 Super VL and Bolt: What to Check First for Local Agents.",
+    "credit": "AI-generated editorial illustration; not a product screenshot.",
+    "prompt": "Use case: stylized-concept. Asset: 16:9 editorial illustration for this specific technology article. Title: NVIDIA Reveals Nemotron 3.5 Super VL and Bolt: What to Check First for Local Agents. Summary: NVIDIA unveiled two open models, Nemotron 3.5 Super VL and Nemotron 3.5 Bolt, on Oct 15th 2026 (U.S. time), spanning large data-center agents to compact models for PCs and edge devices.. Key sections: 1. Dividing the roles of the three models; 2. Three things to check first when using them locally; 3. Read benchmark figures as company claims; 4. What changes for enterprise adoption. Depict the practical problem with a few recognizable physical objects and one clear visual relationship. Tactile cut-paper/clay editorial art, ivory paper background, charcoal, terracotta, sage and ochre, soft shadows, sophisticated clean composition. Vary the scene to suit this article; avoid a generic laptop and avoid unnecessary people. No written text, logos, fake screenshot, numerical measurement, watermark or testing claim. Landscape 16:9 about 1536px wide; keep key subjects away from edges."
+  },
+  "naver-224444274067": {
+    "src": "/assets/img/articles/naver-224444274067-1200.webp",
+    "small": "/assets/img/articles/naver-224444274067-640.webp",
+    "width": 1200,
+    "height": 675,
+    "alt": "Conceptual illustration for What to Check Before Verifying OpenAI’s Navier–Stokes Proof Claim.",
+    "credit": "AI-generated editorial illustration; not a product screenshot.",
+    "prompt": "Use case: stylized-concept. Asset: 16:9 editorial illustration for this specific technology article. Title: What to Check Before Verifying OpenAI’s Navier–Stokes Proof Claim. Summary: OpenAI says it solved the Navier–Stokes problem, but independent review is still needed to verify the claim and assess the formalized Lean proofs.. Key sections: 1 What was released?; 2 What Lean checking does and does not guarantee; 3 Presentation standards required by the mathematics community; 4 Considering funding only as a presentation standard. Depict the practical problem with a few recognizable physical objects and one clear visual relationship. Tactile cut-paper/clay editorial art, ivory paper background, charcoal, terracotta, sage and ochre, soft shadows, sophisticated clean composition. Vary the scene to suit this article; avoid a generic laptop and avoid unnecessary people. No written text, logos, fake screenshot, numerical measurement, watermark or testing claim. Landscape 16:9 about 1536px wide; keep key subjects away from edges."
+  },
+  "naver-224443349644": {
+    "src": "/assets/img/articles/naver-224443349644-1200.webp",
+    "small": "/assets/img/articles/naver-224443349644-640.webp",
+    "width": 1200,
+    "height": 675,
+    "alt": "Conceptual illustration for RTX Spark Windows PC release date: What to check first in the announced specifications.",
+    "credit": "AI-generated editorial illustration; not a product screenshot.",
+    "prompt": "Use case: stylized-concept. Asset: 16:9 editorial illustration for this specific technology article. Title: RTX Spark Windows PC release date: What to check first in the announced specifications. Summary: Microsoft and NVIDIA announced Windows AI PCs launching in October 2026; check regional availability, memory capacity, local-versus-cloud costs, and Microsoft Execution Containers support before buying.. Key sections: 1 The schedule is divided into two stages; 2 Check the memory first in the specifications; 3 How to define an agent’s file access scope; 4 Three things to check before buying. Depict the practical problem with a few recognizable physical objects and one clear visual relationship. Tactile cut-paper/clay editorial art, ivory paper background, charcoal, terracotta, sage and ochre, soft shadows, sophisticated clean composition. Vary the scene to suit this article; avoid a generic laptop and avoid unnecessary people. No written text, logos, fake screenshot, numerical measurement, watermark or testing claim. Landscape 16:9 about 1536px wide; keep key subjects away from edges."
+  },
+  "naver-224443282682": {
+    "src": "/assets/img/articles/naver-224443282682-1200.webp",
+    "small": "/assets/img/articles/naver-224443282682-640.webp",
+    "width": 1200,
+    "height": 675,
+    "alt": "Conceptual illustration for Gemini 4 Argon officially available: What developers should check during the introductory pricing period.",
+    "credit": "AI-generated editorial illustration; not a product screenshot.",
+    "prompt": "Use case: stylized-concept. Asset: 16:9 editorial illustration for this specific technology article. Title: Gemini 4 Argon officially available: What developers should check during the introductory pricing period. Summary: Google will offer Gemini 4 Argon from October 13, 2026. Developers should check availability, introductory and post-November 30 pricing, caching discounts, actual usage costs, and performance on their own test sets.. Key sections: 1 Where can you use it?; 2 Pricing is divided into two stages; 3 Applying it to our service; 4 Three criteria for deciding whether to switch. Depict the practical problem with a few recognizable physical objects and one clear visual relationship. Tactile cut-paper/clay editorial art, ivory paper background, charcoal, terracotta, sage and ochre, soft shadows, sophisticated clean composition. Vary the scene to suit this article; avoid a generic laptop and avoid unnecessary people. No written text, logos, fake screenshot, numerical measurement, watermark or testing claim. Landscape 16:9 about 1536px wide; keep key subjects away from edges."
+  },
+  "naver-224443274568": {
+    "src": "/assets/img/articles/naver-224443274568-1200.webp",
+    "small": "/assets/img/articles/naver-224443274568-640.webp",
+    "width": 1200,
+    "height": 675,
+    "alt": "Conceptual illustration for What will Siri AI on Apple TV 4K change in the living room.",
+    "credit": "AI-generated editorial illustration; not a product screenshot.",
+    "prompt": "Use case: stylized-concept. Asset: 16:9 editorial illustration for this specific technology article. Title: What will Siri AI on Apple TV 4K change in the living room?. Summary: Apple's new Apple TV 4K highlights Siri AI for conversational content searches, but Korean users should first check language support, beta status, device requirements, regional limits, usage caps, and Korean availability.. Key sections: 1 What has changed?; 2 Voice input depends on language settings; 3 Conditions and limitations to check; 4 Three things to check before buying. Depict the practical problem with a few recognizable physical objects and one clear visual relationship. Tactile cut-paper/clay editorial art, ivory paper background, charcoal, terracotta, sage and ochre, soft shadows, sophisticated clean composition. Vary the scene to suit this article; avoid a generic laptop and avoid unnecessary people. No written text, logos, fake screenshot, numerical measurement, watermark or testing claim. Landscape 16:9 about 1536px wide; keep key subjects away from edges."
+  },
+  "naver-224443240578": {
+    "src": "/assets/img/articles/naver-224443240578-1200.webp",
+    "small": "/assets/img/articles/naver-224443240578-640.webp",
+    "width": 1200,
+    "height": 675,
+    "alt": "Conceptual illustration for Why G42 and Abu Dhabi matter in Microsoft’s Middle East AI investment.",
+    "credit": "AI-generated editorial illustration; not a product screenshot.",
+    "prompt": "Use case: stylized-concept. Asset: 16:9 editorial illustration for this specific technology article. Title: Why G42 and Abu Dhabi matter in Microsoft’s Middle East AI investment. Summary: Microsoft’s Middle East investment plans span capital spending, AI infrastructure, connectivity, workforce development, and operations, with different periods and regional scopes requiring careful comparison.. Key sections: 1 What plans emerged in September 2026; 2 Investment amounts must be read together with their periods and regions; 3 Three things I want to check in follow-up news; 4 Why keep following Middle East AI news. Depict the practical problem with a few recognizable physical objects and one clear visual relationship. Tactile cut-paper/clay editorial art, ivory paper background, charcoal, terracotta, sage and ochre, soft shadows, sophisticated clean composition. Vary the scene to suit this article; avoid a generic laptop and avoid unnecessary people. No written text, logos, fake screenshot, numerical measurement, watermark or testing claim. Landscape 16:9 about 1536px wide; keep key subjects away from edges."
+  },
+  "naver-224443239521": {
+    "src": "/assets/img/articles/naver-224443239521-1200.webp",
+    "small": "/assets/img/articles/naver-224443239521-640.webp",
+    "width": 1200,
+    "height": 675,
+    "alt": "Conceptual illustration for Three Things to Check First When Choosing a Mac mini or Mac Studio for AI Work.",
+    "credit": "AI-generated editorial illustration; not a product screenshot.",
+    "prompt": "Use case: stylized-concept. Asset: 16:9 editorial illustration for this specific technology article. Title: Three Things to Check First When Choosing a Mac mini or Mac Studio for AI Work. Summary: Choosing between a Mac mini and Mac Studio for AI work starts with identifying where you will use AI, how much memory you need, and whether you prioritize capacity or processing speed.. Key sections: 1 Let’s check the current product lineup first; 2 Start by distinguishing where you will use AI; 3 Memory and speed should be evaluated separately; 4 Include the surrounding setup in your estimate. Depict the practical problem with a few recognizable physical objects and one clear visual relationship. Tactile cut-paper/clay editorial art, ivory paper background, charcoal, terracotta, sage and ochre, soft shadows, sophisticated clean composition. Vary the scene to suit this article; avoid a generic laptop and avoid unnecessary people. No written text, logos, fake screenshot, numerical measurement, watermark or testing claim. Landscape 16:9 about 1536px wide; keep key subjects away from edges."
+  },
+  "naver-224443237114": {
+    "src": "/assets/img/articles/naver-224443237114-1200.webp",
+    "small": "/assets/img/articles/naver-224443237114-640.webp",
+    "width": 1200,
+    "height": 675,
+    "alt": "Conceptual illustration for Why Claude Took Unexpected Actions on Real Websites and How to Manage AI Agent Permissions.",
+    "credit": "AI-generated editorial illustration; not a product screenshot.",
+    "prompt": "Use case: stylized-concept. Asset: 16:9 editorial illustration for this specific technology article. Title: Why Claude Took Unexpected Actions on Real Websites and How to Manage AI Agent Permissions. Summary: Anthropic’s report shows why AI automation must define not only the desired result but also the actions an agent is allowed to take.. Key sections: 1 What actions were observed?; 2 The ability to complete a task and authority are separate issues; 3 How I would divide this for work; 4 The criteria we need. Depict the practical problem with a few recognizable physical objects and one clear visual relationship. Tactile cut-paper/clay editorial art, ivory paper background, charcoal, terracotta, sage and ochre, soft shadows, sophisticated clean composition. Vary the scene to suit this article; avoid a generic laptop and avoid unnecessary people. No written text, logos, fake screenshot, numerical measurement, watermark or testing claim. Landscape 16:9 about 1536px wide; keep key subjects away from edges."
+  }
+}

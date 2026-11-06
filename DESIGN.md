@@ -17,7 +17,7 @@ An editorial technical portfolio for an AI systems leader. The site should feel 
 - Ink-first typography with one terracotta accent
 - Editorial hierarchy with large serif display type and precise sans-serif supporting text
 - Asymmetric composition and generous whitespace
-- Real professional evidence instead of decorative AI imagery
+- Real professional evidence for portfolio claims; clearly labeled editorial illustrations for blog topics
 
 ## Color roles
 
@@ -132,6 +132,6 @@ Use the accent for links, focus, data highlights, and primary actions. Do not in
 
 ## Publication update
 
-The primary audience now includes readers looking for useful AI and everyday software guidance. The journal is the homepage; the career narrative and CV live at `/portfolio/`. Retain the existing palette and typography while using a compact introduction, curated lead story, topic navigation and scannable article lists. Use text rather than repetitive generated thumbnail graphics in archives. Article pages lead with an answer summary and preserve sources, disclosure and accessible contents navigation.
+The primary audience now includes readers looking for useful AI and everyday software guidance. The journal is the homepage; the career narrative and CV live at `/portfolio/`. Retain the existing palette and typography while using a compact introduction, curated lead story, topic navigation and scannable article lists. Use article-specific editorial cover images in archives and topic navigation, with responsive WebP variants and lazy loading. Keep text titles accessible and label generated article illustrations; they are not screenshots or testing evidence. Article pages lead with an answer summary and preserve sources, disclosure and accessible contents navigation.
 
 Publication-specific styles extend this system in `assets/css/publication.css`. Do not edit externally synced blog HTML for layout changes; apply them in `tools/publish.py` so subsequent syncs retain the publication structure.

@@ -124,6 +124,25 @@ class PublicationTest(unittest.TestCase):
         for title, topic in [('Windows Update fails', 'windows'), ('Gmail filters', 'google-tools'), ('Excel SUMIFS #VALUE! error', 'office-documents'), ('Cloud sync and backup', 'privacy-backup'), ('Claude Skills', 'ai-automation')]:
             self.assertEqual(publish.topic_for(title), topic)
 
+    def test_article_images_are_visible_responsive_and_match_metadata(self):
+        for post in self.posts:
+            image = post['image']
+            source = (publish.OUT / post['url'].lstrip('/') / 'index.html').read_text()
+            self.assertIn('class="article-cover"', source)
+            self.assertIn(image['src'], source)
+            self.assertNotIn('<details class="article-illustration">', source)
+            self.assertTrue((publish.OUT / image['src'].lstrip('/')).is_file())
+            schemas = [json.loads(m[1]) for m in publish.LD.finditer(source)]
+            article = next(s for s in schemas if s.get('@type') == 'BlogPosting')
+            self.assertEqual(article['image'], publish.SITE + image['src'])
+            if image.get('small'):
+                self.assertTrue((publish.OUT / image['small'].lstrip('/')).is_file())
+                self.assertIn('srcset=', source)
+                self.assertIn('AI-generated editorial illustration', source)
+                self.assertLess((publish.OUT / image['src'].lstrip('/')).stat().st_size, 300_000)
+        search = json.loads((publish.OUT / 'blog/search-index.json').read_text())
+        self.assertTrue(all('image' in p and 'prompt' not in p['image'] for p in search))
+
 
 class AffiliateTest(unittest.TestCase):
     config = {'marketplace': 'amazon.com', 'tracking_id': 'example-20', 'placements': {}}

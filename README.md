@@ -18,11 +18,26 @@ The existing guide generator remains `tools/guides.py`; the publication build in
 
 ## Editorial controls
 
-- `PICKS` and `STARTERS` in `tools/publish.py` select homepage articles by stable upstream ID. They are editor selections, never claimed traffic rankings.
+- `AI_PICKS` in `tools/publish.py` selects the 15 homepage articles in five groups by stable upstream ID; `PICKS` and `STARTERS` select guide and topic starting points. They are editor selections, never claimed traffic rankings.
 - `TITLES` contains carefully shortened display titles. Headings, social metadata, RSS, search and structured data use the same title.
 - Topic assignment uses the article title. Check the generated topic page when publishing an unfamiliar subject; extend `topic_for` and its focused test if needed.
 - Article URLs, original publication dates, source citations and the Korean-original attribution remain intact. Sources are not a substitute for fact-checking. No new firsthand testing claims are generated.
 - AI search uses the same textual pages as human readers. The complete sitemap, author profile, breadcrumbs, answer summaries and source links provide context; there is no hidden AI-only content or citation guarantee.
+
+## Article images
+
+Each current article has an original AI-generated editorial cover, displayed on the article, archive, topic pages, homepage and search results. Captions identify illustrations as distinct from product screenshots. The build also uses the cover for social previews and article metadata.
+
+`content/article-images.json` records image paths, dimensions, alt text, credit and generation prompts. Assets live in `assets/img/articles/` as 640px and 1200px WebP variants. Below-the-fold images load lazily; dimensions reserve layout space. Newly synchronized articles without a cover retain their existing SVG illustration until a cover is imported.
+
+To import a generated image for an existing article (Pillow is needed locally for this step only):
+
+```sh
+python3 tools/import_article_image.py naver-ARTICLE_ID /path/to/generated.png 'Generation prompt' 'Descriptive alt text'
+python3 tools/publish.py
+```
+
+Use original illustrations or images with documented reuse permission. Search results alone do not grant reuse rights. Actual screenshots and test results should come from verified demonstrations, not image generation. The build and CI remain standard-library-only.
 
 ## Monetization
 
@@ -67,7 +82,7 @@ For a regression, revert the responsible commit and push; the same workflow rebu
 
 ## Measuring growth
 
-Use Search Console for organic clicks and query/page performance, and AdSense for page RPM and revenue. Review them monthly alongside the pages changed. No analytics property ID was available, so no new analytics service or cookies were added. Affiliate earnings are reported by Amazon. These foundations do not promise traffic, approval, citations or revenue.
+Use Search Console for organic clicks and query/page performance, and AdSense for page RPM and revenue. Review them monthly alongside the pages changed. The owner-configured GA4 property is preserved by the publication build. Affiliate earnings are reported by Amazon. These foundations do not promise traffic, approval, citations or revenue.
 
 ## Search Console ownership
 

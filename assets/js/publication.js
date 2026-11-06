@@ -48,6 +48,16 @@
       for (const post of matches) {
         const article = document.createElement('article');
         article.className = 'story';
+        const image = document.createElement('img');
+        image.src = post.image.small || post.image.src;
+        image.alt = '';
+        image.width = post.image.width;
+        image.height = post.image.height;
+        image.loading = 'lazy';
+        image.decoding = 'async';
+        const visual = document.createElement('div');
+        visual.className = 'story-image';
+        visual.append(image);
         const title = document.createElement('h3');
         const link = document.createElement('a');
         link.href = post.url;
@@ -56,7 +66,7 @@
         const description = document.createElement('p');
         description.className = 'story-description';
         description.textContent = post.description;
-        article.append(title, description);
+        article.append(visual, title, description);
         results.append(article);
       }
       status.textContent = matches.length ? `${matches.length} article${matches.length === 1 ? '' : 's'} found.` : 'No matches. Try fewer words or browse a topic above.';
