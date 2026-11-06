@@ -65,6 +65,17 @@ class PublicationTest(unittest.TestCase):
                         broken.append((route, href))
         self.assertEqual(broken, [])
 
+    def test_every_page_has_one_google_analytics_tag(self):
+        wrong = []
+        for path in publish.OUT.rglob('*.html'):
+            if path.relative_to(publish.OUT).parts[0] == 'openclaw-setup':
+                continue
+            source = path.read_text()
+            head = source.split('</head>')[0]
+            if head.count('googletagmanager.com/gtag/js?id=G-BLKN59SYTQ') != 1 or head.count("gtag('config','G-BLKN59SYTQ')") != 1 or source.count('googletagmanager.com') != 1:
+                wrong.append(str(path.relative_to(publish.OUT)))
+        self.assertEqual(wrong, [])
+
     def test_articles_keep_sources_dates_and_have_relevant_navigation(self):
         for post in self.posts:
             source = (publish.OUT / post['url'].lstrip('/') / 'index.html').read_text()

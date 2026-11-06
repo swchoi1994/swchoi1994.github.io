@@ -116,6 +116,8 @@ def head(title, description, url, image, json_ld):
 <link rel="alternate" type="application/rss+xml" title="Seongwoo Choi IT Blog" href="/blog/feed.xml">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&amp;family=Newsreader:opsz,wght@6..72,500;6..72,600&amp;display=swap" rel="stylesheet">
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-BLKN59SYTQ"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){{dataLayer.push(arguments);}}gtag('js',new Date());gtag('config','G-BLKN59SYTQ');</script>
 <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client={ADSENSE_CLIENT}" crossorigin="anonymous"></script>
 <script type="application/ld+json">{json.dumps(json_ld, ensure_ascii=False)}</script>
 </head>"""

@@ -111,6 +111,21 @@ def collection(title, url, posts):
                     for i, p in enumerate(posts, 1)]}}
 
 
+ANALYTICS = '''<script async src="https://www.googletagmanager.com/gtag/js?id=G-BLKN59SYTQ"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-BLKN59SYTQ');</script>'''
+
+
+def add_analytics():
+    """Put the GA4 tag in the <head> of every published page except the OpenClaw setup tool."""
+    for path in OUT.rglob('*.html'):
+        if path.relative_to(OUT).parts[0] == 'openclaw-setup':
+            continue
+        source = path.read_text()
+        if 'G-BLKN59SYTQ' not in source:
+            assert source.count('</head>') == 1, path
+            path.write_text(source.replace('</head>', ANALYTICS + '\n</head>'))
+
+
 def page(title, description, url, body, schemas=()):
     return f'''<!doctype html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
@@ -291,6 +306,7 @@ def build():
     if 'rel="canonical"' not in source:
         source = source.replace('</head>', f'<link rel="canonical" href="{SITE}/openclaw-setup/"></head>')
     setup.write_text(source)
+    add_analytics()
     search = [{k: p[k] for k in ('title', 'description', 'url', 'date', 'topic', 'minutes')} for p in posts]
     (OUT / 'blog/search-index.json').write_text(json.dumps(search, ensure_ascii=False))
     # Refresh feed titles alongside the visible headings; preserve publication dates and GUIDs.
