@@ -1,137 +1,71 @@
-# Seongwoo Choi Portfolio Design System
+# Seongwoo Choi / Journal design system
 
 ## Design read
 
-An editorial technical portfolio for an AI systems leader. The site should feel credible, warm, globally minded, and quietly ambitious. It should communicate research depth and product responsibility without looking like a startup template or a visual resume.
+A quiet utility layout for a personal technology journal: a neutral canvas, white bordered cards, a sidebar for navigation, and text that does the work. It should read as one engineer's notebook, not a content farm and not a startup landing page. The portfolio at `/portfolio/` keeps its own earlier editorial style and stylesheet.
 
-## Audience
+## What keeps it from looking generated
 
-- Senior technology leaders and founders
-- AI research and engineering collaborators
-- Investors and startup partners
-- Selective recruiters for technical leadership roles
-
-## Visual theme
-
-- Warm paper-like canvas instead of pure white
-- Ink-first typography with one terracotta accent
-- Editorial hierarchy with large serif display type and precise sans-serif supporting text
-- Asymmetric composition and generous whitespace
-- Real professional evidence for portfolio claims; clearly labeled editorial illustrations for blog topics
+- Lists and cards are text-first. AI cover illustrations are not shown in cards or, by default, in articles; they are kept for social previews only (`article_cover` in `content/site.json` turns the in-article cover back on).
+- Dates, read times and counts are set in a monospace face, in ISO form, like a log.
+- Every article shows a real byline, its sources by name, and the Korean original.
+- Personal details (mood, music, comments) appear only when the owner has actually entered or enabled them. Nothing personal is ever generated.
+- No gradients, emoji, icon-card rows, decorative status dots or placeholder content.
 
 ## Color roles
 
-- Canvas: `#F6F4EF`
-- Primary surface: `#FFFDF8`
-- Muted surface: `#EBE7DE`
-- Primary ink: `#1E1F23`
-- Secondary ink: `#686862`
-- Border: `#D8D4CB`
-- Accent: `#A64B2A`
-- Accent dark: `#7D321A`
-- Accent soft: `#EAD8CE`
+Defined once as custom properties in `assets/css/journal.css`, for light and dark.
 
-Use the accent for links, focus, data highlights, and primary actions. Do not introduce a second accent.
+| Role | Light | Dark |
+| --- | --- | --- |
+| Canvas `--bg` | `#F4F5F7` | `#15171B` |
+| Surface `--surface` | `#FFFFFF` | `#1C1F25` |
+| Soft panel `--soft` | `#F6F7F9` | `#22262D` |
+| Inset / selected `--inset` | `#EEF0F4` | `#272B33` |
+| Border `--border` | `#E3E5EA` | `#2E333D` |
+| Hairline `--line` | `#ECEEF2` | `#272B33` |
+| Headings `--ink` | `#16181D` | `#ECEEF2` |
+| Body `--text` | `#2B2F38` | `#D0D4DC` |
+| Secondary `--sub` | `#4A505C` | `#B4BAC5` |
+| Muted `--muted` | `#5C6370` | `#9AA2AF` |
+| Accent `--accent` | `#A64B2A` | `#E0916F` |
+
+One accent only (terracotta), used for links, the brand mark, the summary label and primary buttons. Muted text keeps at least 4.5:1 on every surface it sits on. Dark mode is deliberately not pure black and body text is not pure white.
+
+Dark mode follows the reader's system setting until they use the toggle; the choice is stored in `localStorage` and applied by an inline script before first paint.
 
 ## Typography
 
-- Display: Newsreader, 500 or 600 weight
-- Body and interface: DM Sans, 400 through 700
-- Headlines use tight tracking and short line lengths
-- Body paragraphs stay near 55 to 65 characters per line
-- Numbers that communicate metrics use tabular figures
-- Sentence case for headings and controls
+- Interface and reading: Inter, 400 to 700.
+- Metadata (dates, read time, counts, labels): JetBrains Mono, 400 to 500.
+- Page title 28px/1.2, article title up to 30px/1.25, section heading 17px, card title 16px, article body 17px/1.7 with a measure near 70 characters.
+- Sentence case everywhere. Hyphens, not em dashes, in interface copy.
 
 ## Layout
 
-- Maximum content width: 1180px
-- Desktop sections use asymmetric 2-column grids
-- Section spacing ranges from 88px to 144px
-- Mobile side padding: 16px
-- Desktop side padding: 24px minimum
-- Use full-width tonal bands only for major narrative transitions
-- Preserve a clear top-to-bottom reading order at every breakpoint
-
-## Shape and depth
-
-- Base radius: 12px
-- Buttons and navigation controls: 8px
-- Portrait frame: 18px
-- Pills are permitted only for compact capability tags
-- Use borders and tonal surfaces before shadows
-- Reserve the large warm shadow for the portrait or a single priority element
+- Desktop (1024px and up): a 248px sticky sidebar (brand, author, Read, Topics with counts, Elsewhere) and a content column up to 1040px. Articles use a 720px column with a 300px rail for the contents list and the author.
+- 1500px and up: listing pages may show an ad rail in the otherwise empty right margin.
+- Below 1024px: a 56px top bar with the theme and menu buttons, a scrolling row of topic tabs on listing pages, and the sidebar as a full-height sheet. The article becomes full-bleed.
+- 16px side gutters on phones. No horizontal page scroll at any width; wide tables scroll inside their own box.
+- Touch targets are at least 44px.
 
 ## Components
 
-### Navigation
-
-- Sticky, translucent warm canvas
-- Five primary anchors maximum
-- Download CV is a secondary outlined action
-- Mobile menu is a solid full-viewport sheet, not transparent over content
-
-### Hero
-
-- Name and role are immediately understandable
-- Headline fits within two to three lines on desktop
-- One primary and one secondary action
-- Candid real portrait, rectangular crop
-- No scroll cue, decorative status dot, or technology-logo cloud
-
-### Proof metrics
-
-- A dark ink band provides a confident change in pace
-- Metrics are editorial cells, not floating cards
-- Every number has specific context
-
-### Selected work
-
-- Each entry states context, responsibility, approach, and outcome
-- Use typographic structure instead of screenshots when proprietary work is under NDA
-- Avoid generic project-card grids
-
-### Research
-
-- Warm muted surface
-- Sticky section introduction on desktop
-- White reading panels with restrained spacing and no decorative icons
-
-### Contact
-
-- Email is visible as text and a direct link
-- No form unless it connects to a real delivery service
-- Professional profile links remain secondary
+- **Post**: label, title, description, date and read time. The same markup is a card in the grid and a row in the list; the Cards/List toggle is remembered.
+- **Search**: one rounded field with a magnifier, no button. It lifts on hover and focus.
+- **Article**: title, byline, optional mood and music line, an "At a glance" summary, the body, named sources, then "Keep reading".
+- **Ads**: fixed slots sit at the edges only: the right rail, after the article ends, between home sections and above the footer. Never above the title, inside a paragraph or list, or between a heading and its text. A slot renders only when its ad unit ID is set.
+- **Ad blocker notice**: a dismissible request. It never blocks reading and stays away for a week once dismissed.
 
 ## Interaction
 
-- Motion is limited to direct hover, press, and menu feedback
-- Never hide primary content before a scroll event
-- Respect `prefers-reduced-motion`
-- Every interactive element has visible keyboard focus
-- Touch targets are at least 44px
-
-## Content rules
-
-- Write in plain, specific language
-- Prefer evidence and constraints over adjectives
-- Do not expose confidential stealth-company details
-- Do not publish placeholder projects, posts, or fake success messages
-- Keep dates and current roles synchronized with the latest CV
-- Use hyphens instead of em dashes
+- Motion is limited to hover, focus and the search field's shadow. `prefers-reduced-motion` is respected.
+- Every control is a real `button`, `a` or `input` with a visible focus ring.
+- YouTube players and comments load only when the reader asks for them.
 
 ## Avoid
 
-- Purple-blue AI gradients
-- Equal icon-card feature rows
-- Circular headshots with bright rings
-- Fake terminals or dashboards
-- Dead links and decorative controls
-- Font Awesome or unnecessary UI dependencies
-- Scroll-triggered opacity that can leave content blank
-- Unrelated third-party scripts. The owner-authorized AdSense and Google consent / ad-blocking recovery tags are permitted; reading and legal pages must remain accessible.
-
-## Publication update
-
-The primary audience now includes readers looking for useful AI and everyday software guidance. The journal is the homepage; the career narrative and CV live at `/portfolio/`. Retain the existing palette and typography while using a compact introduction, curated lead story, topic navigation and scannable article lists. Use article-specific editorial cover images in archives and topic navigation, with responsive WebP variants and lazy loading. Keep text titles accessible and label generated article illustrations; they are not screenshots or testing evidence. Article pages lead with an answer summary and preserve sources, disclosure and accessible contents navigation.
-
-Publication-specific styles extend this system in `assets/css/publication.css`. Do not edit externally synced blog HTML for layout changes; apply them in `tools/publish.py` so subsequent syncs retain the publication structure.
+- A second accent colour, gradients, glass effects, drop shadows on cards.
+- Cover images in lists; stock or generated imagery as decoration.
+- Fake metrics, fake comments, placeholder posts, dead links.
+- Third-party scripts beyond the owner-authorised analytics, AdSense and, when enabled, giscus.
