@@ -33,8 +33,16 @@ jobs:
       id-token: write
     environment:
       name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
+      url: ${{ steps.retry.outputs.page_url || steps.deployment.outputs.page_url }}
     steps:
+      # GitHub Pages occasionally stalls in "syncing_files" until the action
+      # times out (run 65, 2026-11-10). The build is fine when that happens,
+      # so try the same deployment once more before failing the run.
       - name: Deploy
         id: deployment
+        continue-on-error: true
+        uses: actions/deploy-pages@v4
+      - name: Deploy again after a stalled sync
+        id: retry
+        if: steps.deployment.outcome == 'failure'
         uses: actions/deploy-pages@v4
