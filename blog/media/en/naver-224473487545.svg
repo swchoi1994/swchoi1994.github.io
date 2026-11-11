@@ -1,0 +1,39 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1400" height="1050" viewBox="0 0 1400 1050" role="img">
+<title>What to check when a PDF will not upload to Gemini Notebook: file size, word count, and copy protection first</title>
+<desc>An English guide to the main sections of this article.</desc>
+<rect width="1400" height="1050" fill="#f6f4ef"/>
+<rect x="64" y="64" width="64" height="5" fill="#a64b2a"/>
+<g font-family="Arial, sans-serif" fill="#1e1f23">
+<text x="64" y="109" font-size="23" letter-spacing="2" fill="#a64b2a">SEONGWOO CHOI / IT JOURNAL</text>
+<text x="64" y="172" font-family="Georgia, serif" font-size="42">What to check when a PDF will not upload to Gemini</text>
+<text x="64" y="221" font-family="Georgia, serif" font-size="42">Notebook: file size, word count, and copy protection</text>
+<text x="64" y="270" font-family="Georgia, serif" font-size="42">first</text>
+<text x="64" y="337" font-size="22" fill="#686862">ARTICLE GUIDE · 2026-11-11</text>
+<rect x="64" y="382" width="620" height="247" rx="12" fill="#fffdf8" stroke="#d8d4cb"/>
+<text x="90" y="424" font-size="23" fill="#a64b2a">01</text>
+<text x="90" y="465" font-size="26" font-weight="600">Check the file size and word count</text>
+<text x="90" y="497" font-size="26" font-weight="600">first</text>
+<text x="90" y="537" font-size="22" fill="#686862">The official Help documentation limits a single</text>
+<text x="90" y="565" font-size="22" fill="#686862">source to 500,000 words or fewer and local file</text>
+<text x="90" y="593" font-size="22" fill="#686862">uploads to 200 MB or less.</text>
+<rect x="716" y="382" width="620" height="247" rx="12" fill="#fffdf8" stroke="#d8d4cb"/>
+<text x="742" y="424" font-size="23" fill="#a64b2a">02</text>
+<text x="742" y="465" font-size="26" font-weight="600">Check whether the PDF is</text>
+<text x="742" y="497" font-size="26" font-weight="600">copy-protected</text>
+<text x="742" y="537" font-size="22" fill="#686862">The Help documentation states that importing may</text>
+<text x="742" y="565" font-size="22" fill="#686862">fail if the original PDF is copy-protected.</text>
+<rect x="64" y="655" width="620" height="247" rx="12" fill="#fffdf8" stroke="#d8d4cb"/>
+<text x="90" y="697" font-size="23" fill="#a64b2a">03</text>
+<text x="90" y="738" font-size="26" font-weight="600">If it is a scan, check whether the</text>
+<text x="90" y="770" font-size="26" font-weight="600">text is actually present</text>
+<text x="90" y="810" font-size="22" fill="#686862">If the text exists only as images, as in a PDF</text>
+<text x="90" y="838" font-size="22" fill="#686862">made from photographs, there may be less body</text>
+<text x="90" y="866" font-size="22" fill="#686862">text available for answers.</text>
+<rect x="716" y="655" width="620" height="247" rx="12" fill="#fffdf8" stroke="#d8d4cb"/>
+<text x="742" y="697" font-size="23" fill="#a64b2a">04</text>
+<text x="742" y="738" font-size="26" font-weight="600">Narrow the question scope after</text>
+<text x="742" y="770" font-size="26" font-weight="600">importing</text>
+<text x="742" y="810" font-size="22" fill="#686862">According to the Help documentation, sources are</text>
+<text x="742" y="838" font-size="22" fill="#686862">always used for questions, and answers are based</text>
+<text x="742" y="866" font-size="22" fill="#686862">on either all sources or selected sources.</text>
+<text x="64" y="1010" font-size="21" fill="#686862">AI-assisted article guide. Read the article and linked sources for details.</text></g></svg>
