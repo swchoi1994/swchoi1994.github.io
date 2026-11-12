@@ -1,0 +1,83 @@
+<!--
+{
+  "title": "vLLM quickstart: serve a model with an OpenAI-style API",
+  "description": "Install vLLM, start an OpenAI-compatible server with one command, call it from Python, and run it in Docker. With the flags that control GPU memory.",
+  "date": "2026-11-12T10:00:00+00:00",
+  "topic": "ai-automation",
+  "note": "This guide follows the vLLM documentation as read on November 12, 2026. Nothing in it was run for this article, because vLLM needs a GPU machine that was not available. Compare the commands with vllm serve --help on your installed version.",
+  "sources": [
+    {"title": "vLLM docs: Quickstart", "url": "https://docs.vllm.ai/en/latest/getting_started/quickstart.html"},
+    {"title": "vLLM docs: Using Docker", "url": "https://docs.vllm.ai/en/latest/deployment/docker.html"},
+    {"title": "vLLM docs: vllm serve arguments", "url": "https://docs.vllm.ai/en/latest/cli/serve.html"}
+  ]
+}
+-->
+<p>vLLM is a server for running open-weight language models on your own GPUs. It speaks the OpenAI API protocol, so an application written for the OpenAI client can point at a vLLM server by changing one URL. This guide gets a first server running and covers the handful of settings that decide whether a model fits.</p>
+
+<h2 id="before">1. Before you install</h2>
+<p>The quickstart lists Linux and Python 3.11 to 3.14 as prerequisites. On a Mac with Apple Silicon, the documentation points to a separate build called vLLM-Metal. A server hosts one model at a time, so plan one server per model.</p>
+<p>If the goal is to try a model on a laptop, a desktop tool is simpler; see <a href="/blog/posts/naver-224459303987/">what to check before installing Ollama on Windows</a>. vLLM is the choice when several users or programs need to call the same model at once.</p>
+
+<h2 id="install">2. Install</h2>
+<p>For NVIDIA GPUs the documentation recommends <code>uv</code> to create the environment:</p>
+<pre><code>uv venv --python 3.12 --seed
+source .venv/bin/activate
+uv pip install vllm --torch-backend=auto
+vllm download-kernels</code></pre>
+<p><code>--torch-backend=auto</code> lets <code>uv</code> pick the PyTorch build that matches the installed CUDA driver. <code>vllm download-kernels</code> fetches precompiled kernels in advance. Without it vLLM downloads and compiles them at startup, which the documentation says can add several minutes on newer GPUs.</p>
+
+<h2 id="serve">3. Start the server</h2>
+<p>One command downloads the model from Hugging Face and serves it:</p>
+<pre><code>vllm serve Qwen/Qwen2.5-1.5B-Instruct</code></pre>
+<p>The server listens on <code>http://localhost:8000</code> by default; <code>--host</code> and <code>--port</code> change that. Check that it is up by listing the models:</p>
+<pre><code>curl http://localhost:8000/v1/models</code></pre>
+<p>One default is easy to miss. If the model repository contains a <code>generation_config.json</code>, vLLM applies it, so sampling defaults such as temperature may be the model author's and not vLLM's. Pass <code>--generation-config vllm</code> to ignore that file.</p>
+
+<h2 id="call">4. Call it from Python</h2>
+<p>The official <code>openai</code> package works unchanged. Point it at the server and use the served model's name:</p>
+<pre><code>from openai import OpenAI
+
+client = OpenAI(
+    api_key="EMPTY",
+    base_url="http://localhost:8000/v1",
+)
+
+chat_response = client.chat.completions.create(
+    model="Qwen/Qwen2.5-1.5B-Instruct",
+    messages=[
+        {"role": "system", "content": "You are a helpful assistant."},
+        {"role": "user", "content": "Tell me a joke."},
+    ],
+)
+print("Chat response:", chat_response)</code></pre>
+<p>The key is <code>"EMPTY"</code> because the server does not check keys unless you ask it to. The same request works with <code>curl</code> against <code>/v1/chat/completions</code>.</p>
+
+<h2 id="docker">5. Run it in Docker</h2>
+<p>vLLM publishes an image, <code>vllm/vllm-openai</code>, that starts the same server:</p>
+<pre><code>docker run --runtime nvidia --gpus all \
+    -v ~/.cache/huggingface:/root/.cache/huggingface \
+    --env "HF_TOKEN=$HF_TOKEN" \
+    -p 8000:8000 \
+    --ipc=host \
+    vllm/vllm-openai:latest \
+    --model Qwen/Qwen3-0.6B</code></pre>
+<p>The volume keeps downloaded models between runs. <code>--ipc=host</code> gives the container access to the host's shared memory, which PyTorch uses to pass data between processes; <code>--shm-size</code> is the alternative. Server arguments go after the image name.</p>
+<p>The image runs as root by default. It also ships a built-in <code>vllm</code> user, which you select with <code>--user 2000:0</code>. In that case mount the model cache under <code>/home/vllm/.cache/huggingface</code> instead of <code>/root</code>, and make the directory writable by group 0. For a fixed deployment, replace <code>latest</code> with a version tag.</p>
+
+<h2 id="flags">6. The flags to learn first</h2>
+<table>
+<thead><tr><th scope="col">Flag</th><th scope="col">What it controls</th></tr></thead>
+<tbody>
+<tr><td><code>--max-model-len</code></td><td>Context length, prompt plus output. Derived from the model if unset. <code>auto</code> picks the largest length that fits in GPU memory.</td></tr>
+<tr><td><code>--gpu-memory-utilization</code></td><td>Fraction of GPU memory this server may use, from 0 to 1. Set 0.5 on each of two servers to share one GPU.</td></tr>
+<tr><td><code>--served-model-name</code></td><td>The name clients send in the <code>model</code> field. Defaults to the model path.</td></tr>
+<tr><td><code>--tensor-parallel-size</code></td><td>Number of tensor-parallel groups, used to split one model across GPUs. Default 1.</td></tr>
+<tr><td><code>--generation-config vllm</code></td><td>Ignore the model repository's sampling defaults.</td></tr>
+</tbody>
+</table>
+<p>When a model fails to load for lack of memory, the first two are the ones to change: a shorter context needs less memory, and a lower utilization leaves room for something else on the card. Why a model that fits can still be slow is covered in <a href="/blog/posts/naver-224473092415/">AI GPU memory capacity and bandwidth differences</a>.</p>
+
+<h2 id="expose">7. Before anyone else can reach it</h2>
+<p><code>--api-key</code>, or the <code>VLLM_API_KEY</code> environment variable, makes the server require a key. You can pass several keys, which helps with rotation.</p>
+<p>The reference page for the flag carries a warning that is easy to skip. The key only protects endpoints under the <code>/v1</code>, <code>/v2</code>, <code>/inference</code> and <code>/cohere</code> prefixes. Other endpoints on the same server stay unauthenticated, including <code>/invocations</code>, which exposes the same inference. The documentation's wording is "Do not rely on --api-key alone to secure vLLM."</p>
+<p>In practice that means keeping the port off the public internet. Bind the server to a private interface, and put it behind a reverse proxy or gateway that authenticates every path before it is reachable from outside.</p>

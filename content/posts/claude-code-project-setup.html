@@ -1,0 +1,132 @@
+<!--
+{
+  "title": "Claude Code project setup: CLAUDE.md, settings, hooks, MCP",
+  "description": "Set up a repository for Claude Code with four files: CLAUDE.md, .claude/settings.json, one hook and .mcp.json. What belongs in each, with documented examples.",
+  "date": "2026-11-12T09:00:00+00:00",
+  "topic": "ai-automation",
+  "note": "The file locations and examples follow Anthropic's documentation as read on November 12, 2026. The MCP commands were checked against the built-in help of Claude Code 2.1.322; the hook examples were not run for this article.",
+  "sources": [
+    {"title": "Claude Code docs: Settings files and precedence", "url": "https://code.claude.com/docs/en/settings"},
+    {"title": "Claude Code docs: How Claude remembers your project", "url": "https://code.claude.com/docs/en/memory"},
+    {"title": "Claude Code docs: Automate actions with hooks", "url": "https://code.claude.com/docs/en/hooks-guide"},
+    {"title": "Claude Code docs: Connect Claude Code to tools via MCP", "url": "https://code.claude.com/docs/en/mcp"}
+  ]
+}
+-->
+<p>Claude Code runs in any folder with no setup. On a real project, four small files decide how well it behaves: one for instructions, one for permissions, one script for the rule that must never break, and one for outside tools. Each takes a few minutes, and all four can be committed so the whole team gets the same behaviour.</p>
+
+<h2 id="claude-md">1. CLAUDE.md: the instructions read every session</h2>
+<p>Claude Code starts each session with a fresh context and reads <code>CLAUDE.md</code> first. The documentation lists three places that matter for most people:</p>
+<ul>
+<li><code>./CLAUDE.md</code> or <code>./.claude/CLAUDE.md</code> for the project, shared through version control.</li>
+<li><code>~/.claude/CLAUDE.md</code> for your own preferences in every project.</li>
+<li><code>./CLAUDE.local.md</code> for private notes on one project. Add it to <code>.gitignore</code> yourself.</li>
+</ul>
+<p>Run <code>/init</code> inside Claude Code to generate a first version. It reads the codebase and writes down the build commands, test instructions and conventions it finds. If a <code>CLAUDE.md</code> already exists, it suggests improvements and does not overwrite the file.</p>
+<p>Then cut it down. The documentation's target is under 200 lines per file, because longer files use more context and are followed less reliably. Keep what Claude cannot work out from the code: the exact test command, the branch naming rule, the directory nobody should touch. Rules that apply to one part of the codebase can move to <code>.claude/rules/</code>, where a rule can be scoped to file paths and loads only when Claude works on matching files.</p>
+<p>The documentation is direct about the limit of this file. Claude treats <code>CLAUDE.md</code> as context, not as enforced configuration. A line that says "never edit the lockfile" is a request. To make it a guarantee, use a permission rule or a hook, which the next two sections cover.</p>
+<p>If the repository already has an <code>AGENTS.md</code> for other coding agents, Claude Code can read that file in place of <code>CLAUDE.md</code>.</p>
+
+<h2 id="settings">2. .claude/settings.json: what runs without asking</h2>
+<p>Settings are JSON files, and the file you choose decides who the setting applies to:</p>
+<table>
+<thead><tr><th scope="col">File</th><th scope="col">Applies to</th><th scope="col">Commit it?</th></tr></thead>
+<tbody>
+<tr><td><code>~/.claude/settings.json</code></td><td>You, in every project</td><td>No</td></tr>
+<tr><td><code>.claude/settings.json</code></td><td>Everyone working in the project</td><td>Yes</td></tr>
+<tr><td><code>.claude/settings.local.json</code></td><td>You, in this project only</td><td>No</td></tr>
+</tbody>
+</table>
+<p>When the same key is set in more than one file, the local file wins over the shared project file, which wins over your user file. Settings deployed by an organization sit above all three. Lists such as <code>permissions.allow</code> are merged across files, so each file can add entries without removing another file's.</p>
+<p>The documentation's own example lets Claude run lint and tests without asking, and stops it reading <code>.env</code> files:</p>
+<pre><code>{
+  "$schema": "https://json.schemastore.org/claude-code-settings.json",
+  "permissions": {
+    "allow": [
+      "Bash(npm run lint)",
+      "Bash(npm run test *)"
+    ],
+    "deny": [
+      "Read(./.env)",
+      "Read(./.env.*)"
+    ]
+  }
+}</code></pre>
+<p>Three details save time later:</p>
+<ul>
+<li>Settings files are strict JSON. A comment or a trailing comma is a syntax error.</li>
+<li>Run <code>/status</code> to see which settings files loaded, and <code>claude doctor</code> to list entries that were rejected.</li>
+<li>In a committed file, <code>allow</code> rules apply only after each teammate trusts the folder. <code>deny</code> and <code>ask</code> rules apply immediately.</li>
+</ul>
+<p>When you choose "Yes, and don't ask again" on a permission prompt, Claude Code saves that approval to <code>.claude/settings.local.json</code> and keeps the file out of git. How the three rule types interact is covered in <a href="/blog/posts/naver-224459894229/">Claude Code permission settings order</a>.</p>
+
+<h2 id="hooks">3. One hook for the rule that must never break</h2>
+<p>A hook is a shell command that Claude Code runs at a fixed point, such as before a tool call. Because it is a command and not an instruction, it runs every time. Hooks are configured in the same settings files.</p>
+<p>The documentation's example blocks edits to sensitive files. Save this as <code>.claude/hooks/protect-files.sh</code> and make it executable with <code>chmod +x</code>. It needs <code>jq</code> installed.</p>
+<pre><code>#!/bin/bash
+INPUT=$(cat)
+FILE_PATH=$(echo "$INPUT" | jq -r '.tool_input.file_path // empty')
+
+PROTECTED_PATTERNS=(".env" "package-lock.json" ".git/")
+
+for pattern in "${PROTECTED_PATTERNS[@]}"; do
+  if [[ "$FILE_PATH" == *"$pattern"* ]]; then
+    echo "Blocked: $FILE_PATH matches protected pattern '$pattern'" &gt;&amp;2
+    exit 2
+  fi
+done
+
+exit 0</code></pre>
+<p>Then register it in <code>.claude/settings.json</code>:</p>
+<pre><code>{
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "\"$CLAUDE_PROJECT_DIR\"/.claude/hooks/protect-files.sh"
+          }
+        ]
+      }
+    ]
+  }
+}</code></pre>
+<p>Claude Code passes the details of the tool call to the script as JSON on standard input. Exit code 2 blocks the call, and the message written to standard error goes back to Claude as feedback, so it can change approach. Exit code 0 makes no decision, and the normal permission flow applies.</p>
+<p>The same structure with <code>PostToolUse</code> runs a command after an edit, which is how the documentation formats files with Prettier. Type <code>/hooks</code> in a session to see what is registered.</p>
+<p>A hook is an ordinary command running on your machine. Read the hooks in a repository you did not write before you trust the folder.</p>
+
+<h2 id="mcp">4. .mcp.json: outside tools the team shares</h2>
+<p>MCP servers give Claude Code access to tools outside the repository, such as an issue tracker or an error monitor. The built-in help of version 2.1.322 gives these two forms:</p>
+<pre><code># A remote server over HTTP
+claude mcp add --transport http sentry https://mcp.sentry.dev/mcp
+
+# A local server started as a command
+claude mcp add my-server -e API_KEY=xxx -- npx my-mcp-server</code></pre>
+<p>By default a server is added in the <code>local</code> scope: only you, only this project. Add <code>--scope project</code> to write it to <code>.mcp.json</code> in the project root, which you can commit, or <code>--scope user</code> to have it in all your projects.</p>
+<p>A committed <code>.mcp.json</code> looks like this:</p>
+<pre><code>{
+  "mcpServers": {
+    "shared-server": {
+      "type": "http",
+      "url": "https://example.com/mcp"
+    }
+  }
+}</code></pre>
+<p>Keep secrets out of the file. Values can be written as <code>${VAR}</code>, or <code>${VAR:-default}</code> with a fallback, and are filled in from each person's environment.</p>
+<p>Claude Code asks for approval before it uses a server from a project's <code>.mcp.json</code> in an interactive session. <code>claude mcp list</code>, <code>claude mcp get &lt;name&gt;</code> and <code>claude mcp remove &lt;name&gt;</code> manage servers from the terminal, and <code>/mcp</code> shows their status inside a session. The documentation adds a warning worth repeating: verify that you trust each server, because one that fetches outside content can expose you to prompt injection.</p>
+
+<h2 id="commit">5. What to commit</h2>
+<table>
+<thead><tr><th scope="col">File</th><th scope="col">Commit</th><th scope="col">Holds</th></tr></thead>
+<tbody>
+<tr><td><code>CLAUDE.md</code></td><td>Yes</td><td>Project instructions</td></tr>
+<tr><td><code>.claude/settings.json</code></td><td>Yes</td><td>Team permissions and hooks</td></tr>
+<tr><td><code>.claude/hooks/</code></td><td>Yes</td><td>The scripts your hooks call</td></tr>
+<tr><td><code>.mcp.json</code></td><td>Yes</td><td>Shared servers, without secrets</td></tr>
+<tr><td><code>.claude/settings.local.json</code></td><td>No</td><td>Your overrides and saved approvals</td></tr>
+<tr><td><code>CLAUDE.local.md</code></td><td>No</td><td>Private notes</td></tr>
+</tbody>
+</table>
+<p>A workable order for a new repository: run <code>/init</code> and trim the result, add <code>deny</code> rules for secrets, write one hook for the rule you care about most, and add MCP servers when a task needs them. If Claude Code is not installed yet, start with <a href="/blog/posts/naver-224459505819/">installation and first login</a>.</p>

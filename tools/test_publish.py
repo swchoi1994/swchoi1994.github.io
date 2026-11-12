@@ -94,17 +94,23 @@ class PublicationTest(unittest.TestCase):
             source = (publish.OUT / post['url'].lstrip('/') / 'index.html').read_text()
             schemas = [json.loads(m[1]) for m in publish.LD.finditer(source)]
             data = next(s for s in schemas if s.get('@type') == 'BlogPosting')
-            original = f'https://blog.naver.com/swchoi1994/{post["slug"].split("-")[1]}'
             self.assertEqual(data['datePublished'], post['schema']['datePublished'])
             self.assertGreaterEqual(data['dateModified'], data['datePublished'])
             self.assertEqual(data.get('citation'), post['schema'].get('citation'))
             self.assertEqual(data['headline'], post['title'])
-            self.assertEqual(data['isBasedOn']['url'], original)
+            if post.get('native'):
+                # Written here: no Korean original, so nothing may claim one.
+                self.assertNotIn('isBasedOn', data)
+                self.assertNotIn('blog.naver.com/swchoi1994/', source[source.index('<main'):source.index('</main>')])
+                self.assertIn('Written for this site with AI assistance', source)
+            else:
+                original = f'https://blog.naver.com/swchoi1994/{post["slug"].split("-")[1]}'
+                self.assertEqual(data['isBasedOn']['url'], original)
+                self.assertIn(original, source)
             self.assertEqual(data['isPartOf']['name'], publish.BRAND)
             self.assertIn(f'/topics/{post["topic"]}/', source)
             self.assertIn('At a glance', source)
             self.assertIn('Keep reading', source)
-            self.assertIn(original, source)
             self.assertIn('Editorial policy', source)
             self.assertIn(f'<meta property="og:site_name" content="{publish.BRAND}">', source)
             self.assertNotIn('IT Blog', source)
@@ -131,6 +137,26 @@ class PublicationTest(unittest.TestCase):
             self.assertIn(f'{publish.SITE}/blog/posts/{slug}/', guide, slug)
         for slug in publish.TOPICS:
             self.assertIn(f'{publish.SITE}/topics/{slug}/', guide, slug)
+
+    def test_articles_written_here_meet_the_publishing_bar(self):
+        written = [p for p in self.posts if p.get('native')]
+        self.assertTrue(written, 'expected at least one article under content/posts/')
+        feed = (publish.OUT / 'blog/feed.xml').read_text()
+        home = (publish.OUT / 'index.html').read_text()
+        for post in written:
+            with self.subTest(article=post['slug']):
+                source = (publish.OUT / post['url'].lstrip('/') / 'index.html').read_text()
+                # These are ours to get right: titles and descriptions must fit a search result as written.
+                self.assertLessEqual(len(post['title']), 60)
+                self.assertLessEqual(len(post['description']), 160)
+                self.assertGreaterEqual(len(post['native']['sources']), 2)
+                for cited in post['native']['sources']:
+                    self.assertTrue(cited['url'].startswith('https://'))
+                    self.assertIn(html.escape(cited['url']), source)
+                self.assertTrue(post['native']['note'], 'say how the article was checked')
+                self.assertGreaterEqual(len(re.findall(r'<h2 id="', post['native']['body'])), 3)
+                self.assertIn(publish.SITE + post['url'], feed)
+        self.assertIn(written[0]['url'], home)
 
     def test_naver_only_articles_stay_off_the_english_site(self):
         skipped = [slug for slug, _ in publish.SKIPPED]
@@ -172,6 +198,8 @@ class PublicationTest(unittest.TestCase):
         named = publish.named_sources(body)
         self.assertIn('<li><a href="https://a.test/doc" rel="x">The official guide ', named)
         self.assertIn('>b.test ', named)
+        self.assertEqual(publish.scrollable_tables('<p>a</p><table><tr><td>1</td></tr></table>'),
+                         '<p>a</p><div class="table-scroll" tabindex="0" role="region" aria-label="Table"><table><tr><td>1</td></tr></table></div>')
 
     def test_optional_features_stay_off_until_configured(self):
         article = (publish.OUT / self.posts[0]['url'].lstrip('/') / 'index.html').read_text()

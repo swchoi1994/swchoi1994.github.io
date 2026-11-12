@@ -14,7 +14,7 @@ try { ({ chromium } = require('@playwright/test')); } catch { ({ chromium } = re
 
   // Every page type renders once, with one heading and no sideways scroll at any width.
   const paths = ['/', '/topics/', '/topics/windows/', '/guides/', '/guides/ai-coding-agent-repos/', '/blog/', '/blog/page/2/', '/videos/',
-    '/blog/posts/naver-224467696426/', '/blog/posts/naver-224444722682/', '/blog/posts/naver-224467587320/', '/blog/about/', '/blog/privacy/', '/portfolio/'];
+    '/blog/posts/naver-224467696426/', '/blog/posts/naver-224444722682/', '/blog/posts/claude-code-project-setup/', '/blog/posts/dockerfile-checklist/', '/blog/posts/vllm-first-server/', '/blog/posts/naver-224467587320/', '/blog/about/', '/blog/privacy/', '/portfolio/'];
   for (const width of [390, 768, 1024, 1360, 1680]) {
     await page.setViewportSize({ width, height: 900 });
     for (const path of paths) {

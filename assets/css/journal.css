@@ -73,13 +73,12 @@ button, input, textarea { font: inherit; color: inherit; }
 .sidebar nav a[aria-current] { background: var(--inset); font-weight: 600; color: var(--ink); }
 .sidebar .count { font-family: var(--mono); font-size: 12.5px; font-weight: 400; color: var(--muted); }
 .sidebar .out { color: var(--muted); }
-.sidebar-foot { margin-top: auto; padding: 0 12px; font-size: 13px; line-height: 1.9; color: var(--muted); }
-.sidebar-foot a { color: var(--muted); }
 
-.page { display: flex; align-items: flex-start; gap: 24px; min-width: 0; padding: 32px clamp(16px, 2.4vw, 36px) 48px; }
-.page-main { flex: 1 1 0; min-width: 0; max-width: 1040px; }
+.page { display: flex; flex-direction: column; gap: 32px; min-width: 0; min-height: 100vh; padding: 32px clamp(16px, 2.4vw, 36px) 28px; }
+.page-body { display: flex; align-items: flex-start; gap: 24px; min-width: 0; }
+.page-main { flex: 1 1 0; min-width: 0; max-width: 1120px; }
 .page-main, .page-main > main { display: flex; flex-direction: column; gap: 20px; }
-.page-article .page-main { max-width: 720px; }
+.page-article .page-main { max-width: 800px; }
 .page-rail { position: sticky; top: 24px; flex: 0 0 300px; display: flex; flex-direction: column; gap: 20px; }
 .page-rail-wide { display: none; }
 
@@ -203,6 +202,7 @@ figcaption { margin-top: 8px; font-size: 13px; line-height: 1.5; color: var(--mu
 .reading-body table { width: 100%; border-collapse: collapse; font-size: 15px; line-height: 1.5; }
 .reading-body th, .reading-body td { padding: 10px 12px; border-bottom: 1px solid var(--line); text-align: left; vertical-align: top; }
 .reading-body th { font-size: 13px; font-weight: 600; color: var(--muted); }
+.reading-body td:first-child code { white-space: nowrap; }
 .contact-address { font-family: var(--mono); font-size: 15px; }
 .info-page > h1, .info-page > .reading-body { max-width: 680px; }
 
@@ -277,16 +277,24 @@ figcaption { margin-top: 8px; font-size: 13px; line-height: 1.5; color: var(--mu
 .ad-note div { display: flex; flex-wrap: wrap; gap: 8px; }
 .ad-note #ad-note-help { flex-basis: 100%; color: var(--sub); }
 
-.site-footer { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 8px 24px; padding-top: 4px; font-size: 13px; color: var(--muted); }
-.site-footer nav { display: flex; flex-wrap: wrap; gap: 4px 14px; }
-.site-footer a { color: var(--muted); }
+.site-footer { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 10px 32px; max-width: 1124px; margin-top: auto; padding-top: 20px; border-top: 1px solid var(--border); font-size: 13px; color: var(--muted); }
+.site-footer nav { display: flex; flex-wrap: wrap; gap: 6px 20px; }
+.site-footer a { color: var(--sub); text-decoration: none; }
+.site-footer a:hover { color: var(--ink); text-decoration: underline; }
+
+/* The sidebar column is painted on the page canvas, not on the sticky element, so it reaches the
+   bottom of the window even when an anchor ad adds padding under the page. Hard stops: flat bands. */
+@media (min-width: 1024px) {
+  body { background: linear-gradient(to right, var(--surface) 0 247px, var(--border) 247px 248px, var(--bg) 248px); }
+  .sidebar { border-right: 0; background: none; }
+}
 
 @media (min-width: 1500px) {
   .page-rail-wide { display: flex; }
 }
 
 @media (max-width: 1099px) {
-  .page-article { flex-direction: column; }
+  .page-article .page-body { flex-direction: column; }
   .page-article .page-main { max-width: none; width: 100%; }
   .page-rail { position: static; flex: none; width: 100%; }
   .toc { display: none; }
@@ -307,7 +315,7 @@ figcaption { margin-top: 8px; font-size: 13px; line-height: 1.5; color: var(--mu
   .sidebar.is-open { display: flex; }
   .sidebar > .brand { display: none; }
   body.menu-open { overflow: hidden; }
-  .page { padding: 20px 16px 24px; }
+  .page { gap: 24px; min-height: 0; padding: 20px 16px 24px; }
   .page-head .theme-toggle { display: none; }
   .page-title h1 { font-size: 24px; line-height: 1.25; }
   .search { max-width: none; }
@@ -332,7 +340,7 @@ figcaption { margin-top: 8px; font-size: 13px; line-height: 1.5; color: var(--mu
   .media-list { grid-template-columns: minmax(0, 1fr); }
   .video-card img { width: 96px; }
   .repo-table .col-group { display: none; }
-  .site-footer { flex-direction: column-reverse; }
+  .site-footer { flex-direction: column-reverse; gap: 12px; }
 }
 
 @media (prefers-reduced-motion: no-preference) {

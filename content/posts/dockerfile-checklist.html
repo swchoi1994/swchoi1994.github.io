@@ -1,0 +1,76 @@
+<!--
+{
+  "title": "A Dockerfile checklist: small, repeatable, non-root images",
+  "description": "Seven habits from Docker's own build guide: a small base image, multi-stage builds, .dockerignore, pinned versions, one apt-get layer, build secrets, non-root.",
+  "date": "2026-11-12T09:30:00+00:00",
+  "topic": "ai-automation",
+  "note": "The individual instructions are quoted from Docker's documentation as read on November 12, 2026. The combined Dockerfile at the end was not built for this article, because no Docker daemon was available where it was written.",
+  "sources": [
+    {"title": "Docker docs: Building best practices", "url": "https://docs.docker.com/build/building/best-practices/"},
+    {"title": "Docker docs: Build secrets", "url": "https://docs.docker.com/build/building/secrets/"}
+  ]
+}
+-->
+<p>Most Dockerfiles work on the first try. The problems arrive later: an image that is two gigabytes, a build that changes without anyone touching it, a token left in a layer. Docker's own build guide covers each of these. This checklist takes the seven habits from it that prevent the most trouble, in the order you meet them when writing a Dockerfile.</p>
+
+<h2 id="base">1. Start from a small, trusted base image</h2>
+<p>Docker's guide calls the base image the first step towards a secure image, and gives two tests: it comes from a trusted source, and it is small. On Docker Hub, look for the Docker Official Image and Verified Publisher badges. A smaller base downloads faster and, as the guide puts it, minimizes the number of vulnerabilities introduced through the dependencies.</p>
+<p>The same reasoning applies to what you add on top. The guide's example is blunt: a database image does not need a text editor.</p>
+
+<h2 id="stages">2. Build in one stage, ship from another</h2>
+<p>A multi-stage build uses more than one <code>FROM</code>. The first stage holds compilers, package caches and build tools. The last stage copies in only the finished result with <code>COPY --from</code>. The final image then contains the files needed to run the application and nothing that was only needed to build it. Stages that do not depend on each other can also build in parallel.</p>
+
+<h2 id="ignore">3. Keep the build context clean with .dockerignore</h2>
+<p>Everything in the build directory can end up in the image through a broad <code>COPY . .</code>. A <code>.dockerignore</code> file excludes files from the build using patterns similar to <code>.gitignore</code>. A reasonable start:</p>
+<pre><code>.git
+.env
+node_modules
+*.md</code></pre>
+<p>Listing <code>.env</code> here is the cheapest protection against copying local secrets into an image by accident.</p>
+
+<h2 id="pin">4. Pin the base image, then let a bot update it</h2>
+<p>Image tags are mutable. <code>FROM alpine:3.21</code> resolves to whatever patch release the tag points to on the day you build, so the same Dockerfile can produce a different image three months later. To get the same base every time, pin the digest as well:</p>
+<pre><code>FROM alpine:3.21@sha256:&lt;digest&gt;</code></pre>
+<p>The guide is clear about the cost: a pinned digest also opts you out of automatic security fixes. Its answer is to automate the update instead of leaving the tag loose. GitHub Dependabot with <code>package-ecosystem: "docker"</code> opens a pull request when the base image changes, which gives you both control and a record of when it changed. <code>docker scout recommendations</code> lists available base image updates from the command line.</p>
+<p>Pinning is not a reason to stop rebuilding. Images are snapshots, so rebuild regularly, and use <code>docker build --pull</code> to fetch a fresh base when you are not pinning by digest.</p>
+
+<h2 id="apt">5. Put apt-get update and install in one layer</h2>
+<p>On Debian and Ubuntu images, always combine the two commands in a single <code>RUN</code>:</p>
+<pre><code>RUN apt-get update &amp;&amp; apt-get install -y --no-install-recommends \
+    curl \
+    git \
+    &amp;&amp; rm -rf /var/lib/apt/lists/*</code></pre>
+<p>The reason is the build cache. If <code>apt-get update</code> sits in its own <code>RUN</code>, Docker caches that layer. When you later add a package to the install line, the cached update is reused and the install can fetch outdated package versions or fail. One layer means the package list is refreshed whenever the package set changes.</p>
+<p><code>--no-install-recommends</code> skips optional packages, and removing <code>/var/lib/apt/lists</code> keeps the package index out of the image. Sorting the packages alphabetically makes later changes easier to review.</p>
+
+<h2 id="secrets">6. Pass secrets at build time, never copy them in</h2>
+<p>Docker's documentation says build arguments and environment variables are inappropriate for secrets, because they persist in the final image. A file added with <code>COPY</code> ends up in a layer as well. Build secrets avoid both. Pass the secret on the command line:</p>
+<pre><code>docker build --secret id=aws,src=$HOME/.aws/credentials .</code></pre>
+<p>Then mount it only for the instruction that needs it:</p>
+<pre><code>RUN --mount=type=secret,id=aws \
+    AWS_SHARED_CREDENTIALS_FILE=/run/secrets/aws \
+    aws s3 cp ...</code></pre>
+<p>By default the secret appears as a file at <code>/run/secrets/&lt;id&gt;</code> inside the build container for that one <code>RUN</code>. A secret can also come from an environment variable: <code>docker build --secret id=API_TOKEN .</code> mounts the value of <code>API_TOKEN</code> at <code>/run/secrets/API_TOKEN</code>.</p>
+
+<h2 id="user">7. Run as a non-root user</h2>
+<p>If the service does not need privileges, create a user and switch to it. The guide's example:</p>
+<pre><code>RUN groupadd -r postgres &amp;&amp; useradd --no-log-init -r -g postgres postgres</code></pre>
+<p>Follow it with a <code>USER</code> instruction. Two notes from the guide: assign an explicit UID and GID if other systems depend on them, because the automatically assigned numbers can change between rebuilds, and avoid installing <code>sudo</code>, which behaves unpredictably with terminals and signals inside containers.</p>
+
+<h2 id="together">Put together</h2>
+<p>A Python service that applies the list:</p>
+<pre><code># syntax=docker/dockerfile:1
+FROM python:3.13-slim AS build
+RUN python -m venv /opt/venv
+RUN --mount=type=bind,source=requirements.txt,target=/tmp/requirements.txt \
+    /opt/venv/bin/pip install --no-cache-dir --requirement /tmp/requirements.txt
+
+FROM python:3.13-slim
+RUN groupadd -r app &amp;&amp; useradd --no-log-init -r -g app app
+WORKDIR /app
+COPY --from=build /opt/venv /opt/venv
+COPY . .
+USER app
+ENTRYPOINT ["/opt/venv/bin/python", "main.py"]</code></pre>
+<p>The dependency install uses a bind mount for <code>requirements.txt</code>, which the guide recommends over <code>COPY</code> for files needed by a single <code>RUN</code>. <code>ENTRYPOINT</code> sets the main command; add a <code>CMD</code> after it if the program takes default flags. For a production image, add the digest from step 4 to both <code>FROM</code> lines.</p>
+<p>Containers built this way are easy to throw away and replace, which is the property the guide asks for when it says containers should be as ephemeral as possible.</p>

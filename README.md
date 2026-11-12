@@ -20,6 +20,27 @@ The existing guide generator remains `tools/guides.py`; the publication build wr
 
 Posts written for the Korean Naver blog only (tax, welfare, housing and similar Korea-specific guidance) are left off the English site. The build recognises them by their sources: any article citing a domain listed under `naver_only.source_domains` in `content/site.json` (Korean government and public-institution domains) is skipped, removed from the feed, sitemap, search index and output, and listed in the build log. To override a single article, add its ID to `naver_only.posts` (always skip) or `naver_only.keep` (always publish).
 
+## Articles written in this repository
+
+Most articles arrive through the sync. An article can also be written here: add `content/posts/<slug>.html`, where the file name becomes the URL (`/blog/posts/<slug>/`). The file starts with an HTML comment holding JSON metadata, followed by the body as plain HTML (`<p>`, `<h2 id="...">`, lists, `<pre><code>`, tables):
+
+```html
+<!--
+{
+  "title": "At most 60 characters",
+  "description": "At most 160 characters",
+  "date": "2026-11-12T09:00:00+00:00",
+  "topic": "ai-automation",
+  "note": "How the article was checked, and what was not tested.",
+  "sources": [{"title": "Name of the source", "url": "https://..."}]
+}
+-->
+<p>First paragraph.</p>
+<h2 id="first-section">1. First section</h2>
+```
+
+The build adds the byline, the contents list from the `<h2 id>` headings, the source list, the feed entry and the structured data. These articles have no Korean original, and end with a note saying they were written for this site with AI assistance. The tests hold them to a stricter bar than synced posts: title and description lengths, at least two `https` sources, a `note`, and at least three sections. Write the `note` honestly; say plainly when commands were not run.
+
 ## Owner settings
 
 Everything below is off until its values are filled in. No IDs are invented by the build.
