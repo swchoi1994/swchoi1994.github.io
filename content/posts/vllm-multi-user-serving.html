@@ -1,0 +1,248 @@
+<!--
+{
+  "title": "vLLM for a team: batching, API keys and a safe proxy",
+  "description": "How one vLLM server answers many people at once, which limits decide who waits, why --api-key is not enough, and a tested nginx proxy with per-user keys.",
+  "date": "2026-11-12T09:43:00+00:00",
+  "topic": "ai-automation",
+  "series": "vllm-server",
+  "part": 5,
+  "project": {
+    "needs": "A working vLLM container from parts 2 to 4, a host name for the server, and a TLS certificate for it.",
+    "result": "One HTTPS endpoint where each person has their own key, a rate limit and a usage log, and nothing else is reachable."
+  },
+  "note": "The vLLM behaviour described here comes from its documentation as read on November 12, 2026. The nginx configuration was run for this article with nginx 1.24.0 against a small stand-in server, not against vLLM: keys, blocked paths, streaming and the rate limit were tested and the results are reported below. The Compose file was checked with docker compose config. No GPU was used.",
+  "sources": [
+    {"title": "vLLM docs: Security", "url": "https://docs.vllm.ai/en/latest/usage/security/"},
+    {"title": "vLLM docs: Optimization and tuning", "url": "https://docs.vllm.ai/en/latest/configuration/optimization/"},
+    {"title": "vLLM docs: Using Nginx", "url": "https://docs.vllm.ai/en/latest/deployment/nginx/"},
+    {"title": "vLLM docs: vllm serve arguments", "url": "https://docs.vllm.ai/en/latest/cli/serve.html"},
+    {"title": "vLLM docs: Production metrics", "url": "https://docs.vllm.ai/en/latest/usage/metrics/"}
+  ]
+}
+-->
+<p>A model server that works for you is not yet a service for a team. Two questions remain. What happens when ten people ask at the same moment? And how do you let colleagues in without letting everyone else in? This part answers both, and ends with a proxy configuration that was tested for this article.</p>
+
+<h2 id="batching">1. What happens when ten people ask at once</h2>
+<p>vLLM does not answer requests one after another. A language model writes one token per step, and one step can produce the next token for many requests together. New requests join the running batch at the next step and finished ones leave. This is called continuous batching, and it is the main reason a single GPU can serve a group.</p>
+<p>Each request goes through two phases, and the vLLM documentation treats them differently:</p>
+<ul>
+<li><strong>Prefill:</strong> the model reads the prompt. This is heavy computation, and a long prompt takes noticeable time.</li>
+<li><strong>Decode:</strong> the model writes the answer token by token. Each step is light, but the request holds memory for every token it has seen so far.</li>
+</ul>
+<p>By default the scheduler gives priority to requests that are already writing, and fits new prompts into the capacity that is left, splitting long prompts into chunks. The effect is that one person pasting a very long file does not freeze everyone else's answers in the middle of a sentence.</p>
+<p>So ten simultaneous requests do not take ten times as long. They share the GPU, and each gets its tokens somewhat more slowly than it would alone. How much more slowly depends on the model and the card, and can only be measured; part 6 shows how.</p>
+
+<h2 id="limits">2. The four limits that decide who waits</h2>
+<table>
+<thead><tr><th scope="col">Limit</th><th scope="col">Set by</th><th scope="col">What happens at the limit</th></tr></thead>
+<tbody>
+<tr><td>Context per request</td><td><code>--max-model-len</code></td><td>A request that is too long is rejected</td></tr>
+<tr><td>Requests in one step</td><td><code>--max-num-seqs</code></td><td>Extra requests wait in a queue</td></tr>
+<tr><td>Tokens in one step</td><td><code>--max-num-batched-tokens</code></td><td>Long prompts are read in chunks over several steps</td></tr>
+<tr><td>Working memory</td><td>GPU memory left after the weights</td><td>Some running requests are paused and redone later</td></tr>
+</tbody>
+</table>
+<p>The last row is the one that hurts. When the KV cache runs out, vLLM pauses a request to free memory and recomputes it when there is room. The log shows a warning that a request "is preempted ... because there is not enough KV cache space". The request still completes, but its user waits much longer.</p>
+<p>The documentation lists the remedies in this order: leave <code>--gpu-memory-utilization</code> unset or raise it, lower <code>--max-num-seqs</code> or <code>--max-num-batched-tokens</code> so fewer requests run at once, or add GPUs with tensor parallelism so more memory is free for the cache.</p>
+<p>The token limit is a trade-off you can tune. According to the documentation, a smaller <code>--max-num-batched-tokens</code>, such as 2048, keeps running answers smooth, because fewer new prompts interrupt them. A larger one gets new requests their first token sooner. For the best throughput it recommends values above 8192, especially for small models on large GPUs.</p>
+<p>A rule that follows from the table: a queue is healthier than a pause. If you see preemption warnings, lower <code>--max-num-seqs</code> until they stop. Requests then wait their turn briefly, which costs far less than redoing work.</p>
+
+<h2 id="feel">3. What users feel, and the number behind it</h2>
+<table>
+<thead><tr><th scope="col">What the user notices</th><th scope="col">Metric at <code>/metrics</code></th><th scope="col">Usual cause when it is bad</th></tr></thead>
+<tbody>
+<tr><td>Nothing happens after pressing Enter</td><td><code>vllm:request_queue_time_seconds</code></td><td>More requests than <code>--max-num-seqs</code> allows</td></tr>
+<tr><td>A pause before the first word</td><td><code>vllm:time_to_first_token_seconds</code></td><td>Long prompts, or a queue</td></tr>
+<tr><td>Text arrives slowly</td><td><code>vllm:inter_token_latency_seconds</code></td><td>Too many requests sharing each step</td></tr>
+<tr><td>A long stall in the middle</td><td><code>vllm:num_preemptions</code></td><td>The KV cache is full</td></tr>
+</tbody>
+</table>
+<p>Two gauges show the live state: <code>vllm:num_requests_running</code> and <code>vllm:num_requests_waiting</code>. Part 7 puts all of these on a dashboard. Until then, <code>curl -s http://127.0.0.1:8000/metrics | grep num_requests</code> on the server is enough to see whether a queue is forming.</p>
+<p>Check the CPU as well. The documentation counts one API process, one engine process and one worker per GPU, and recommends at least 2 + N physical cores for N GPUs. When cores are short, the GPU sits partly idle while requests wait.</p>
+
+<h2 id="key">4. Why the built-in API key is not enough</h2>
+<p>vLLM can require a key: pass <code>--api-key</code> or set the <code>VLLM_API_KEY</code> environment variable. Do set it. But read the limit in the documentation before relying on it. The key protects only paths under <code>/v1</code>, <code>/v2</code>, <code>/inference</code> and <code>/cohere</code>. The same server also answers on paths with no check at all, and the documentation lists them. Among them:</p>
+<ul>
+<li><code>/invocations</code>, which runs the same inference as <code>/v1</code> without a key</li>
+<li><code>/pause</code> and <code>/abort_requests</code>, which stop generation for everyone</li>
+<li><code>/metrics</code>, which reveals the model name, load and usage</li>
+<li><code>/tokenize</code>, <code>/health</code>, <code>/version</code> and <code>/load</code></li>
+</ul>
+<p>The documentation's conclusion is plain: "Do not rely exclusively on --api-key for securing access to vLLM." Its recommended design is a reverse proxy that allows only the endpoints you choose, blocks the rest, and adds its own authentication, rate limiting and logging. One key shared by a whole team also has a practical problem. You cannot tell who used what, and you cannot remove one person without changing the key for all.</p>
+
+<h2 id="proxy">5. Build the proxy</h2>
+<p>The design has three rules:</p>
+<ul>
+<li>vLLM publishes no port. Only the proxy can reach it, over a private Docker network.</li>
+<li>Each person or program has a personal key. The proxy checks it, then replaces it with the server's own key before passing the request on.</li>
+<li>Three paths are allowed. Everything else returns 404 at the proxy and never reaches vLLM.</li>
+</ul>
+<p>Save this as <code>vllm.conf</code>:</p>
+<pre><code># Each person or program gets its own key. Unknown keys map to an empty name.
+map $http_authorization $client {
+    default                            "";
+    "Bearer team-alice-CHANGE-ME"      "alice";
+    "Bearer team-bob-CHANGE-ME"        "bob";
+}
+
+# Per client: 2 new requests a second on average, bursts of 10.
+limit_req_zone $client zone=per_client:10m rate=2r/s;
+limit_req_status 429;
+
+log_format llm '$time_iso8601 client=$client status=$status seconds=$request_time path=$uri';
+
+upstream vllm {
+    least_conn;
+    server vllm:8000;
+}
+
+server {
+    listen 443 ssl;
+    server_name llm.example.internal;
+    ssl_certificate     /etc/nginx/certs/fullchain.pem;
+    ssl_certificate_key /etc/nginx/certs/privkey.pem;
+
+    access_log /var/log/nginx/llm.log llm;
+    client_max_body_size 2m;
+
+    # Only these three paths reach vLLM.
+    location ~ ^/v1/(chat/completions|completions|models)$ {
+        if ($client = "") { return 401; }
+        limit_req zone=per_client burst=10 nodelay;
+
+        proxy_pass http://vllm;
+        proxy_http_version 1.1;
+        proxy_set_header Host $host;
+        proxy_set_header Authorization "Bearer SERVER-KEY-CHANGE-ME";
+        proxy_set_header X-Client $client;
+
+        # Streaming: hand tokens on as they arrive, and allow long answers.
+        proxy_buffering off;
+        proxy_read_timeout 600s;
+    }
+
+    # Everything else stops here, including /metrics, /invocations and /pause.
+    location / { return 404; }
+}</code></pre>
+<p>What each block is for:</p>
+<ul>
+<li><strong><code>map</code></strong> turns a key into a name. To add a person, add a line. To remove one, delete the line and reload nginx. Nobody else is affected.</li>
+<li><strong><code>limit_req</code></strong> counts requests per name, so one script in a loop cannot crowd out the team. Requests over the limit get status 429.</li>
+<li><strong><code>log_format</code></strong> writes one line per request with the person's name and the duration. That is your usage record.</li>
+<li><strong><code>proxy_buffering off</code></strong> is essential. With buffering on, nginx collects the answer and delivers it in lumps, and streaming appears broken.</li>
+<li><strong><code>proxy_read_timeout</code></strong> defaults to 60 seconds, which a long answer can exceed.</li>
+</ul>
+<p>Generate real keys with <code>openssl rand -hex 24</code>. This file now contains secrets, so restrict who can read it and keep it out of version control.</p>
+<p>Then the Compose file. Note that the <code>vllm</code> service has no <code>ports</code> section at all:</p>
+<pre><code>services:
+  vllm:
+    image: vllm/vllm-openai:latest
+    command:
+      - --model
+      - Qwen/Qwen3-8B
+      - --served-model-name
+      - qwen3
+      - --max-model-len
+      - "16384"
+    environment:
+      VLLM_API_KEY: ${VLLM_API_KEY:?put VLLM_API_KEY in the .env file}
+      HF_TOKEN: ${HF_TOKEN:-}
+    volumes:
+      - ${HOME}/.cache/huggingface:/root/.cache/huggingface
+      - vllm-cache:/root/.cache/vllm
+    ipc: host
+    restart: unless-stopped
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
+
+  proxy:
+    image: nginx:stable
+    ports:
+      - "443:443"
+    volumes:
+      - ./vllm.conf:/etc/nginx/conf.d/default.conf:ro
+      - ./certs:/etc/nginx/certs:ro
+    depends_on:
+      - vllm
+    restart: unless-stopped
+
+volumes:
+  vllm-cache:</code></pre>
+<p>Put <code>VLLM_API_KEY=...</code> in a <code>.env</code> file next to it, with the same value as <code>SERVER-KEY-CHANGE-ME</code> in <code>vllm.conf</code>. Place the certificate and its private key in a <code>certs</code> folder under the names used in the configuration. Use a certificate from your organization's authority or a public one; for a first test on a private network, a self-signed one will do.</p>
+<pre><code>docker compose up -d
+docker compose exec proxy nginx -t</code></pre>
+
+<h2 id="test">6. Test the door before you hand out keys</h2>
+<p>Run these from another machine. Each line states the answer you should get. The <code>-k</code> flag is only for a self-signed test certificate.</p>
+<pre><code>URL=https://llm.example.internal
+
+# No key: 401
+curl -sk -o /dev/null -w "%{http_code}\n" $URL/v1/models
+
+# A valid key on an allowed path: 200
+curl -sk -o /dev/null -w "%{http_code}\n" -H "Authorization: Bearer team-alice-CHANGE-ME" $URL/v1/models
+
+# A valid key on paths that must stay closed: 404 each
+for path in /metrics /invocations /pause /health /tokenize; do
+  curl -sk -o /dev/null -w "$path %{http_code}\n" -H "Authorization: Bearer team-alice-CHANGE-ME" $URL$path
+done</code></pre>
+<p>This configuration was run for this article against a stand-in server that echoed what it received. The results:</p>
+<table>
+<thead><tr><th scope="col">Test</th><th scope="col">Result</th></tr></thead>
+<tbody>
+<tr><td>No key, and a wrong key</td><td>401 both times</td></tr>
+<tr><td>Alice's key on <code>/v1/models</code></td><td>200; the server behind received the server key and the name "alice", not Alice's key</td></tr>
+<tr><td><code>/metrics</code>, <code>/invocations</code>, <code>/pause</code>, <code>/health</code>, <code>/tokenize</code>, <code>/v1/embeddings</code></td><td>404 each, with a valid key</td></tr>
+<tr><td>A streamed reply sent in four parts, half a second apart</td><td>Arrived at 0.0, 0.5, 1.0 and 1.5 seconds, so nothing was held back</td></tr>
+<tr><td>40 requests fired at once with one key</td><td>11 accepted, 29 answered with 429</td></tr>
+<tr><td>A second key during that burst</td><td>200, unaffected</td></tr>
+</tbody>
+</table>
+<p>The stand-in server is not vLLM, so this proves the proxy's behaviour, not the model's. Repeat the three commands above on your own setup before giving anyone a key.</p>
+<p>Clients then use the proxy's address and their personal key:</p>
+<pre><code>from openai import OpenAI
+
+client = OpenAI(base_url="https://llm.example.internal/v1", api_key="team-alice-CHANGE-ME")</code></pre>
+
+<h2 id="scale">7. When one server is not enough</h2>
+<p>There are two ways to add GPUs, and they solve different problems.</p>
+<table>
+<thead><tr><th scope="col"></th><th scope="col">Tensor parallelism</th><th scope="col">Replicas</th></tr></thead>
+<tbody>
+<tr><td>What it is</td><td>One server, one model split across GPUs</td><td>Several independent servers, each with a full copy of the model</td></tr>
+<tr><td>Use it when</td><td>The model does not fit on one GPU, or the cache is too small</td><td>The model fits on one GPU and you need more throughput or a spare</td></tr>
+<tr><td>How</td><td><code>--tensor-parallel-size N</code></td><td>One container per GPU, plus a load balancer</td></tr>
+<tr><td>If one GPU fails</td><td>The whole server is down</td><td>The others keep answering</td></tr>
+</tbody>
+</table>
+<p>The proxy above is already a load balancer. For replicas, add a second service to the Compose file, a copy of <code>vllm</code> named <code>vllm2</code>. Give each service one card by replacing <code>count: all</code> with <code>device_ids: ["0"]</code> and <code>device_ids: ["1"]</code>. Then add a line to the <code>upstream</code> block:</p>
+<pre><code>upstream vllm {
+    least_conn;
+    server vllm:8000  max_fails=3 fail_timeout=30s;
+    server vllm2:8000 max_fails=3 fail_timeout=30s;
+}</code></pre>
+<p><code>least_conn</code> sends each new request to the server with the fewest open connections. That suits model serving better than taking turns, because requests differ so much in length. This layout is the one in vLLM's own nginx guide. Start one replica first and let it finish downloading the model, so the second finds the weights in the shared cache.</p>
+
+<h2 id="rules">8. House rules for clients</h2>
+<ul>
+<li><strong>Always set <code>max_tokens</code>.</strong> A request without a ceiling can hold a slot until the context is full.</li>
+<li><strong>Stream.</strong> People wait more patiently for text that is arriving, and a dropped connection frees its slot.</li>
+<li><strong>Retry on 429 with a pause.</strong> A client that retries at once makes a queue longer.</li>
+<li><strong>Cap the <code>n</code> parameter.</strong> One request can ask for many answers at once. vLLM limits it with the <code>VLLM_MAX_N_SEQUENCES</code> environment variable, whose default is 16,384. The documentation suggests a value such as 64 or 128 for exposed servers.</li>
+<li><strong>Never set <code>VLLM_SERVER_DEV_MODE=1</code> on a shared server.</strong> The documentation marks its extra endpoints as dangerous.</li>
+</ul>
+
+<h2 id="next">9. What you can do now</h2>
+<ul>
+<li>Explain why ten users do not mean ten times the wait, and what batching costs each of them.</li>
+<li>Tell a queue from a preemption in the log and in the metrics, and choose the flag that fixes each.</li>
+<li>Name the paths that <code>--api-key</code> leaves open.</li>
+<li>Run a proxy that gives each person a key, a limit and a log line, and prove it blocks what it should.</li>
+<li>Choose between tensor parallelism and replicas for a second GPU.</li>
+</ul>
+<p>How many GPUs a given number of users needs is the next question: <a href="/blog/posts/vllm-gpu-sizing/">GPU sizing for vLLM</a>.</p>

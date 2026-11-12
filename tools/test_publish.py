@@ -109,7 +109,10 @@ class PublicationTest(unittest.TestCase):
                 original = f'https://blog.naver.com/swchoi1994/{post["slug"].split("-")[1]}'
                 self.assertEqual(data['isBasedOn']['url'], original)
                 self.assertIn(original, source)
-            self.assertEqual(data['isPartOf']['name'], publish.BRAND)
+            # A series article belongs to the journal and to its series; every other article to the journal alone.
+            parents = data['isPartOf'] if isinstance(data['isPartOf'], list) else [data['isPartOf']]
+            self.assertEqual(parents[0]['name'], publish.BRAND)
+            self.assertEqual(len(parents), 2 if post.get('series') else 1)
             self.assertIn(f'/topics/{post["topic"]}/', source)
             self.assertIn('At a glance', source)
             self.assertIn('Keep reading', source)
@@ -159,6 +162,77 @@ class PublicationTest(unittest.TestCase):
                 self.assertGreaterEqual(len(re.findall(r'<h2 id="', post['native']['body'])), 3)
                 self.assertIn(publish.SITE + post['url'], feed)
         self.assertIn(written[0]['url'], home)
+
+    def test_series_are_read_in_order_and_link_their_parts(self):
+        groups = publish.series_parts(self.posts)
+        self.assertTrue(groups, 'expected at least one series in content/series.json with articles')
+        index = (publish.OUT / 'series/index.html').read_text()
+        guide = (publish.OUT / 'llms.txt').read_text()
+        for slug, members in groups.items():
+            self.assertEqual([p['part'] for p in members], list(range(1, len(members) + 1)))
+            hub = (publish.OUT / 'series' / slug / 'index.html').read_text()
+            self.assertIn(f'/series/{slug}/', index)
+            self.assertIn(html.escape(publish.SERIES[slug]['title']), hub)
+            # The hub lists the parts in reading order, not by date.
+            self.assertEqual(re.findall(r'<span class="post-label">Part (\d+)</span>', hub), [str(p['part']) for p in members])
+            for number, post in enumerate(members):
+                with self.subTest(series=slug, part=post['part']):
+                    self.assertIn(post['url'], hub)
+                    self.assertIn(publish.SITE + post['url'], guide)
+                    source = (publish.OUT / post['url'].lstrip('/') / 'index.html').read_text()
+                    self.assertIn(f'Series · part {post["part"]} of {len(members)}', source)
+                    self.assertEqual(source.count('aria-current="step"'), 1)
+                    navigation = re.search(r'<nav class="series-nav".*?</nav>', source, re.S)[0]
+                    self.assertEqual('rel="prev"' in navigation, number > 0)
+                    self.assertEqual('rel="next"' in navigation, number + 1 < len(members))
+                    if number:
+                        self.assertIn(f'rel="prev" href="{members[number - 1]["url"]}"', navigation)
+                    if number + 1 < len(members):
+                        self.assertIn(f'rel="next" href="{members[number + 1]["url"]}"', navigation)
+                    data = next(json.loads(m[1]) for m in publish.LD.finditer(source) if '"BlogPosting"' in m[1])
+                    self.assertEqual(data['position'], post['part'])
+                    self.assertEqual(data['isPartOf'][1]['url'], f'{publish.SITE}/series/{slug}/')
+        # An article outside any series shows no series furniture.
+        plain = next(p for p in self.posts if not p.get('series'))
+        source = (publish.OUT / plain['url'].lstrip('/') / 'index.html').read_text()
+        self.assertNotIn('series-box', source)
+        self.assertNotIn('series-nav', source)
+
+    def test_a_series_with_a_gap_or_a_repeat_stops_the_build(self):
+        parts = [dict(series='s', part=1, slug='a'), dict(series='s', part=3, slug='b')]
+        with self.assertRaises(ValueError):
+            publish.series_parts(parts)
+        with self.assertRaises(ValueError):
+            publish.series_parts([dict(series='s', part=1, slug='a'), dict(series='s', part=1, slug='b')])
+
+    def test_projects_say_what_is_needed_and_what_results(self):
+        projects = [p for p in self.posts if p.get('project')]
+        self.assertTrue(projects)
+        listing = (publish.OUT / 'projects/index.html').read_text()
+        for post in projects:
+            with self.subTest(project=post['slug']):
+                source = (publish.OUT / post['url'].lstrip('/') / 'index.html').read_text()
+                for page in (listing, source):
+                    self.assertIn(html.escape(post['project']['needs']), page)
+                    self.assertIn(html.escape(post['project']['result']), page)
+                self.assertIn(post['url'], listing)
+        home = (publish.OUT / 'index.html').read_text()
+        for href in ('/series/', '/projects/'):
+            self.assertIn(f'<a href="{href}"><span>', home, 'the sidebar links to series and projects')
+        self.assertIn('id="series-title"', home)
+
+    def test_search_engine_verification_is_home_only_and_off_until_set(self):
+        self.assertNotIn('google-site-verification', (publish.OUT / 'index.html').read_text())
+        saved = dict(publish.CONFIG)
+        try:
+            publish.CONFIG['verification'] = {'google': 'abc"123', 'bing': '', 'other': 'x'}
+            home = publish.page('Home', 'Description', '/', '<h1>Home</h1>')
+            self.assertIn('<meta name="google-site-verification" content="abc&quot;123">', home)
+            self.assertNotIn('msvalidate.01', home)
+            self.assertNotIn('google-site-verification', publish.page('Other', 'Description', '/blog/', '<h1>Other</h1>'))
+        finally:
+            publish.CONFIG.clear()
+            publish.CONFIG.update(saved)
 
     def test_naver_only_articles_stay_off_the_english_site(self):
         skipped = [slug for slug, _ in publish.SKIPPED]

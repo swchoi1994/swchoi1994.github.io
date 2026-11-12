@@ -82,6 +82,10 @@ def content(name, default):
 
 
 CONFIG = content('site.json', {})
+# Multi-part guides: {slug: {title, description}}. Articles join one with "series" and "part".
+SERIES = content('series.json', {})
+# Sidebar links that exist only when there is something behind them; filled in by build().
+EXTRA_NAV = []
 
 
 def structured(value):
@@ -148,6 +152,10 @@ def native_articles():
         if missing or info['topic'] not in TOPICS or slug.startswith('naver-') or not re.fullmatch(r'[a-z0-9]+(?:-[a-z0-9]+)*', slug):
             raise ValueError(f'Article metadata or file name is not valid: {path.name} {missing}')
         datetime.datetime.fromisoformat(info['date'])  # a full ISO timestamp, so the feed and sitemap can date it
+        if info.get('series') and (info['series'] not in SERIES or not isinstance(info.get('part'), int)):
+            raise ValueError(f'A series article needs a series from content/series.json and a whole-number part: {path.name}')
+        if info.get('project') and not all(info['project'].get(key) for key in ('needs', 'result')):
+            raise ValueError(f'A project needs "needs" and "result": {path.name}')
         url = f'/blog/posts/{slug}/'
         words = len(re.findall(r'\w+', re.sub(r'<[^>]+>', ' ', body)))
         schema = {'@context': 'https://schema.org', '@type': 'BlogPosting', '@id': SITE + url + '#article', 'url': SITE + url,
@@ -159,6 +167,7 @@ def native_articles():
         posts.append(dict(slug=slug, title=info['title'], description=info['description'], date=info['date'], url=url,
                           topic=info['topic'], minutes=max(1, math.ceil(words / 220)), source=None, schema=schema,
                           image=dict(SOCIAL, alt=info['title'], credit=''),
+                          series=info.get('series'), part=info.get('part'), project=info.get('project'),
                           native=dict(body=body, sources=info['sources'], note=info.get('note', ''))))
     return posts
 
@@ -169,6 +178,19 @@ def native_body(native):
     note = e(native['note']) + ' ' if native['note'] else ''
     return (f'{native["body"]}<section class="source-box"><h2>Sources</h2><ul>{sources}</ul><p>This article reflects public information available when it was written. Versions, defaults and prices can change; check the linked official documentation.</p></section>'
             f'<p class="editorial-note">{note}Written for this site with AI assistance, from the sources above. For errors or additional information, please <a href="/blog/contact/">request a correction</a>. <a href="/blog/editorial/">Editorial policy</a></p>')
+
+
+def series_parts(posts):
+    """The articles of each series in reading order. A gap or a repeated part number stops the build."""
+    groups = {}
+    for post in posts:
+        if post.get('series'):
+            groups.setdefault(post['series'], []).append(post)
+    for slug, members in groups.items():
+        members.sort(key=lambda p: p['part'])
+        if [p['part'] for p in members] != list(range(1, len(members) + 1)):
+            raise ValueError(f'Series parts must run 1, 2, 3 with no gaps: {slug}')
+    return {slug: groups[slug] for slug in SERIES if slug in groups}
 
 
 def load_articles():
@@ -283,7 +305,7 @@ def sidebar(active, url):
     return f'''<aside class="sidebar" id="sidebar">
 <a class="brand" href="/">Seongwoo Choi<span> / Journal</span></a>
 <a class="author-card" href="/blog/about/"><img src="{AVATAR}" width="38" height="38" alt=""><span><strong>Seongwoo Choi</strong><span>AI engineer &amp; founder</span></span></a>
-<nav aria-label="Read"><p class="nav-label">Read</p>{link('/', 'Home')}{link('/blog/', 'All articles')}{link('/guides/', 'Guides')}{link('/videos/', 'Videos')}</nav>
+<nav aria-label="Read"><p class="nav-label">Read</p>{link('/', 'Home')}{link('/blog/', 'All articles')}{''.join(link(href, label) for href, label in EXTRA_NAV)}{link('/guides/', 'Guides')}{link('/videos/', 'Videos')}</nav>
 <nav aria-label="Topics"><p class="nav-label">Topics</p>{topics}</nav>
 <nav aria-label="Elsewhere"><p class="nav-label">Elsewhere</p><a href="{YOUTUBE}"><span>YouTube</span>{out}</a><a href="{X_PROFILE}"><span>X</span>{out}</a><a href="https://blog.naver.com/swchoi1994"><span>Naver · 한국어</span>{out}</a><a href="/blog/feed.xml"><span>RSS feed</span>{out}</a></nav>
 </aside>'''
@@ -336,6 +358,10 @@ def page(title, description, url, body, schemas=(), *, active=None, rail='', kin
     ad_loader = (f'<meta name="google-adsense-account" content="{ADSENSE}"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client={ADSENSE}" crossorigin="anonymous" onerror="window.adsBlocked=true"></script>'
                  if ads else '')
     rail_class = 'page-rail' if kind == 'article' else 'page-rail page-rail-wide'
+    # Search Console and Bing Webmaster Tools check the home page for the owner's verification code.
+    names = {'google': 'google-site-verification', 'bing': 'msvalidate.01'}
+    head += ''.join(f'<meta name="{names[key]}" content="{e(code)}">' for key, code in CONFIG.get('verification', {}).items()
+                    if url == '/' and key in names and code)
     return f'''<!doctype html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>{e(doc_title or document_title(title))}</title><meta name="description" content="{e(clip(description))}">
@@ -437,8 +463,14 @@ def home(posts, media):
     featured = ''.join(card(p, label=name) for name, members in groups for p in members)
     latest = ''.join(card(p) for p in posts[:6])
     videos = ''.join(video_tile(v) for v in youtube_videos(media)[:4])
+    groups_in_order = series_parts(posts)
+    projects = [p for p in posts if p.get('project')]
+    more = f'<a class="more" href="/projects/">All {len(projects)} follow-along projects →</a>' if projects else ''
+    series = (f'<section class="block" aria-labelledby="series-title"><div class="block-head"><h2 id="series-title">Series <span class="note">Read in order, build one thing</span></h2>{more}</div>'
+              f'{"".join(series_feature(slug, members) for slug, members in groups_in_order.items())}</section>') if groups_in_order else ''
     body = f'''{page_head(f'<p class="eyebrow">Journal</p><h1>Make technology work for you.</h1><p class="lede">{TAGLINE}</p>')}
 {search_form(len(posts))}
+{series}
 <section class="block" aria-labelledby="featured-title"><div class="block-head"><h2 id="featured-title">Featured guides <span class="note">Chosen by hand, not by traffic</span></h2>{view_toggle()}</div><div class="posts" data-view="cards" data-switchable>{featured}</div></section>
 <section class="block" aria-labelledby="latest-title"><div class="block-head"><h2 id="latest-title">Latest articles</h2><a class="more" href="/blog/">Browse all {len(posts)} articles →</a></div><div class="posts" data-view="list">{latest}</div></section>
 {ad('between')}
@@ -545,6 +577,80 @@ def comments():
     return f'<section class="block card comments" aria-labelledby="comments-title"><h2 id="comments-title">Comments</h2><p>Corrections and questions are welcome. Sign-in is through GitHub, and the comment box loads only when you open it.</p><button type="button" class="button button-primary" data-comments {data}>Show comments</button><div id="comments-thread"></div></section>'
 
 
+def series_box(post, members):
+    """Where an article sits in its series: every part in order, with the current one marked."""
+    items = ''.join(f'<li aria-current="step"><span>{e(p["title"])}</span></li>' if p is post else f'<li><a href="{p["url"]}">{e(p["title"])}</a></li>'
+                    for p in members)
+    return (f'<details class="series-box"><summary><span class="series-part">Series · part {post["part"]} of {len(members)}</span>'
+            f'<span class="series-name">{e(SERIES[post["series"]]["title"])}</span></summary><ol>{items}</ol>'
+            f'<p><a href="/series/{post["series"]}/">About this series →</a></p></details>')
+
+
+def series_nav(post, members):
+    """Previous and next part, shown where the article ends."""
+    index = post['part'] - 1
+    def step(target, rel, label):
+        return f'<a class="card" rel="{rel}" href="{target["url"]}"><span class="eyebrow">{label}</span><strong>{e(target["title"])}</strong></a>'
+    before = step(members[index - 1], 'prev', f'← Part {post["part"] - 1}') if index else '<span></span>'
+    after = (step(members[index + 1], 'next', f'Part {post["part"] + 1} →') if index + 1 < len(members)
+             else f'<a class="card" href="/series/{post["series"]}/"><span class="eyebrow">End of the series</span><strong>See all {len(members)} parts</strong></a>')
+    return f'<nav class="series-nav" aria-label="Series parts">{before}{after}</nav>'
+
+
+def project_facts(project):
+    """What a follow-along project needs and what the reader has at the end."""
+    return f'<dl class="facts"><div><dt>You need</dt><dd>{e(project["needs"])}</dd></div><div><dt>You end up with</dt><dd>{e(project["result"])}</dd></div></dl>'
+
+
+def series_card(slug, members, level=2):
+    """One series as a card: what it covers, how long it is and where to start."""
+    info = SERIES[slug]
+    minutes = sum(p['minutes'] for p in members)
+    return (f'<section class="post"><span class="post-label">Series · {len(members)} parts · {minutes} min</span><h{level}><a href="/series/{slug}/">{e(info["title"])}</a></h{level}>'
+            f'<p class="post-desc">{e(info["description"])}</p><p class="topic-starter">Start here: <a href="{members[0]["url"]}">{e(members[0]["title"])}</a></p></section>')
+
+
+def series_feature(slug, members):
+    """A series on the home page: what it is on the left, every part in order on the right."""
+    info = SERIES[slug]
+    parts = ''.join(f'<li><a href="{p["url"]}">{e(p["title"])}</a></li>' for p in members)
+    return (f'<div class="card series-feature"><div class="series-about"><span class="post-label">Series · {len(members)} parts · {sum(p["minutes"] for p in members)} min</span>'
+            f'<h3><a href="/series/{slug}/">{e(info["title"])}</a></h3><p class="post-desc">{e(info["description"])}</p>'
+            f'<p><a class="button button-primary" href="{members[0]["url"]}">Start with part 1</a></p></div><ol>{parts}</ol></div>')
+
+
+def series_pages(posts):
+    """The series index and one page per series, with the parts in reading order."""
+    groups = series_parts(posts)
+    if not groups:
+        return
+    cards = ''.join(series_card(slug, members) for slug, members in groups.items())
+    body = page_head('<p class="eyebrow">Read in order</p><h1>Series</h1><p class="lede">Multi-part guides that build one thing from start to finish. Each part also works alone.</p>') + f'<div class="posts" data-view="cards">{cards}</div>'
+    write('/series/', page('Series: multi-part guides', 'Multi-part guides to read in order, each building one working system step by step.', '/series/', body,
+                           [breadcrumbs([('Home', '/'), ('Series', '/series/')])]))
+    for slug, members in groups.items():
+        info, url = SERIES[slug], f'/series/{slug}/'
+        parts = ''.join(card(p, label=f'Part {p["part"]}', level=2) for p in members)
+        total = sum(p['minutes'] for p in members)
+        body = (page_head(f'<p class="eyebrow"><a href="/series/">Series</a> · {len(members)} parts · {total} min read in total</p><h1>{e(info["title"])}</h1><p class="lede">{e(info["description"])}</p>')
+                + f'<p class="series-start"><a class="button button-primary" href="{members[0]["url"]}">Start with part 1</a></p>'
+                + f'<section class="block" aria-label="Parts"><div class="posts" data-view="list">{parts}</div></section>')
+        write(url, page(info['title'], info['description'], url, body,
+                        [collection(info['title'], url, members), breadcrumbs([('Home', '/'), ('Series', '/series/'), (info['title'], url)])], active='/series/'))
+
+
+def project_pages(posts):
+    """Follow-along projects: articles that end with something running."""
+    # Easiest first: the parts of a series in order, then the stand-alone projects.
+    projects = sorted((p for p in posts if p.get('project')), key=lambda p: (p.get('part') or 99, p['date']))
+    if not projects:
+        return
+    cards = ''.join(f'<article class="post"><span class="post-label">Project</span><h2><a href="{p["url"]}">{e(p["title"])}</a></h2>{project_facts(p["project"])}{meta(p)}</article>' for p in projects)
+    body = page_head('<p class="eyebrow">Build along</p><h1>Projects you can follow</h1><p class="lede">Each one ends with something running. What you need is listed before you start.</p>') + f'<div class="posts" data-view="cards">{cards}</div>'
+    write('/projects/', page('Projects you can follow', 'Step-by-step projects that end with something running: model servers, dashboards and local assistants.', '/projects/', body,
+                             [collection('Projects you can follow', '/projects/', projects), breadcrumbs([('Home', '/'), ('Projects', '/projects/')])]))
+
+
 def article(post, posts):
     """Render one article: header, body transforms, contents list, related reading and structured data."""
     slug = post['slug']
@@ -586,15 +692,16 @@ def article(post, posts):
     links = ''.join(f'<li><a href="#{anchor}">{label}</a></li>' for anchor, label in sections)
     inline_contents = f'<details class="toc-inline"><summary>In this article <span>{len(sections)} sections</span></summary><ol>{links}</ol></details>' if sections else ''
     extra = content('post-meta.json', {}).get(slug, {})
+    members = series_parts(posts).get(post.get('series'), [])
     mood = ''.join(f'<div><dt>{key}</dt><dd>{e(extra[key])}</dd></div>' for key in ('mood', 'music') if extra.get(key))
     cover = f'<figure class="article-cover">{picture(post, True)}<figcaption>{e(post["image"]["credit"])}</figcaption></figure>' if CONFIG.get('article_cover') else ''
-    header = f'''<header class="reading-header"><h1>{e(post['title'])}</h1><p class="byline"><img src="{AVATAR}" width="28" height="28" alt=""><a rel="author" href="/blog/about/">{NAME}</a><span><time datetime="{e(post['date'])}">{post['date'][:10]}</time> · {post['minutes']} min read</span></p>{f'<dl class="mood">{mood}</dl>' if mood else ''}<p class="article-summary"><strong>At a glance</strong>{summary}</p></header>'''
+    header = f'''<header class="reading-header"><h1>{e(post['title'])}</h1><p class="byline"><img src="{AVATAR}" width="28" height="28" alt=""><a rel="author" href="/blog/about/">{NAME}</a><span><time datetime="{e(post['date'])}">{post['date'][:10]}</time> · {post['minutes']} min read</span></p>{f'<dl class="mood">{mood}</dl>' if mood else ''}<p class="article-summary"><strong>At a glance</strong>{summary}</p>{project_facts(post['project']) if post.get('project') else ''}{series_box(post, members) if members else ''}</header>'''
     picks = ''.join(card(p) for p in related(post, posts))
     link, words = quote(SITE + post['url'], safe=''), quote(post['title'], safe='')
     follow = f'''<section class="block card follow" aria-label="Share and follow"><p><strong>Found this useful?</strong> Share it, or follow for new guides.</p><div class="follow-links"><a class="button" href="https://x.com/intent/post?url={link}&amp;text={words}">Share on X</a><a class="button" href="https://www.linkedin.com/sharing/share-offsite/?url={link}">Share on LinkedIn</a><a class="button" href="{X_PROFILE}">Follow on X</a><a class="button" href="{YOUTUBE}">YouTube</a><a class="button" href="/blog/feed.xml">RSS</a></div></section>'''
     reading = f'''{page_head(f'<nav class="breadcrumbs" aria-label="Breadcrumb"><a href="/">Home</a><span aria-hidden="true"> / </span><a href="/topics/{post["topic"]}/">{e(name)}</a></nav>')}
 <article class="reading card">{header}{cover}<div class="reading-body">{inline_contents}{body}</div></article>
-{follow}{ad('article_end')}{comments()}
+{series_nav(post, members) if members else ''}{follow}{ad('article_end')}{comments()}
 <section class="block next-reading" aria-labelledby="next-title"><div class="block-head"><h2 id="next-title">Keep reading</h2><a class="more" href="/topics/{post['topic']}/">More on this topic →</a></div><div class="posts" data-view="list">{picks}</div></section>{media}'''
     rail = (f'<nav class="toc card" aria-label="In this article"><p class="eyebrow">In this article</p><ol>{links}</ol></nav>' if sections else '') + ad('rail') + f'<section class="card author-box" aria-label="About the author"><p class="author-name"><img src="{AVATAR}" width="44" height="44" alt=""><span><strong>{NAME}</strong><span>AI engineer &amp; founder</span></span></p><p>I’m Seongwoo Choi, an AI engineer and founder based in Abu Dhabi. This journal brings together practical software guides and technology analysis.</p><p><a href="/blog/about/">About the author &amp; editorial approach →</a></p></section>'
 
@@ -605,6 +712,9 @@ def article(post, posts):
     for key in ('author', 'publisher'):
         data[key] = {'@type': 'Person', '@id': SITE + '/#person', 'name': NAME, 'url': SITE + '/blog/about/'}
     data['isPartOf'] = dict(data['isPartOf'], url=SITE + '/', name=BRAND)
+    if members:
+        data['isPartOf'] = [data['isPartOf'], {'@type': 'CreativeWorkSeries', 'name': SERIES[post['series']]['title'], 'url': f'{SITE}/series/{post["series"]}/'}]
+        data['position'] = post['part']
     if not native:
         # The Korean original is the source work; say so in a form crawlers can read.
         data['isBasedOn'] = {'@type': 'BlogPosting', 'inLanguage': 'ko', 'url': f'https://blog.naver.com/swchoi1994/{slug.split("-")[1]}'}
@@ -662,6 +772,9 @@ def llms(posts):
     lines += [f'- [{name}]({SITE}/topics/{slug}/): {description}' for slug, (name, description) in TOPICS.items()]
     lines += ['', '## Featured guides']
     lines += [f'- [{by_id[s]["title"]}]({SITE}{by_id[s]["url"]}): {clip(by_id[s]["description"], 200)}' for _, ids in AI_PICKS for s in ids]
+    for slug, members in series_parts(posts).items():
+        lines += ['', f'## Series: {SERIES[slug]["title"]}', SERIES[slug]['description'], '']
+        lines += [f'{p["part"]}. [{p["title"]}]({SITE}{p["url"]}): {clip(p["description"], 200)}' for p in members]
     lines += ['', '## More', f'- [All articles]({SITE}/blog/)', f'- [AI coding agent repositories guide]({SITE}/guides/ai-coding-agent-repos/)',
               f'- [About the author]({SITE}/blog/about/)', f'- [Editorial policy]({SITE}/blog/editorial/)', f'- [RSS feed]({SITE}/blog/feed.xml)', '']
     (OUT / 'llms.txt').write_text('\n'.join(lines))
@@ -691,8 +804,15 @@ def build():
     media = re.findall(r'<article class="media-item">.*?</article>', source, re.S)
     if not media:
         raise ValueError('Upstream media format changed; review extraction before publishing')
+    EXTRA_NAV.clear()
+    if series_parts(posts):
+        EXTRA_NAV.append(('/series/', 'Series'))
+    if any(p.get('project') for p in posts):
+        EXTRA_NAV.append(('/projects/', 'Projects'))
     home(posts, media)
     archive(posts)
+    series_pages(posts)
+    project_pages(posts)
     for slug, (name, description) in TOPICS.items():
         archive([p for p in posts if p['topic'] == slug], f'/topics/{slug}/', name, description, 'Topic')
     cards = ''
@@ -762,7 +882,7 @@ def build():
         entry = ET.SubElement(sitemap, f'{{{ns}}}url')
         ET.SubElement(entry, f'{{{ns}}}loc').text = SITE + url
         # Posts change when published; listing pages change whenever a post is added.
-        if url in dated or url == '/' or url.startswith(('/blog/page/', '/topics/')) or url == '/blog/':
+        if url in dated or url == '/' or url.startswith(('/blog/page/', '/topics/', '/series/', '/projects/')) or url == '/blog/':
             ET.SubElement(entry, f'{{{ns}}}lastmod').text = dated.get(url, newest)
     ET.ElementTree(sitemap).write(OUT / 'sitemap.xml', encoding='utf-8', xml_declaration=True)
     print(f'Built {len(posts)} articles, {len(TOPICS)} topic collections and publication pages in {OUT}')

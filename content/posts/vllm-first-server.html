@@ -2,8 +2,15 @@
 {
   "title": "vLLM quickstart: serve a model with an OpenAI-style API",
   "description": "Install vLLM, start an OpenAI-compatible server with one command, call it from Python, and run it in Docker. With the flags that control GPU memory.",
-  "date": "2026-11-12T10:00:00+00:00",
+  "date": "2026-11-12T07:16:00+00:00",
   "topic": "ai-automation",
+  "updated": "2026-11-12T09:40:00+00:00",
+  "series": "vllm-server",
+  "part": 1,
+  "project": {
+    "needs": "A Linux machine with an NVIDIA GPU and Python 3.11 or newer.",
+    "result": "A model answering OpenAI-style requests on your own machine."
+  },
   "note": "This guide follows the vLLM documentation as read on November 12, 2026. Nothing in it was run for this article, because vLLM needs a GPU machine that was not available. Compare the commands with vllm serve --help on your installed version.",
   "sources": [
     {"title": "vLLM docs: Quickstart", "url": "https://docs.vllm.ai/en/latest/getting_started/quickstart.html"},
@@ -81,3 +88,14 @@ print("Chat response:", chat_response)</code></pre>
 <p><code>--api-key</code>, or the <code>VLLM_API_KEY</code> environment variable, makes the server require a key. You can pass several keys, which helps with rotation.</p>
 <p>The reference page for the flag carries a warning that is easy to skip. The key only protects endpoints under the <code>/v1</code>, <code>/v2</code>, <code>/inference</code> and <code>/cohere</code> prefixes. Other endpoints on the same server stay unauthenticated, including <code>/invocations</code>, which exposes the same inference. The documentation's wording is "Do not rely on --api-key alone to secure vLLM."</p>
 <p>In practice that means keeping the port off the public internet. Bind the server to a private interface, and put it behind a reverse proxy or gateway that authenticates every path before it is reachable from outside.</p>
+
+<h2 id="next">8. Where to go from here</h2>
+<p>This quickstart is the first part of a series that builds the server out step by step:</p>
+<ul>
+<li><a href="/blog/posts/vllm-docker-nvidia-gpu/">Part 2</a> runs vLLM in Docker on an NVIDIA GPU as a service that survives reboots.</li>
+<li><a href="/blog/posts/vllm-serve-qwen/">Part 3</a> serves Qwen with tool calling and switchable thinking.</li>
+<li><a href="/blog/posts/vllm-phind-codellama-a100/">Part 4</a> wraps Phind-CodeLlama-34B, a model with no chat template, on A100 GPUs.</li>
+<li><a href="/blog/posts/vllm-multi-user-serving/">Part 5</a> opens the server to a team with per-user keys and a proxy.</li>
+<li><a href="/blog/posts/vllm-gpu-sizing/">Part 6</a> works out how many GPUs a number of users needs.</li>
+<li><a href="/blog/posts/vllm-monitoring-prometheus-grafana/">Part 7</a> adds dashboards for CPU, memory, GPUs and the server itself.</li>
+</ul>

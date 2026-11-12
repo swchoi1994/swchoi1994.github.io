@@ -1,0 +1,123 @@
+<!--
+{
+  "title": "AI coding agent tips: nine habits that prevent rework",
+  "description": "Nine working habits for coding agents such as Claude Code: what to write down, how to phrase a task, how to make the agent check its work, and when to restart.",
+  "date": "2026-11-12T09:46:00+00:00",
+  "topic": "ai-automation",
+  "note": "The habits are drawn from Anthropic's Claude Code best-practices page and hooks reference as read on November 12, 2026, and the two prompt examples in section 3 are quoted from that page. The one shell line in section 5 was run in a shell for this article to confirm its exit codes. Nothing here was measured across teams; treat the habits as a starting point and keep the ones that help you.",
+  "sources": [
+    {"title": "Claude Code docs: Best practices", "url": "https://code.claude.com/docs/en/best-practices"},
+    {"title": "Claude Code docs: Hooks reference", "url": "https://code.claude.com/docs/en/hooks"}
+  ]
+}
+-->
+<p>Most time lost with a coding agent is not lost while it writes code. It is lost afterwards: reading a change that solved the wrong problem, correcting it three times, or discovering a day later that "all tests pass" was a summary and not a fact. The habits below aim at that rework. They come from Anthropic's guidance for Claude Code, but most apply to any agent that reads your repository and runs commands.</p>
+
+<h2 id="advice-or-law">1. Decide whether a rule is advice or law</h2>
+<p>Every instruction you give an agent is one of two kinds. Anthropic's guide calls them non-deterministic and deterministic:</p>
+<table>
+<thead><tr><th scope="col"></th><th scope="col">Advice</th><th scope="col">Law</th></tr></thead>
+<tbody>
+<tr><td>Where it lives</td><td>Your prompt, the project instruction file, a skill</td><td>A hook, a deny rule, a managed setting, CI</td></tr>
+<tr><td>Who applies it</td><td>The model reads it and decides</td><td>The tool enforces it every time</td></tr>
+<tr><td>Good for</td><td>Guidelines with exceptions</td><td>Things that must always or never happen</td></tr>
+</tbody>
+</table>
+<p>Most rules should be advice. The agent has the actual code in front of it and can usually judge whether a guideline fits. Reserve law for the few things with no exceptions, such as never editing a generated folder.</p>
+<p>The guide offers a useful test. If you keep adding emphasis to a line in your instruction file and the agent still misses it, the line belongs in a hook. And the reverse: if you have hooks for things that are only preferences, delete them.</p>
+
+<h2 id="unseen">2. Write down only what the agent cannot see</h2>
+<p>An agent starts each task by reading your code, and it is good at that. It finds the file layout, the conventions and the test framework faster than you can describe them. What it cannot find is what was never in the repository: a decision made in a meeting, a deploy process in one person's head, the environment variable the integration tests need.</p>
+<p>Before adding anything to the instruction file, ask the guide's two questions:</p>
+<ol>
+<li>Could it find this by reading the code?</li>
+<li>Would it actually go and look?</li>
+</ol>
+<p>If both answers are yes, leave it out. Every line in that file is read on every task, relevant or not, so a short file is a better file. What earns a place: the exact commands for tests, type checks and linting; places where the code is misleading; team decisions; and anything you have had to correct twice. The files themselves are covered in <a href="/blog/posts/claude-code-project-setup/">Claude Code project setup</a>.</p>
+
+<h2 id="specific">3. Name the file, the symptom and what "fixed" means</h2>
+<p>A specific prompt works for the same reason: it supplies information the agent does not have. The guide's own examples show the difference.</p>
+<table>
+<thead><tr><th scope="col">Instead of</th><th scope="col">Try</th></tr></thead>
+<tbody>
+<tr><td>"fix the login bug"</td><td>"users report login fails after the session times out. look at token refresh in src/auth/, write a failing test that reproduces it, then fix it"</td></tr>
+<tr><td>"add a calendar widget"</td><td>"follow the pattern in HotDogWidget.php and build a calendar widget that lets you pick a month and page between years. no new libraries"</td></tr>
+</tbody>
+</table>
+<p>The better versions contain three things: where to look, how to tell the problem is real, and what done looks like. They also state a preference between reasonable options, such as "no new libraries". An agent cannot read your preferences from the code.</p>
+<p>Scope is the other thing only you know. An agent tends to build the smallest thing that satisfies the request. If you want empty states, error handling and keyboard navigation as well as the layout, say so in the prompt.</p>
+
+<h2 id="hand-over">4. Hand over the thing, not a description of it</h2>
+<p>If you already have what the agent needs, give it directly:</p>
+<ul>
+<li><strong>A file:</strong> reference it by path. In Claude Code, type <code>@</code> and the path.</li>
+<li><strong>A design or an error on screen:</strong> paste the screenshot.</li>
+<li><strong>Command output:</strong> pipe it in, as in the guide's example <code>cat error.log | claude -p "what's going on here"</code>.</li>
+</ul>
+<p>A retyped error message loses the line number, the stack trace and the one odd character that was the cause.</p>
+
+<h2 id="check">5. Give it a check that returns pass or fail</h2>
+<p>This is the habit with the largest effect. An agent stops when the work looks done. Without something to run, "looks done" is all it has, and you become the test suite. With a check, it can change the code, run the check, read the failure and try again without you.</p>
+<p>The check can be a test file, a build's exit code, a linter, a script that compares output with a saved sample, or a browser screenshot next to the mockup. The guide puts it this way: if your repository already has one of these, the single most useful line in your instruction file is the command that runs it.</p>
+<p>You choose how strict to be:</p>
+<table>
+<thead><tr><th scope="col">Level</th><th scope="col">How</th><th scope="col">Who decides it passed</th></tr></thead>
+<tbody>
+<tr><td>In the prompt</td><td>"run the auth tests after, and keep going until they pass"</td><td>The agent</td></tr>
+<tr><td>As a stop condition</td><td>A hook that runs when the agent tries to finish</td><td>The tool</td></tr>
+<tr><td>By a reviewer</td><td>A fresh review of the diff, or CI on the pull request</td><td>Something that did not write the code</td></tr>
+</tbody>
+</table>
+<p>For the middle level in Claude Code, the guide's example is a Stop hook in <code>.claude/settings.json</code>:</p>
+<pre><code>{
+  "hooks": {
+    "Stop": [
+      {
+        "hooks": [
+          { "type": "command", "command": "pnpm tsc --noEmit 1>&amp;2 || exit 2" }
+        ]
+      }
+    ]
+  }
+}</code></pre>
+<p>Two details make it work. Exit code 2 is what blocks the stop; the hooks reference notes that exit code 1 does not block, even though 1 is the usual code for failure. And the output is redirected to standard error, because that is what the agent is shown as the reason it cannot finish.</p>
+<p>The shell behaviour of that line was checked for this article: with a failing command it exits with status 2 and the message goes to standard error, and with a passing command it exits with 0. Replace <code>pnpm tsc --noEmit</code> with your own project's check.</p>
+<p>Whichever level you use, ask for evidence: the command that was run and its output. Reading the output takes less time than rerunning the check, and for a session you did not watch it is the only evidence there is.</p>
+
+<h2 id="interview">6. When the task is vague, have the agent interview you</h2>
+<p>You do not need a finished specification before you start. The guide suggests asking for an interview:</p>
+<pre><code>I want to add rate limiting to the public API but haven't thought it through yet.
+Interview me until you could write the spec, then write it to SPEC.md.</code></pre>
+<p>The agent asks about the parts you have not decided: per user or per key, what happens to requests over the limit, what is out of scope. Then start a fresh session and build from the written spec. The build begins with a clean context and a definition of done, and the same file is what a reviewer checks against later.</p>
+
+<h2 id="first-minute">7. Watch the first minute, and restart after two failed corrections</h2>
+<p>No configuration replaces watching how the agent starts. If it heads the wrong way, stop it at once; in Claude Code that is the Esc key, which keeps the work done so far.</p>
+<p>The second half of this habit is counterintuitive. If you have corrected the same thing twice and it is still wrong, do not write a third correction. The conversation now contains two failed attempts that the agent keeps rereading. Clear the session and write one new prompt that includes what you learned. The guide's summary: watch the first minute, stop the moment it drifts, and after two failed corrections start over with a better prompt.</p>
+<p>Tools that keep checkpoints make bold attempts cheap, because you can roll back. In Claude Code, note the limit the guide states: checkpoints cover files the agent edited with its own file tools, not files changed only by a shell command. Keep using version control.</p>
+
+<h2 id="review">8. Get a review from something that did not write the code</h2>
+<p>A reviewer that saw the whole conversation is swayed by the reasoning that produced the code. A fresh one is not. In Claude Code, <code>/code-review</code> reviews the diff in a subagent that never saw your session.</p>
+<p>To check the work against your plan, write the review prompt yourself. The guide's example:</p>
+<pre><code>use a subagent to review the rate limiter diff against SPEC.md, check every requirement
+is implemented and the listed edge cases have tests, report gaps that affect correctness
+and skip style</code></pre>
+<p>Keep the last two words. A reviewer asked to find problems always finds something. If you fix every finding, you end up with extra layers and tests for cases that cannot happen.</p>
+
+<h2 id="one-task">9. One task per session, and know what helpers cost</h2>
+<p>Every request sends the whole conversation. A session that has collected three unrelated tasks pays to reread all three on every turn of the fourth, and old context can blur the answer. Clear between unrelated tasks; in Claude Code, <code>/clear</code> does it and <code>/usage</code> shows where usage went.</p>
+<p>Subagents are worth their cost in four cases, according to the guide: independent work that can run in parallel, long output you want kept out of the main conversation, a reviewer with fresh eyes, and a task that should have fewer tools. They cost tokens, and sometimes time, because a new subagent must first gather context your session already had. Handing the same task to a subagent does not make the answer better.</p>
+
+<h2 id="drop">Habits you can drop</h2>
+<p>The same guide lists advice that was once useful and no longer is. A few entries:</p>
+<table>
+<thead><tr><th scope="col">Old habit</th><th scope="col">Why it can go</th></tr></thead>
+<tbody>
+<tr><td>Writing IMPORTANT in capitals</td><td>Current models follow a plainly worded line. Piled-on emphasis makes them over-apply the rule. If a rule cannot bend, make it a hook.</td></tr>
+<tr><td>Describing the architecture and file layout in the instruction file</td><td>The agent reads the repository itself. Write down only what is not there.</td></tr>
+<tr><td>"Think hard" and "be thorough"</td><td>These are ordinary prompt text. In Claude Code the effort setting is the real control.</td></tr>
+<tr><td>"Keep going, don't be lazy"</td><td>Models usually carry on through an agreed task, and such lines cause over-work more often than they fix a stall. Give a check to pass instead.</td></tr>
+</tbody>
+</table>
+
+<h2 id="monday">Where to start</h2>
+<p>If you adopt one habit this week, make it the fifth: find the command that tells you whether your project is healthy, and put it in the instruction file. Then, the next time you ask for a change, end the prompt with "run it and show me the output". Most of the other habits follow from wanting that output to be trustworthy.</p>

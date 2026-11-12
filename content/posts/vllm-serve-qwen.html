@@ -1,0 +1,216 @@
+<!--
+{
+  "title": "Serve Qwen with vLLM: chat, tool calling and thinking",
+  "description": "Pick a Qwen model that fits your GPU, start it with the right vLLM flags, then use thinking mode, tool calling and structured output from the OpenAI client.",
+  "date": "2026-11-12T09:41:00+00:00",
+  "topic": "ai-automation",
+  "series": "vllm-server",
+  "part": 3,
+  "project": {
+    "needs": "The Docker setup from part 2 and one NVIDIA GPU with 24 GB of memory or more.",
+    "result": "A Qwen3 server that chats, shows or hides its reasoning, and calls your functions."
+  },
+  "note": "Flags, parser names and sampling values come from the Qwen and vLLM documentation as read on November 12, 2026. Model sizes and layer counts were read from each model's files on Hugging Face, and the memory figures were calculated from them. Nothing was run on a GPU, so the request examples are untested here.",
+  "sources": [
+    {"title": "Qwen docs: vLLM deployment", "url": "https://qwen.readthedocs.io/en/latest/deployment/vllm.html"},
+    {"title": "vLLM docs: Tool calling", "url": "https://docs.vllm.ai/en/latest/features/tool_calling/"},
+    {"title": "vLLM docs: Reasoning outputs", "url": "https://docs.vllm.ai/en/latest/features/reasoning_outputs/"},
+    {"title": "vLLM docs: Structured outputs", "url": "https://docs.vllm.ai/en/latest/features/structured_outputs/"},
+    {"title": "Hugging Face: Qwen/Qwen3-8B", "url": "https://huggingface.co/Qwen/Qwen3-8B"},
+    {"title": "Hugging Face: Qwen/Qwen2.5-Coder-32B-Instruct", "url": "https://huggingface.co/Qwen/Qwen2.5-Coder-32B-Instruct"}
+  ]
+}
+-->
+<p>Qwen is a good first real model for your own server. The weights are openly licensed, the family runs from laptop-sized to datacenter-sized, and vLLM supports its two most useful extras: a reasoning mode you can switch on and off, and tool calling. This part serves Qwen3-8B and then uses every one of those features from a client.</p>
+
+<h2 id="choose">1. Choose a model that fits</h2>
+<p>These figures were read from each model's repository on Hugging Face. All three carry the Apache 2.0 license.</p>
+<table>
+<thead><tr><th scope="col">Model</th><th scope="col">Weight files</th><th scope="col">Default context</th><th scope="col">Good for</th></tr></thead>
+<tbody>
+<tr><td><code>Qwen/Qwen2.5-7B-Instruct</code></td><td>14.2 GiB</td><td>32,768 tokens</td><td>General chat and tools on a 24 GB card</td></tr>
+<tr><td><code>Qwen/Qwen3-8B</code></td><td>15.3 GiB</td><td>40,960 tokens</td><td>The same, plus switchable thinking</td></tr>
+<tr><td><code>Qwen/Qwen2.5-Coder-32B-Instruct</code></td><td>61.0 GiB</td><td>32,768 tokens</td><td>Code, on an 80 GB card</td></tr>
+</tbody>
+</table>
+<p>The weights are only part of the bill. Every token a request holds also needs working memory, called the KV cache. Part 6 derives the formula; for Qwen3-8B it comes to about 0.14 MiB per token, so one request that fills the default 40,960-token context needs about 5.6 GiB by itself.</p>
+<p>That is why the default context is the first thing to change on a small card. With a tenth of the card kept back for the runtime, the estimate looks like this:</p>
+<table>
+<thead><tr><th scope="col">GPU memory</th><th scope="col">Left for the cache</th><th scope="col">Full 8,192-token requests</th><th scope="col">Full 16,384-token requests</th></tr></thead>
+<tbody>
+<tr><td>24 GB</td><td>about 6 GiB</td><td>5</td><td>2</td></tr>
+<tr><td>48 GB</td><td>about 28 GiB</td><td>24</td><td>12</td></tr>
+<tr><td>80 GB</td><td>about 57 GiB</td><td>50</td><td>25</td></tr>
+</tbody>
+</table>
+<p>These are worst cases, with every request at full length at once. Real requests are usually shorter, so more of them fit. Treat the table as a floor, and trust the number vLLM prints at startup over any estimate.</p>
+
+<h2 id="start">2. Start the server</h2>
+<p>The Qwen documentation asks for vLLM 0.8.5 or newer for Qwen3. Using the Docker setup from <a href="/blog/posts/vllm-docker-nvidia-gpu/">part 2</a>:</p>
+<pre><code>docker run -d --name qwen \
+  --runtime nvidia --gpus all \
+  -v ~/.cache/huggingface:/root/.cache/huggingface \
+  -p 127.0.0.1:8000:8000 \
+  --ipc=host \
+  vllm/vllm-openai:latest \
+  --model Qwen/Qwen3-8B \
+  --served-model-name qwen3 \
+  --max-model-len 16384 \
+  --reasoning-parser qwen3 \
+  --enable-auto-tool-choice \
+  --tool-call-parser hermes</code></pre>
+<p>The last four flags are the ones specific to this model:</p>
+<table>
+<thead><tr><th scope="col">Flag</th><th scope="col">What it does here</th></tr></thead>
+<tbody>
+<tr><td><code>--max-model-len 16384</code></td><td>Caps prompt plus answer at 16,384 tokens, in place of the default 40,960. Raise it on a bigger card.</td></tr>
+<tr><td><code>--reasoning-parser qwen3</code></td><td>Separates the model's thinking from its answer in the response.</td></tr>
+<tr><td><code>--enable-auto-tool-choice</code></td><td>Lets the model decide when to call a tool. vLLM only loads a tool parser when this flag is set.</td></tr>
+<tr><td><code>--tool-call-parser hermes</code></td><td>Reads Qwen's tool calls. Both the Qwen and vLLM documentation name <code>hermes</code> for Qwen2.5 and Qwen3-8B.</td></tr>
+</tbody>
+</table>
+<p>Follow the log with <code>docker logs -f qwen</code>. Near the end of startup, look for two lines of this form, which the vLLM documentation shows as the thing to check:</p>
+<pre><code>GPU KV cache size: 643,232 tokens
+Maximum concurrency for 40,960 tokens per request: 15.70x</code></pre>
+<p>Your numbers will differ. The first is the real size of the cache on your card. The second divides it by your context length, which is the measured version of the table in step 1. If it is below 1, the server cannot hold even one full-length request, and you should lower <code>--max-model-len</code>.</p>
+
+<h2 id="chat">3. Send a first request</h2>
+<pre><code>curl -s http://127.0.0.1:8000/v1/chat/completions \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "qwen3",
+    "messages": [
+      {"role": "user", "content": "Explain what a KV cache is in two sentences."}
+    ],
+    "temperature": 0.6,
+    "top_p": 0.95,
+    "top_k": 20,
+    "max_tokens": 2048
+  }'</code></pre>
+<p>The sampling values are the ones the Qwen documentation uses for thinking mode. Send them with every request. vLLM takes its defaults from the model's <code>generation_config.json</code>, so the answers you get without them depend on a file you did not write.</p>
+<p>The reply has two parts inside <code>choices[0].message</code>: the answer in <code>content</code>, and the thinking in a separate field.</p>
+<p><strong>A naming trap.</strong> The vLLM documentation says that field is now called <code>reasoning</code> and used to be called <code>reasoning_content</code>. The Qwen page still uses the old name. If your client reads the old field and always finds it empty, this is why.</p>
+
+<h2 id="thinking">4. Turn thinking on and off</h2>
+<p>Qwen3 thinks before it answers unless told not to. Thinking helps on multi-step problems and wastes time and tokens on simple ones. You can decide per request:</p>
+<pre><code>curl -s http://127.0.0.1:8000/v1/chat/completions \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "qwen3",
+    "messages": [{"role": "user", "content": "Translate to French: good morning"}],
+    "temperature": 0.7,
+    "top_p": 0.8,
+    "top_k": 20,
+    "presence_penalty": 1.5,
+    "max_tokens": 512,
+    "chat_template_kwargs": {"enable_thinking": false}
+  }'</code></pre>
+<p>Note that the sampling values changed too. The Qwen documentation recommends different settings for the two modes: temperature 0.6 and top_p 0.95 with thinking, temperature 0.7 and top_p 0.8 without.</p>
+<p>From the OpenAI Python client, fields that are not part of the OpenAI API go in <code>extra_body</code>:</p>
+<pre><code>from openai import OpenAI
+
+client = OpenAI(base_url="http://127.0.0.1:8000/v1", api_key="EMPTY")
+
+response = client.chat.completions.create(
+    model="qwen3",
+    messages=[{"role": "user", "content": "Translate to French: good morning"}],
+    temperature=0.7,
+    top_p=0.8,
+    presence_penalty=1.5,
+    max_tokens=512,
+    extra_body={"top_k": 20, "chat_template_kwargs": {"enable_thinking": False}},
+)
+print(response.choices[0].message.content)</code></pre>
+<p>If most of your traffic does not need thinking, make that the server's default and let individual requests turn it on. Add this to the server arguments:</p>
+<pre><code>--default-chat-template-kwargs '{"enable_thinking": false}'</code></pre>
+<p>The vLLM documentation states that a request's own <code>chat_template_kwargs</code> always wins over the server default.</p>
+
+<h2 id="tools">5. Let the model call your functions</h2>
+<p>Tool calling is a conversation in three steps. You describe the functions. The model answers with the name and arguments of the one it wants. Your code runs it and sends back the result, and the model writes the final answer. The model never runs anything itself.</p>
+<pre><code>import json
+from openai import OpenAI
+
+client = OpenAI(base_url="http://127.0.0.1:8000/v1", api_key="EMPTY")
+
+def get_weather(location: str, unit: str) -> str:
+    return f"18 degrees {unit} and cloudy in {location}"   # replace with a real lookup
+
+tools = [{
+    "type": "function",
+    "function": {
+        "name": "get_weather",
+        "description": "Get the current weather in a given location",
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "location": {"type": "string", "description": "City and country"},
+                "unit": {"type": "string", "enum": ["celsius", "fahrenheit"]},
+            },
+            "required": ["location", "unit"],
+        },
+    },
+}]
+
+messages = [{"role": "user", "content": "What is the weather in Seoul, in celsius?"}]
+first = client.chat.completions.create(model="qwen3", messages=messages, tools=tools, tool_choice="auto")
+reply = first.choices[0].message
+
+if reply.tool_calls:
+    messages.append(reply)
+    for call in reply.tool_calls:
+        arguments = json.loads(call.function.arguments)
+        result = get_weather(**arguments)
+        messages.append({"role": "tool", "tool_call_id": call.id, "content": result})
+    final = client.chat.completions.create(model="qwen3", messages=messages, tools=tools)
+    print(final.choices[0].message.content)
+else:
+    print(reply.content)</code></pre>
+<p>The first half follows the example in the vLLM documentation; the second half sends the result back in the standard OpenAI message format. Three details decide whether this works in practice:</p>
+<ul>
+<li><strong>Descriptions are the interface.</strong> The model chooses a tool from its name, description and parameter descriptions. Write them as carefully as you would a prompt.</li>
+<li><strong>Arguments are text until you parse them.</strong> Validate them before running anything, especially for tools that write or delete.</li>
+<li><strong><code>tool_choice</code> has four settings:</strong> <code>auto</code> lets the model decide, <code>required</code> forces some tool call, <code>none</code> forbids them, and naming one function forces that function.</li>
+</ul>
+<p>Other members of the family need a different parser. The vLLM documentation lists <code>hermes</code> for <code>Qwen/Qwen2.5-*</code> and <code>Qwen/QwQ-32B</code>, and <code>qwen3_xml</code> for the Qwen3-Coder models. The wrong parser does not raise an error. The tool call simply arrives as plain text in <code>content</code>.</p>
+
+<h2 id="structured">6. Force an answer into a shape</h2>
+<p>When a program reads the answer, "usually valid" is not good enough. vLLM can constrain generation so the output must match a list of choices, a regular expression or a JSON schema. The parameters go in <code>extra_body</code>:</p>
+<pre><code>completion = client.chat.completions.create(
+    model="qwen3",
+    messages=[{"role": "user", "content": "Classify this sentiment: vLLM is wonderful!"}],
+    extra_body={
+        "structured_outputs": {"choice": ["positive", "negative"]},
+        "chat_template_kwargs": {"enable_thinking": False},
+    },
+)
+print(completion.choices[0].message.content)</code></pre>
+<p>Replace <code>choice</code> with <code>json</code> and a JSON schema to get an object in a fixed shape. The Qwen documentation adds one piece of advice: also describe the format you want in the prompt. The constraint guarantees the shape, and the prompt helps the model fill it sensibly.</p>
+
+<h2 id="variants">7. Smaller and longer: quantized builds and long context</h2>
+<p><strong>Quantized builds.</strong> Qwen publishes pre-quantized versions that take less memory at some cost in precision. Only the name changes:</p>
+<pre><code>--model Qwen/Qwen3-8B-AWQ
+--model Qwen/Qwen3-8B-FP8</code></pre>
+<p>The Qwen documentation notes that the FP8 builds run natively on newer GPU generations such as Ada Lovelace and Hopper, and that since vLLM 0.9.0 they also run on Ampere cards, which includes the A100, in a mixed mode.</p>
+<p><strong>Longer context.</strong> Qwen3 was trained with contexts up to 32,768 tokens. For much longer inputs the Qwen documentation describes a technique called YaRN, enabled with a <code>--rope-scaling</code> argument alongside a larger <code>--max-model-len</code>. It also warns that vLLM applies the scaling at every length, which can cost quality on short texts. Use it only when you really need long inputs; the exact argument is on the Qwen page.</p>
+
+<h2 id="trouble">8. When something looks wrong</h2>
+<table>
+<thead><tr><th scope="col">What you see</th><th scope="col">Cause</th><th scope="col">Fix</th></tr></thead>
+<tbody>
+<tr><td>Out of memory at startup</td><td>The default 40,960-token context is too large for the card</td><td>Lower <code>--max-model-len</code>; this is the Qwen documentation's first suggestion</td></tr>
+<tr><td>The tool call shows up as text</td><td>Tool flags missing, or the wrong parser</td><td>Check <code>--enable-auto-tool-choice</code> and the parser for your model</td></tr>
+<tr><td>Thinking text appears inside the answer</td><td>No reasoning parser</td><td>Add <code>--reasoning-parser qwen3</code></td></tr>
+<tr><td>The reasoning field is always empty</td><td>The client reads the old field name</td><td>Read <code>reasoning</code>, not <code>reasoning_content</code></td></tr>
+<tr><td>The answer stops before it starts</td><td>Thinking used up <code>max_tokens</code></td><td>Raise <code>max_tokens</code>, or turn thinking off for that request</td></tr>
+<tr><td>Answers differ from another tool running the same model</td><td>Different sampling defaults</td><td>Send temperature, top_p and top_k explicitly</td></tr>
+</tbody>
+</table>
+
+<h2 id="next">9. What you can do now</h2>
+<ul>
+<li>Pick a Qwen model and a context length from your GPU's memory, and confirm the choice in the startup log.</li>
+<li>Switch thinking per request or per server, with the right sampling values for each mode.</li>
+<li>Run a complete tool-calling loop, and know which parser each Qwen family needs.</li>
+<li>Constrain output to a fixed set of answers or a schema.</li>
+</ul>
+<p>Qwen ships everything vLLM needs. The next part takes a model that does not: <a href="/blog/posts/vllm-phind-codellama-a100/">Phind-CodeLlama-34B on A100 GPUs</a>, where you write the chat template yourself.</p>

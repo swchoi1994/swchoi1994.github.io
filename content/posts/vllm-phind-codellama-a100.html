@@ -1,0 +1,205 @@
+<!--
+{
+  "title": "Serve Phind-CodeLlama-34B on A100 GPUs with vLLM",
+  "description": "Wrap a model that ships without a chat template: read its files, write and test the template, pick an A100 layout, and launch a coding assistant for a team.",
+  "date": "2026-11-12T09:42:00+00:00",
+  "topic": "ai-automation",
+  "series": "vllm-server",
+  "part": 4,
+  "project": {
+    "needs": "The Docker setup from part 2, about 70 GB of free disk, and one A100 80GB or two A100 40GB cards.",
+    "result": "A private coding assistant behind an OpenAI-style chat endpoint, with a template you wrote and tested."
+  },
+  "note": "Model facts were read from the Phind-CodeLlama-34B-v2 repository on Hugging Face on November 12, 2026. The chat template in this article was rendered with Jinja 3.1.6 and its output matched the model card's prompt format exactly. The memory figures are calculated, not measured: no A100 was available and the model was not loaded.",
+  "sources": [
+    {"title": "Hugging Face: Phind/Phind-CodeLlama-34B-v2", "url": "https://huggingface.co/Phind/Phind-CodeLlama-34B-v2"},
+    {"title": "vLLM docs: OpenAI-compatible server, chat template", "url": "https://docs.vllm.ai/en/latest/serving/online_serving/"},
+    {"title": "vLLM docs: vllm serve arguments", "url": "https://docs.vllm.ai/en/latest/cli/serve.html"},
+    {"title": "vLLM docs: Parallelism and scaling", "url": "https://docs.vllm.ai/en/latest/serving/parallelism_scaling/"},
+    {"title": "vLLM docs: Conserving memory", "url": "https://docs.vllm.ai/en/latest/configuration/conserving_memory/"},
+    {"title": "Hugging Face: TheBloke/Phind-CodeLlama-34B-v2-AWQ", "url": "https://huggingface.co/TheBloke/Phind-CodeLlama-34B-v2-AWQ"}
+  ]
+}
+-->
+<p>Qwen in part 3 worked out of the box. Many models do not. They were published before today's conventions, with a prompt format described in a README and nothing a server can read. Phind-CodeLlama-34B-v2 is a clean example: a strong coding model from 2023 with no chat template, weights in an older file format, and a size that makes GPU planning matter. Wrapping it teaches every step you need for any model that does not just work.</p>
+<p>One honest note before you spend a day on it. Newer coding models exist, and Qwen2.5-Coder-32B from part 3 needs about the same hardware. Choose Phind if you already rely on it. Otherwise read this part for the method.</p>
+
+<h2 id="read">1. Read the model's files before you download 67 GB</h2>
+<p>Four small files in the repository tell you almost everything. Open them in the browser on the model's "Files" tab.</p>
+<table>
+<thead><tr><th scope="col">File</th><th scope="col">What it says</th><th scope="col">What that means for you</th></tr></thead>
+<tbody>
+<tr><td><code>README.md</code></td><td>License <code>llama2</code>. Trained with a sequence length of 4,096 tokens. Uses the Alpaca/Vicuna prompt format.</td><td>Read the Llama 2 license terms before commercial use. Plan for a 4,096-token context.</td></tr>
+<tr><td><code>config.json</code></td><td>48 layers, hidden size 8,192, 64 attention heads, 8 key-value heads, 16-bit weights, 16,384 positions</td><td>These numbers give the memory per token in step 2.</td></tr>
+<tr><td><code>tokenizer_config.json</code></td><td>No <code>chat_template</code> entry. Maximum length 4,096.</td><td>The chat endpoint will not work until you supply a template.</td></tr>
+<tr><td>File list</td><td>Seven <code>pytorch_model-*.bin</code> files, 67.5 GB in total, last changed in August 2023</td><td>An older weight format. vLLM's default loader tries safetensors first and falls back to these.</td></tr>
+</tbody>
+</table>
+<p>The <code>.bin</code> format deserves one caution. It is based on Python's pickle, which can run code when a file is loaded. Only load such files from a publisher you trust, and download them from the original repository, not a mirror.</p>
+<p>The repository is not gated, so no access request or token is needed.</p>
+
+<h2 id="hardware">2. Decide the GPU layout</h2>
+<p>Two things must fit in GPU memory: the weights, and the KV cache that holds each request's tokens while it is being answered. The weights are 67.5 GB on disk, which is 62.9 GiB in the units GPUs report.</p>
+<p>The cache cost per token follows from the config: 2 (a key and a value) × 48 layers × 8 key-value heads × 128 dimensions per head × 2 bytes = 196,608 bytes, about 0.19 MiB. A request that fills the 4,096-token context holds about 0.75 GiB.</p>
+<p>With a tenth of each card kept back for the runtime, which is an assumption and not a vLLM setting, the layouts compare like this:</p>
+<table>
+<thead><tr><th scope="col">Layout</th><th scope="col">Left for the cache</th><th scope="col">Full 4,096-token requests at once</th><th scope="col">Notes</th></tr></thead>
+<tbody>
+<tr><td>1 × A100 80GB</td><td>about 9 GiB</td><td>12</td><td>The simplest option</td></tr>
+<tr><td>2 × A100 40GB</td><td>about 9 GiB</td><td>12</td><td>Needs <code>--tensor-parallel-size 2</code></td></tr>
+<tr><td>2 × A100 80GB</td><td>about 81 GiB</td><td>108</td><td>One copy of the weights, a much larger cache</td></tr>
+<tr><td>1 × A100 40GB, AWQ build</td><td>about 19 GiB</td><td>25</td><td>4-bit weights: 17 GiB, lower precision</td></tr>
+</tbody>
+</table>
+<p>The third row is the one worth remembering. Doubling the GPUs raises the cache ninefold, because the weights are paid for once and everything else goes to requests. Part 6 turns this into a method for any model.</p>
+<p>The model does not fit on a single 40 GB card at full precision. The fourth row uses a community-quantized build, <code>TheBloke/Phind-CodeLlama-34B-v2-AWQ</code>. The vLLM documentation says quantized models from the Hub can be used directly, at the cost of lower precision. It is a different publisher from the original, so judge it as you would any third-party file.</p>
+
+<h2 id="template">3. Write the chat template</h2>
+<p>A chat request arrives as a list of messages with roles. The model was trained on plain text in one specific layout. The chat template is the translation between the two, written in the Jinja language. The vLLM documentation is direct about what happens without one: "the server will not be able to process chat and all chat requests will error."</p>
+<p>The model card shows the layout the model expects:</p>
+<pre><code>### System Prompt
+You are an intelligent programming assistant.
+
+### User Message
+Implement a linked list in C++
+
+### Assistant
+...</code></pre>
+<p>Save the following as <code>phind.jinja</code>. It writes each message under the right heading and, when the server asks for a reply, ends with the assistant heading so the model continues from there:</p>
+<pre><code>{%- for message in messages -%}
+{%- if message['role'] == 'system' -%}
+### System Prompt
+{{ message['content'] }}
+
+{% elif message['role'] == 'user' -%}
+### User Message
+{{ message['content'] }}
+
+{% elif message['role'] == 'assistant' -%}
+### Assistant
+{{ message['content'] }}
+
+{% endif -%}
+{%- endfor -%}
+{%- if add_generation_prompt -%}
+### Assistant
+{% endif -%}</code></pre>
+<p>The hyphens inside <code>{%-</code> and <code>-%}</code> remove the whitespace next to a tag. They are what keeps the blank lines exactly where the model card has them. A model is sensitive to this: a missing newline will not cause an error, only worse answers that are hard to trace back.</p>
+
+<h2 id="test">4. Test the template before the GPU is involved</h2>
+<p>You do not need the model to check a template. Render it on any computer with Python and compare the text with the model card. Save this as <code>test_template.py</code> next to the template:</p>
+<pre><code>import jinja2
+
+template = jinja2.Environment().from_string(open("phind.jinja").read())
+messages = [
+    {"role": "system", "content": "You are an intelligent programming assistant."},
+    {"role": "user", "content": "Implement a linked list in C++"},
+]
+text = template.render(messages=messages, add_generation_prompt=True)
+
+expected = (
+    "### System Prompt\nYou are an intelligent programming assistant.\n\n"
+    "### User Message\nImplement a linked list in C++\n\n"
+    "### Assistant\n"
+)
+print(repr(text))
+assert text == expected, "the template does not match the model card"
+print("template matches the model card")</code></pre>
+<pre><code>pip install jinja2
+python test_template.py</code></pre>
+<p>This check was run for this article and passed, including a second test with an earlier assistant turn and a follow-up question. Printing with <code>repr</code> matters, because it makes every newline visible. Keep the script. Each time you edit the template, run it again before restarting a server that takes minutes to load.</p>
+
+<h2 id="launch">5. Launch the server</h2>
+<p>From the folder that holds <code>phind.jinja</code>, on a machine with one A100 80GB:</p>
+<pre><code>docker run -d --name phind \
+  --runtime nvidia --gpus all \
+  -v ~/.cache/huggingface:/root/.cache/huggingface \
+  -v "$PWD/phind.jinja:/templates/phind.jinja:ro" \
+  -p 127.0.0.1:8000:8000 \
+  --ipc=host \
+  vllm/vllm-openai:latest \
+  --model Phind/Phind-CodeLlama-34B-v2 \
+  --served-model-name phind-codellama \
+  --chat-template /templates/phind.jinja \
+  --max-model-len 4096</code></pre>
+<table>
+<thead><tr><th scope="col">Flag</th><th scope="col">Why</th></tr></thead>
+<tbody>
+<tr><td>The second <code>-v</code></td><td>Puts your template inside the container, read-only.</td></tr>
+<tr><td><code>--chat-template</code></td><td>The path to the template as the container sees it. The reference also accepts the template as a single-line string.</td></tr>
+<tr><td><code>--max-model-len 4096</code></td><td>Matches the length the model was trained and tested with. The config would allow more, but nothing in the model card supports it.</td></tr>
+<tr><td><code>--served-model-name</code></td><td>A short, stable name for clients.</td></tr>
+</tbody>
+</table>
+<p>For two GPUs, add one flag:</p>
+<pre><code>  --tensor-parallel-size 2</code></pre>
+<p>Tensor parallelism splits every layer across the cards. The vLLM documentation recommends it when a model is too large for one GPU, or when you want more room for the cache. To use only some of a machine's GPUs, select them in Docker with <code>--gpus '"device=0,1"'</code>. The size must match the number of GPUs the container can see.</p>
+<p><strong>Expect a slow first start.</strong> The download is 67.5 GB, and loading reads all of it from disk. The documentation adds that with tensor parallelism each worker reads the whole model, so loading takes longer in proportion. Keep the cache on a local disk.</p>
+
+<h2 id="verify">6. Verify the load and the first answer</h2>
+<p>Follow the log with <code>docker logs -f phind</code> and look for the two lines that report the real cache size:</p>
+<pre><code>GPU KV cache size: ... tokens
+Maximum concurrency for 4,096 tokens per request: ...x</code></pre>
+<p>Compare the second number with the table in step 2. It should be in the same range. If it is far lower, something else is using the card; check <code>nvidia-smi</code>.</p>
+<p>Then ask a question:</p>
+<pre><code>curl -s http://127.0.0.1:8000/v1/chat/completions \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "phind-codellama",
+    "messages": [
+      {"role": "system", "content": "You are an intelligent programming assistant."},
+      {"role": "user", "content": "Write a Python function that checks whether a string is a palindrome."}
+    ],
+    "temperature": 0.1,
+    "top_p": 0.75,
+    "max_tokens": 512
+  }'</code></pre>
+<p>The temperature and top_p values are the ones the model card uses in its own evaluation code.</p>
+<p>Judge the answer by its shape. It should be code and a short explanation, and it should stop. Two failure patterns point straight at the template:</p>
+<ul>
+<li><strong>The model keeps going and writes its own "### User Message".</strong> It did not learn to stop at that point, or the layout is slightly off. Rerun the template test, then add <code>"stop": ["### User Message"]</code> to requests as a guard.</li>
+<li><strong>The answer ignores the system prompt or reads like a continuation of your question.</strong> The template is probably not being applied. Check the path in <code>--chat-template</code> and the mount.</li>
+</ul>
+
+<h2 id="clients">7. Connect people and tools</h2>
+<p>Any client that lets you set an OpenAI-compatible base URL can use the server. It needs three values: the base URL ending in <code>/v1</code>, the model name <code>phind-codellama</code>, and an API key, which can be any text until you configure one.</p>
+<pre><code>from openai import OpenAI
+
+client = OpenAI(base_url="http://127.0.0.1:8000/v1", api_key="EMPTY")
+stream = client.chat.completions.create(
+    model="phind-codellama",
+    messages=[{"role": "user", "content": "Explain what this regex matches: ^\\d{3}-\\d{4}$"}],
+    max_tokens=400,
+    stream=True,
+)
+for chunk in stream:
+    print(chunk.choices[0].delta.content or "", end="", flush=True)</code></pre>
+<p>Streaming matters for a coding assistant. People tolerate a long answer that starts at once far better than a short one that appears after a silent wait.</p>
+<p>Know two limits before you promise this to a team:</p>
+<ul>
+<li><strong>No tool calling.</strong> The model card describes plain instruction and answer pairs. Agent tools that depend on function calling need a model trained for it, such as the Qwen models in part 3.</li>
+<li><strong>A 4,096-token context.</strong> That is roughly a few hundred lines of code plus the answer. It suits questions about a function or a file, not a whole repository.</li>
+</ul>
+<p>The server is still bound to the local machine. Opening it to a team safely, with keys and a proxy, is the subject of <a href="/blog/posts/vllm-multi-user-serving/">part 5</a>.</p>
+
+<h2 id="trouble">8. When it does not work</h2>
+<table>
+<thead><tr><th scope="col">What you see</th><th scope="col">Cause</th><th scope="col">Fix</th></tr></thead>
+<tbody>
+<tr><td>Chat requests return an error about a chat template</td><td>The template was not loaded</td><td>Check the mount and the <code>--chat-template</code> path</td></tr>
+<tr><td>Out of memory while loading</td><td>The layout is too small, or the card is shared</td><td>Step 2; check <code>nvidia-smi</code> for other processes</td></tr>
+<tr><td>An error about the number of GPUs</td><td><code>--tensor-parallel-size</code> does not match the visible GPUs</td><td>Make the two agree</td></tr>
+<tr><td>Loading seems stuck</td><td>67.5 GB is being read, once per worker with tensor parallelism</td><td>Wait, and watch disk activity; use a local disk</td></tr>
+<tr><td>A request is rejected as too long</td><td>Prompt plus <code>max_tokens</code> exceeds 4,096</td><td>Shorten the input or lower <code>max_tokens</code></td></tr>
+<tr><td>Answers run on into invented turns</td><td>Template whitespace, or no stop sequence</td><td>Steps 4 and 6</td></tr>
+</tbody>
+</table>
+
+<h2 id="next">9. What you can do now</h2>
+<ul>
+<li>Read a model's files and predict whether it will serve as is.</li>
+<li>Write a chat template from a model card and prove it correct without a GPU.</li>
+<li>Estimate how many concurrent requests a GPU layout can hold, and check the estimate against the startup log.</li>
+<li>Recognize template problems from the shape of a bad answer.</li>
+</ul>
+<p>Next: <a href="/blog/posts/vllm-multi-user-serving/">serving many users from one server</a>.</p>

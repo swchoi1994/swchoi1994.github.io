@@ -1,0 +1,191 @@
+<!--
+{
+  "title": "Run vLLM in Docker on an NVIDIA GPU, step by step",
+  "description": "Install the NVIDIA Container Toolkit, prove the GPU works inside a container, start vLLM with docker run, then make it a Compose service that survives reboots.",
+  "date": "2026-11-12T09:40:00+00:00",
+  "topic": "ai-automation",
+  "series": "vllm-server",
+  "part": 2,
+  "project": {
+    "needs": "A Linux machine with an NVIDIA GPU and its driver, Docker, and sudo rights.",
+    "result": "vLLM running as a container that restarts with the machine, answering on a local port."
+  },
+  "note": "The commands follow the NVIDIA, Docker and vLLM documentation as read on November 12, 2026. No GPU was available, so no container was started for this article. The Compose file was checked with docker compose config, which validates the file but does not run it.",
+  "sources": [
+    {"title": "vLLM docs: Using Docker", "url": "https://docs.vllm.ai/en/latest/deployment/docker.html"},
+    {"title": "NVIDIA Container Toolkit: Installing the toolkit", "url": "https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/latest/install-guide.html"},
+    {"title": "NVIDIA Container Toolkit: Running a sample workload", "url": "https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/latest/sample-workload.html"},
+    {"title": "Docker docs: Run Docker Compose services with GPU access", "url": "https://docs.docker.com/compose/how-tos/gpu-support/"},
+    {"title": "Docker docs: Start containers automatically", "url": "https://docs.docker.com/engine/containers/start-containers-automatically/"},
+    {"title": "vLLM docs: Troubleshooting", "url": "https://docs.vllm.ai/en/latest/usage/troubleshooting/"},
+    {"title": "vLLM docs: Optimization and tuning", "url": "https://docs.vllm.ai/en/latest/configuration/optimization/"}
+  ]
+}
+-->
+<p>Part 1 started vLLM straight from a Python environment. That is fine for a first try, but a server other people depend on should come back after a reboot, keep its dependencies in one place, and be upgraded by changing one line. Docker gives you that. This part builds the setup from an empty GPU machine to a service, and explains each flag so you can change it with confidence later.</p>
+
+<h2 id="layers">1. The four layers you are stacking</h2>
+<p>A container cannot use a GPU by default. Four things have to line up, and most failures come from one missing layer:</p>
+<table>
+<thead><tr><th scope="col">Layer</th><th scope="col">What it does</th><th scope="col">How to check it</th></tr></thead>
+<tbody>
+<tr><td>NVIDIA driver on the host</td><td>Talks to the card. Containers share the host's driver; they do not bring their own.</td><td><code>nvidia-smi</code> on the host prints a table</td></tr>
+<tr><td>Docker Engine</td><td>Runs containers.</td><td><code>docker run --rm hello-world</code></td></tr>
+<tr><td>NVIDIA Container Toolkit</td><td>Lets Docker hand GPUs to a container.</td><td><code>nvidia-smi</code> inside a container prints the same table</td></tr>
+<tr><td>The vLLM image</td><td>CUDA libraries, PyTorch and vLLM, already matched to each other.</td><td>The server answers on its port</td></tr>
+</tbody>
+</table>
+<p>Work from the top down. Do not start vLLM until the third check passes, or you will be debugging two things at once.</p>
+
+<h2 id="host">2. Check the host first</h2>
+<pre><code>nvidia-smi
+docker --version</code></pre>
+<p><code>nvidia-smi</code> should list every GPU with its memory. Note the "Driver Version" in the top row; you will need it if the image complains about an old driver. If the command is missing, install the driver first. NVIDIA's guide recommends installing it with your distribution's package manager.</p>
+
+<h2 id="toolkit">3. Install the NVIDIA Container Toolkit</h2>
+<p>On Ubuntu and Debian, NVIDIA's guide adds its package repository and then installs four packages. First the repository:</p>
+<pre><code>sudo apt-get update &amp;&amp; sudo apt-get install -y --no-install-recommends ca-certificates curl gnupg2
+
+curl -fsSL https://nvidia.github.io/libnvidia-container/gpgkey \
+  | sudo gpg --dearmor -o /usr/share/keyrings/nvidia-container-toolkit-keyring.gpg \
+  &amp;&amp; curl -s -L https://nvidia.github.io/libnvidia-container/stable/deb/nvidia-container-toolkit.list \
+  | sed 's#deb https://#deb [signed-by=/usr/share/keyrings/nvidia-container-toolkit-keyring.gpg] https://#g' \
+  | sudo tee /etc/apt/sources.list.d/nvidia-container-toolkit.list
+
+sudo apt-get update</code></pre>
+<p>Then the packages. The guide pins a version; the one below is what it showed on the day this was written, so copy the current number from the guide:</p>
+<pre><code>export NVIDIA_CONTAINER_TOOLKIT_VERSION=1.20.1-1
+sudo apt-get install -y \
+  nvidia-container-toolkit=${NVIDIA_CONTAINER_TOOLKIT_VERSION} \
+  nvidia-container-toolkit-base=${NVIDIA_CONTAINER_TOOLKIT_VERSION} \
+  libnvidia-container-tools=${NVIDIA_CONTAINER_TOOLKIT_VERSION} \
+  libnvidia-container1=${NVIDIA_CONTAINER_TOOLKIT_VERSION}</code></pre>
+<p>Installing is not enough. Docker also has to be told about the new runtime:</p>
+<pre><code>sudo nvidia-ctk runtime configure --runtime=docker
+sudo systemctl restart docker</code></pre>
+<p>The first command edits <code>/etc/docker/daemon.json</code> on the host. The restart makes Docker read it. The guide has separate steps for RHEL-family systems and for rootless Docker.</p>
+
+<h2 id="prove">4. Prove a container can see the GPU</h2>
+<p>This is NVIDIA's own test, and it is the most useful command in this article:</p>
+<pre><code>sudo docker run --rm --runtime=nvidia --gpus all ubuntu nvidia-smi</code></pre>
+<p>A plain Ubuntu image has no NVIDIA software in it. If the familiar table appears, the toolkit injected the driver into the container, and everything below vLLM works. If you see <code>could not select device driver "" with capabilities: [[gpu]]</code>, Docker does not know the NVIDIA runtime: repeat the two commands at the end of step 3.</p>
+
+<h2 id="run">5. Start vLLM with one command</h2>
+<p>Use a tiny model for the first run. It downloads in a minute or two and shows whether the stack works before you wait for a large one:</p>
+<pre><code>docker run --rm --name vllm \
+  --runtime nvidia --gpus all \
+  -v ~/.cache/huggingface:/root/.cache/huggingface \
+  --env "HF_TOKEN=$HF_TOKEN" \
+  -p 127.0.0.1:8000:8000 \
+  --ipc=host \
+  vllm/vllm-openai:latest \
+  --model Qwen/Qwen3-0.6B</code></pre>
+<p>Every part of that command matters:</p>
+<table>
+<thead><tr><th scope="col">Part</th><th scope="col">Why it is there</th></tr></thead>
+<tbody>
+<tr><td><code>--runtime nvidia --gpus all</code></td><td>Gives the container every GPU. To give it only some, use <code>--gpus device=0</code> or <code>--gpus '"device=0,1"'</code>.</td></tr>
+<tr><td><code>-v ~/.cache/huggingface:...</code></td><td>Keeps downloaded weights on the host. Without it, every new container downloads the model again.</td></tr>
+<tr><td><code>--env "HF_TOKEN=$HF_TOKEN"</code></td><td>Your Hugging Face token, needed for gated models. Harmless when empty.</td></tr>
+<tr><td><code>-p 127.0.0.1:8000:8000</code></td><td>Publishes the port on the machine's loopback address only. Plain <code>-p 8000:8000</code> publishes it on every network interface.</td></tr>
+<tr><td><code>--ipc=host</code></td><td>PyTorch shares data between processes through shared memory, and Docker's default is small. <code>--shm-size</code> is the alternative.</td></tr>
+<tr><td><code>vllm/vllm-openai:latest</code></td><td>The official image. Its entry point is the server, so there is no <code>vllm serve</code> in the command.</td></tr>
+<tr><td>Everything after the image</td><td>Arguments to the server, the same ones <code>vllm serve</code> takes.</td></tr>
+</tbody>
+</table>
+<p>The loopback address is deliberate. An unprotected model server on a public interface gets found. Docker also writes its own firewall rules for published ports, so a host firewall such as ufw may not block a port you published on all interfaces. Part 5 covers how to open the server to other people properly.</p>
+
+<h2 id="check">6. Check that it works</h2>
+<p>The first start takes a while: the image pulls, the weights download, and the model loads. The server is ready when the log shows a line like <code>Uvicorn running on http://0.0.0.0:8000</code>. From a second terminal:</p>
+<pre><code>curl -fsS http://127.0.0.1:8000/health &amp;&amp; echo ready
+curl -s http://127.0.0.1:8000/v1/models
+curl -s http://127.0.0.1:8000/v1/chat/completions \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "Qwen/Qwen3-0.6B",
+    "messages": [{"role": "user", "content": "Reply with the word ready."}],
+    "max_tokens": 50
+  }'</code></pre>
+<p>The first command prints <code>ready</code> once the server is healthy. The second lists the model name that clients must send. The third returns a JSON object whose <code>choices[0].message.content</code> holds the answer.</p>
+<p>Now run <code>nvidia-smi</code> on the host. The vLLM process will hold most of the card's memory even though this model is tiny. That is by design, not a leak. On NVIDIA GPUs, the documentation says vLLM measures the memory left after loading and warmup and gives it to the KV cache, the working memory for requests. Part 6 explains how to reason about that number.</p>
+
+<h2 id="compose">7. Turn it into a service with Compose</h2>
+<p>A long <code>docker run</code> line is easy to mistype and hard to review. Put the same settings in a file. Create a folder, and inside it a file named <code>compose.yaml</code>:</p>
+<pre><code>services:
+  vllm:
+    image: vllm/vllm-openai:latest
+    command:
+      - --model
+      - Qwen/Qwen3-0.6B
+      - --served-model-name
+      - my-model
+    environment:
+      HF_TOKEN: ${HF_TOKEN:-}
+    volumes:
+      - ${HOME}/.cache/huggingface:/root/.cache/huggingface
+      - vllm-cache:/root/.cache/vllm
+    ports:
+      - "127.0.0.1:8000:8000"
+    ipc: host
+    restart: unless-stopped
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
+
+volumes:
+  vllm-cache:</code></pre>
+<p>Three things are new compared with the command:</p>
+<ul>
+<li><strong>The GPU block.</strong> Compose asks for GPUs under <code>deploy.resources.reservations.devices</code>. Docker's documentation says <code>capabilities</code> is required and the service fails to deploy without it. Use <code>count</code> for a number of GPUs or <code>device_ids: ["0", "1"]</code> for specific ones; the two cannot be combined.</li>
+<li><strong><code>restart: unless-stopped</code>.</strong> Docker restarts the container if it exits or if the daemon restarts, which includes a reboot, but not after you stopped it yourself.</li>
+<li><strong>The <code>vllm-cache</code> volume.</strong> vLLM compiles parts of the model at startup. The documentation notes that each new container starts with an empty compile cache unless you mount a volume at <code>~/.cache/vllm</code>, so this saves time from the second start onward.</li>
+</ul>
+<p><code>--served-model-name</code> gives clients a stable name. You can swap the model behind it later without changing every client.</p>
+<p>If you need a token, put it in a file named <code>.env</code> next to <code>compose.yaml</code> as <code>HF_TOKEN=hf_...</code>, and keep that file out of version control. Then:</p>
+<pre><code>docker compose config --quiet &amp;&amp; echo "file is valid"
+docker compose up -d
+docker compose logs -f vllm</code></pre>
+<p>The first line checks the file without starting anything. Stop following the log with Ctrl+C; the service keeps running. Repeat the checks from step 6, with <code>my-model</code> as the model name.</p>
+
+<h2 id="operate">8. Day-to-day operation</h2>
+<table>
+<thead><tr><th scope="col">Task</th><th scope="col">Command</th></tr></thead>
+<tbody>
+<tr><td>See whether it is running</td><td><code>docker compose ps</code></td></tr>
+<tr><td>Read the last 100 log lines</td><td><code>docker compose logs --tail 100 vllm</code></td></tr>
+<tr><td>Apply a changed <code>compose.yaml</code></td><td><code>docker compose up -d</code></td></tr>
+<tr><td>Stop the service</td><td><code>docker compose down</code></td></tr>
+<tr><td>Which vLLM version is this?</td><td><code>curl -s http://127.0.0.1:8000/version</code></td></tr>
+</tbody>
+</table>
+<p><strong>Pin the version.</strong> <code>latest</code> moves, and flags and defaults change between releases. Once the service works, ask it for its version and replace <code>latest</code> with that tag, in the form <code>v0.x.y</code>. Upgrade on purpose: change the tag, run <code>docker compose pull</code>, then <code>docker compose up -d</code>, and repeat your checks.</p>
+<p><strong>Run without root.</strong> The image runs as root by default. It also ships a user named <code>vllm</code> with UID 2000 in group 0. To use it, add <code>user: "2000:0"</code> to the service, mount the model cache at <code>/home/vllm/.cache/huggingface</code> and the compile cache at <code>/home/vllm/.cache/vllm</code>, and make the host directory writable by group 0.</p>
+<p><strong>Give it enough CPU.</strong> The documentation counts at least one API server process, one engine process and one worker per GPU, and recommends at least 2 + N physical cores for N GPUs. With hyperthreading that is twice as many vCPUs. A starved engine process shows up as a GPU that is never fully busy.</p>
+
+<h2 id="trouble">9. When it does not start</h2>
+<table>
+<thead><tr><th scope="col">What you see</th><th scope="col">Likely cause</th><th scope="col">What to do</th></tr></thead>
+<tbody>
+<tr><td><code>could not select device driver</code></td><td>Docker has no NVIDIA runtime</td><td>Steps 3 and 4</td></tr>
+<tr><td>The log stops while downloading</td><td>Slow link, or a gated model without a valid token</td><td>Download first on the host with <code>hf download &lt;model&gt;</code>, as the troubleshooting page suggests, then start the container</td></tr>
+<tr><td>Loading a large model takes very long</td><td>Weights on a network file system, or the machine is swapping</td><td>Keep the cache on a local disk and watch RAM with <code>free -h</code></td></tr>
+<tr><td>An out-of-memory error at startup</td><td>The model does not fit, or another process holds the card</td><td>Check <code>nvidia-smi</code>, then lower <code>--max-model-len</code> or use a smaller or quantized model</td></tr>
+<tr><td>Errors that mention shared memory</td><td><code>ipc: host</code> is missing</td><td>Add it back, or set <code>shm_size</code></td></tr>
+<tr><td>A CUDA or driver version error</td><td>The host driver is older than the image expects</td><td>Update the driver, or set <code>VLLM_ENABLE_CUDA_COMPATIBILITY=1</code>, which the documentation supports on selected professional and datacenter GPUs</td></tr>
+<tr><td>It runs, but another machine cannot connect</td><td>The port is bound to 127.0.0.1 on purpose</td><td>Part 5</td></tr>
+</tbody>
+</table>
+<p>When none of these fit, set the environment variable <code>VLLM_LOGGING_LEVEL=DEBUG</code> and read the log from the top. The first error is usually the real one; the lines after it are consequences.</p>
+
+<h2 id="next">10. What you can do now</h2>
+<ul>
+<li>Tell which of the four layers is broken from one command.</li>
+<li>Read and change every flag in the vLLM <code>docker run</code> line.</li>
+<li>Run vLLM as a Compose service that survives a reboot, with models and compiled artifacts kept between restarts.</li>
+<li>Upgrade on purpose with a pinned image tag.</li>
+</ul>
+<p>The next part replaces the test model with one worth using: <a href="/blog/posts/vllm-serve-qwen/">serving Qwen with chat, tool calling and thinking</a>.</p>
