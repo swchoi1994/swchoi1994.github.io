@@ -319,6 +319,8 @@ figcaption { margin-top: 8px; font-size: 13px; line-height: 1.5; color: var(--mu
 .reading-body .terminal { margin-bottom: 1.3em; }
 .terminal::before { content: ""; display: block; width: 10px; height: 10px; margin: 12px 14px 10px; border-radius: 50%; background: #5c6370; box-shadow: 16px 0 #5c6370, 32px 0 #5c6370; }
 .reading-body .terminal pre { margin: 0; padding: 0 1.1em 1em; border-radius: 0; background: none; color: inherit; }
+/* For output whose point is at the end of a long line, such as JSON replies: wrap instead of scrolling sideways. */
+.reading-body .terminal.wrap pre { white-space: pre-wrap; overflow-wrap: anywhere; }
 .terminal .c { color: #8ab4f8; }
 .terminal .g { color: #81c995; }
 .terminal .d { color: #9aa2af; }

@@ -19,7 +19,7 @@
   {"term": "Grok", "match": "grok|xai", "news": "\"Grok\" xAI"},
   {"term": "Copilot", "news": "\"Copilot\" Microsoft OR GitHub"},
   {"term": "Cursor", "match": "(?-i:Cursor)", "news": "\"Cursor\" AI code editor"},
-  {"term": "MCP", "match": "(?-i:MCP)|model context protocol", "news": "\"Model Context Protocol\"", "about": "The Model Context Protocol: the standard way to give an AI assistant your own tools and data.", "pin": ["claude-code-plugins-mcp-terminal"]},
+  {"term": "MCP", "match": "(?-i:MCP)|model context protocol", "news": "\"Model Context Protocol\"", "about": "The Model Context Protocol: the standard way to give an AI assistant your own tools and data.", "pin": ["build-mcp-server-python", "claude-code-plugins-mcp-terminal"]},
   {"term": "AI agents", "match": "(ai|coding|llm|multi)[ -]?agents?|agentic|agent (memory|sessions?)", "about": "Software that plans and acts through tools, not only answers. What works, and what to watch.", "pin": ["ai-coding-agent-tips"]},
   {"term": "Local models", "match": "local (ai )?(llms?|models?|inference)|on-device (ai|llm|model)", "news": "\"local AI model\" OR \"local LLM\"", "about": "Running a model on hardware you own, from a Mac mini to a GPU server.", "pin": ["mac-mini-personal-ai-assistant", "vllm-vs-ollama-vs-llama-cpp"]},
   {"term": "Inference", "match": "inference", "news": "\"AI inference\"", "about": "Serving a trained model to real users: speed, memory and cost.", "pin": ["vllm-gpu-sizing", "a100-l40s-h100-inference"]},

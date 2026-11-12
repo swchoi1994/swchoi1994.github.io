@@ -50,7 +50,7 @@ An article written here can carry visuals without any image files:
 | The picture on its card | `"cover": "<motif>"` in the metadata. Motifs are drawn by the build in the page's own colours: `stack`, `bars`, `flow`, `chat`, `terminal`, `gauge`, `shield`, `doc`, `window`, `mail`, `check`, `plug`, `chip`. Without one, the topic's default motif is used. |
 | A tip or warning box | `<div class="callout">`, `<div class="callout warn">` or `<div class="callout ok">`, starting with a `<strong>` label. |
 | A diagram | `<figure class="diagram">` holding `d-flow` (boxes and arrows), `d-stack` (layers) or `d-bars` (proportional bars, each segment sized with `style="flex:N"`), plus a `<figcaption>`. They are plain HTML, so they wrap on phones and follow dark mode. |
-| Real command output | `<figure class="terminal"><pre><code>…</code></pre></figure>`, with `<span class="c">` for the command line and `<span class="g">` for success text. Paste only output from a real run. |
+| Real command output | `<figure class="terminal"><pre><code>…</code></pre></figure>`, with `<span class="c">` for the command line and `<span class="g">` for success text. Paste only output from a real run. Add the class `wrap` (`class="terminal wrap"`) when the lines are long and their point is at the end, such as JSON replies. |
 | A video | `{{video:VIDEO_ID\|Title}}` on its own line. It becomes a still image with a play button; the YouTube player loads only when pressed. |
 
 ### Release explainers and the daily release watch

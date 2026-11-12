@@ -1,0 +1,455 @@
+<!--
+{
+  "title": "Build an MCP server in Python from scratch, step by step",
+  "description": "Write a working MCP server in about 100 lines of Python, test it by hand, connect it to Claude Code, then rebuild it with the official SDK. Real output.",
+  "date": "2026-11-12T12:20:00+00:00",
+  "topic": "ai-automation",
+  "cover": "plug",
+  "project": {
+    "needs": "Python 3.10 or later and Claude Code. No GPU, no API key and no packages for the first version.",
+    "result": "A to-do list server that Claude Code connects to and can use through three tools, in two versions: hand-written and SDK-based."
+  },
+  "note": "Every command and every line of output is from a run on November 12, 2026, on Linux with Python 3.13, Claude Code 2.1.322 and the MCP Python SDK 2.3.0. The connection to Claude Code was checked with claude mcp list and by recording the messages it sent. The tool calls were sent by hand as JSON; no model session was run, so the article does not show Claude choosing a tool. The macOS and Windows commands follow the documentation and were not run. Long lines of output are shortened where marked.",
+  "sources": [
+    {
+      "title": "MCP specification (2026-07-28): Base protocol",
+      "url": "https://modelcontextprotocol.io/specification/2026-07-28/basic"
+    },
+    {
+      "title": "MCP specification (2026-07-28): Versioning and compatibility",
+      "url": "https://modelcontextprotocol.io/specification/2026-07-28/basic/versioning"
+    },
+    {
+      "title": "MCP specification (2026-07-28): stdio transport",
+      "url": "https://modelcontextprotocol.io/specification/2026-07-28/basic/transports/stdio"
+    },
+    {
+      "title": "MCP specification (2026-07-28): Tools",
+      "url": "https://modelcontextprotocol.io/specification/2026-07-28/server/tools"
+    },
+    {
+      "title": "Claude Code docs: Connect Claude Code to tools via MCP",
+      "url": "https://code.claude.com/docs/en/mcp"
+    },
+    {
+      "title": "MCP Python SDK: Migration guide for version 2",
+      "url": "https://py.sdk.modelcontextprotocol.io/v2/migration/"
+    },
+    {
+      "title": "PyPI: mcp",
+      "url": "https://pypi.org/project/mcp/"
+    }
+  ]
+}
+-->
+<p>The Model Context Protocol, MCP, is how an AI assistant gets tools that you wrote. Most guides start with a library and leave the protocol a mystery. This one goes the other way. You will write a complete server in about 100 lines of plain Python, send it messages by hand, connect it to Claude Code and record what Claude Code really sends. Then you will write the same server again with the official SDK, in half the lines, knowing what the library is doing for you.</p>
+<p>For installing servers that other people wrote, see <a href="/blog/posts/claude-code-plugins-mcp-terminal/">Claude Code plugins and MCP from the terminal</a>. This guide is about writing your own.</p>
+
+<h2 id="what">1. What an MCP server is</h2>
+<figure class="diagram">
+<div class="d-flow">
+<div class="d-box key"><strong>Claude Code</strong>starts your program</div>
+<span class="d-arrow">⇄</span>
+<div class="d-box"><strong>One JSON message per line</strong>requests go in on stdin, replies come out on stdout</div>
+<span class="d-arrow">⇄</span>
+<div class="d-box green"><strong>Your server</strong>a program that reads lines and answers them</div>
+<span class="d-arrow">→</span>
+<div class="d-box"><strong>Your data</strong>a file, a database, an API</div>
+</div>
+<figcaption>A local MCP server is an ordinary program. The client starts it and talks to it through its standard input and output.</figcaption>
+</figure>
+<p>That is the whole idea. The messages follow a small standard called JSON-RPC, and there are only three shapes:</p>
+<table>
+<thead><tr><th scope="col">Message</th><th scope="col">Has an <code>id</code>?</th><th scope="col">What it means</th></tr></thead>
+<tbody>
+<tr><td>Request</td><td>Yes</td><td>"Do this and answer me." It names a <code>method</code>, such as <code>tools/list</code>.</td></tr>
+<tr><td>Reply</td><td>The same <code>id</code></td><td>Either a <code>result</code> or an <code>error</code>.</td></tr>
+<tr><td>Notification</td><td>No</td><td>"For your information." It must not be answered.</td></tr>
+</tbody>
+</table>
+<p>A server that offers tools has to answer three requests: who are you, what tools do you have, and run this tool. Everything else is optional.</p>
+
+<h2 id="plan">2. What we will build</h2>
+<p>A to-do list that lives in a small JSON file, with three tools:</p>
+<table>
+<thead><tr><th scope="col">Tool</th><th scope="col">Input</th><th scope="col">What it does</th></tr></thead>
+<tbody>
+<tr><td><code>add_task</code></td><td><code>text</code></td><td>Adds a task</td></tr>
+<tr><td><code>list_tasks</code></td><td>nothing</td><td>Lists every task with its number and state</td></tr>
+<tr><td><code>complete_task</code></td><td><code>number</code></td><td>Marks one task as done</td></tr>
+</tbody>
+</table>
+<p>It is deliberately plain. Once it works, you replace the JSON file with whatever you want Claude to reach: your ticket system, a database, a folder of notes.</p>
+<p>Make a folder and check your Python:</p>
+<table>
+<thead><tr><th scope="col"></th><th scope="col">macOS and Linux</th><th scope="col">Windows (PowerShell)</th></tr></thead>
+<tbody>
+<tr><td>Folder</td><td><code>mkdir ~/mcp-tasks &amp;&amp; cd ~/mcp-tasks</code></td><td><code>mkdir $HOME\mcp-tasks; cd $HOME\mcp-tasks</code></td></tr>
+<tr><td>Python</td><td><code>python3 --version</code></td><td><code>python --version</code></td></tr>
+</tbody>
+</table>
+<p>On Windows the command is usually <code>python</code>, not <code>python3</code>. Use whichever prints a version, everywhere this guide writes <code>python3</code>.</p>
+
+<h2 id="code">3. The server, in about 100 lines</h2>
+<p>Save this as <code>tasks_server.py</code>. It uses only the standard library.</p>
+<pre><code>"""tasks_server.py: an MCP server that keeps a to-do list. Standard library only."""
+import json
+import os
+import sys
+from pathlib import Path
+
+# Where the list is kept: next to this file, unless TASKS_FILE names another place.
+STORE = Path(os.environ.get("TASKS_FILE") or Path(__file__).with_name("tasks.json"))
+MODERN = "2026-07-28"                    # versions where every request names its version
+LEGACY = ("2025-11-25", "2025-06-18")    # versions that begin with an initialize handshake
+INFO = {"name": "tasks", "version": "1.0.0"}
+VERSION_KEY = "io.modelcontextprotocol/protocolVersion"
+
+TOOLS = [
+    {"name": "add_task",
+     "description": "Add a task to the to-do list.",
+     "inputSchema": {"type": "object",
+                     "properties": {"text": {"type": "string", "description": "What needs doing"}},
+                     "required": ["text"]}},
+    {"name": "list_tasks",
+     "description": "List every task with its number and whether it is done.",
+     "inputSchema": {"type": "object", "properties": {}}},
+    {"name": "complete_task",
+     "description": "Mark one task as done.",
+     "inputSchema": {"type": "object",
+                     "properties": {"number": {"type": "integer", "description": "The task's number from list_tasks"}},
+                     "required": ["number"]}},
+]
+
+
+class RpcError(Exception):
+    """A protocol-level failure: the request itself was wrong."""
+    def __init__(self, code, message, data=None):
+        self.error = {"code": code, "message": message}
+        if data is not None:
+            self.error["data"] = data
+
+
+def load():
+    return json.loads(STORE.read_text()) if STORE.exists() else []
+
+
+def save(tasks):
+    STORE.write_text(json.dumps(tasks, indent=2))
+
+
+def run_tool(name, args):
+    """Do the work and return the text the model will read."""
+    tasks = load()
+    if name == "add_task":
+        tasks.append({"text": args["text"], "done": False})
+        save(tasks)
+        return f"Added task {len(tasks)}: {args['text']}"
+    if name == "list_tasks":
+        lines = [f"{n}. [{'x' if t['done'] else ' '}] {t['text']}" for n, t in enumerate(tasks, 1)]
+        return "\n".join(lines) or "No tasks yet."
+    if name == "complete_task":
+        number = args["number"]
+        if not 1 &lt;= number &lt;= len(tasks):
+            raise ValueError(f"There is no task {number}. Call list_tasks to see the numbers.")
+        tasks[number - 1]["done"] = True
+        save(tasks)
+        return f"Done: {tasks[number - 1]['text']}"
+    raise RpcError(-32602, f"Unknown tool: {name}")
+
+
+def handle(method, params):
+    version = params.get("_meta", {}).get(VERSION_KEY)
+    if version not in (None, MODERN):
+        raise RpcError(-32022, "Unsupported protocol version", {"supported": [MODERN], "requested": version})
+
+    if method == "server/discover":      # a modern client asks who we are
+        return {"resultType": "complete", "supportedVersions": [MODERN],
+                "capabilities": {"tools": {}},
+                "_meta": {"io.modelcontextprotocol/serverInfo": INFO},
+                "ttlMs": 3600000, "cacheScope": "public"}
+    if method == "initialize":           # a legacy client opens with a handshake
+        asked = params.get("protocolVersion")
+        return {"protocolVersion": asked if asked in LEGACY else LEGACY[0],
+                "capabilities": {"tools": {}}, "serverInfo": INFO}
+    if method == "ping":
+        return {}
+    if method == "tools/list":
+        return {"resultType": "complete", "tools": TOOLS, "ttlMs": 3600000, "cacheScope": "public"}
+    if method == "tools/call":
+        try:
+            text, failed = run_tool(params.get("name"), params.get("arguments") or {}), False
+        except KeyError as missing:      # the model left out an argument: say which one
+            text, failed = f"Error: missing argument {missing}", True
+        except ValueError as problem:    # the tool ran and failed: tell the model why
+            text, failed = f"Error: {problem}", True
+        return {"resultType": "complete", "content": [{"type": "text", "text": text}], "isError": failed}
+    raise RpcError(-32601, f"Method not found: {method}")
+
+
+for line in sys.stdin:
+    if not line.strip():
+        continue
+    request = json.loads(line)
+    if "id" not in request:              # a notification: there is nothing to answer
+        continue
+    try:
+        reply = {"result": handle(request.get("method"), request.get("params") or {})}
+    except RpcError as problem:
+        reply = {"error": problem.error}
+    print(json.dumps({"jsonrpc": "2.0", "id": request["id"], **reply}), flush=True)</code></pre>
+<p>Read it from the bottom up:</p>
+<table>
+<thead><tr><th scope="col">Part</th><th scope="col">What it does</th></tr></thead>
+<tbody>
+<tr><td>The loop at the end</td><td>Reads one line, turns it into a request, calls <code>handle</code>, and prints one line back. <code>flush=True</code> sends the reply at once; without it the client waits forever.</td></tr>
+<tr><td><code>handle</code></td><td>Answers each method. <code>server/discover</code> and <code>initialize</code> are the two ways a client asks "who are you" (section 8 explains why there are two).</td></tr>
+<tr><td><code>run_tool</code></td><td>The actual work. It returns the text the model will read.</td></tr>
+<tr><td><code>TOOLS</code></td><td>The menu. Each tool has a name, a description and a JSON Schema for its input. The description is what the model reads to decide when to use the tool, so write it for a reader.</td></tr>
+</tbody>
+</table>
+<div class="callout"><strong>The model only sees what you describe</strong>A tool called <code>ct</code> with the description "completes" will be used badly. "Mark one task as done" and "The task's number from list_tasks" tell the model what to do and where the input comes from.</div>
+
+<h2 id="test">4. Test it without any client</h2>
+<p>Because the server only reads lines and prints lines, you can test it with a pipe. First, ask who it is:</p>
+<figure class="terminal wrap">
+<pre><code><span class="c">$ echo '{"jsonrpc":"2.0","id":1,"method":"server/discover","params":{"_meta":{"io.modelcontextprotocol/protocolVersion":"2026-07-28"}}}' | python3 tasks_server.py</span>
+{"jsonrpc": "2.0", "id": 1, "result": {"resultType": "complete", "supportedVersions": ["2026-07-28"], "capabilities": {"tools": {}}, "_meta": {"io.modelcontextprotocol/serverInfo": {"name": "tasks", "version": "1.0.0"}}, "ttlMs": 3600000, "cacheScope": "public"}}</code></pre>
+<figcaption>One line in, one line out.</figcaption>
+</figure>
+<p>Now put several requests in a file, one per line. Save this as <code>requests.jsonl</code>:</p>
+<pre><code>{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"add_task","arguments":{"text":"Renew the TLS certificate"}}}
+{"jsonrpc":"2.0","id":2,"method":"tools/call","params":{"name":"add_task","arguments":{"text":"Write the release notes"}}}
+{"jsonrpc":"2.0","id":3,"method":"tools/call","params":{"name":"complete_task","arguments":{"number":1}}}
+{"jsonrpc":"2.0","id":4,"method":"tools/call","params":{"name":"list_tasks","arguments":{}}}
+{"jsonrpc":"2.0","id":5,"method":"tools/call","params":{"name":"complete_task","arguments":{"number":9}}}
+{"jsonrpc":"2.0","id":6,"method":"tools/call","params":{"name":"add_task","arguments":{}}}
+{"jsonrpc":"2.0","id":7,"method":"tools/call","params":{"name":"delete_everything","arguments":{}}}</code></pre>
+<figure class="terminal wrap">
+<pre><code><span class="c">$ python3 tasks_server.py &lt; requests.jsonl</span>
+{"jsonrpc": "2.0", "id": 1, "result": {"resultType": "complete", "content": [{"type": "text", "text": "Added task 1: Renew the TLS certificate"}], "isError": false}}
+{"jsonrpc": "2.0", "id": 2, "result": {"resultType": "complete", "content": [{"type": "text", "text": "Added task 2: Write the release notes"}], "isError": false}}
+{"jsonrpc": "2.0", "id": 3, "result": {"resultType": "complete", "content": [{"type": "text", "text": "Done: Renew the TLS certificate"}], "isError": false}}
+{"jsonrpc": "2.0", "id": 4, "result": {"resultType": "complete", "content": [{"type": "text", "text": "1. [x] Renew the TLS certificate\n2. [ ] Write the release notes"}], "isError": false}}
+<span class="g">{"jsonrpc": "2.0", "id": 5, "result": {"resultType": "complete", "content": [{"type": "text", "text": "Error: There is no task 9. Call list_tasks to see the numbers."}], "isError": true}}
+{"jsonrpc": "2.0", "id": 6, "result": {"resultType": "complete", "content": [{"type": "text", "text": "Error: missing argument 'text'"}], "isError": true}}</span>
+<span class="d">{"jsonrpc": "2.0", "id": 7, "error": {"code": -32602, "message": "Unknown tool: delete_everything"}}</span></code></pre>
+<figcaption>Seven requests, seven replies. The last three are failures, of two different kinds.</figcaption>
+</figure>
+<p>The list is now on disk, in <code>tasks.json</code> next to the script, with the first task marked done.</p>
+
+<h2 id="errors">5. Two kinds of failure</h2>
+<p>Replies 5 to 7 above show a distinction the specification makes, and it matters for how well the model recovers.</p>
+<table>
+<thead><tr><th scope="col"></th><th scope="col">Tool error</th><th scope="col">Protocol error</th></tr></thead>
+<tbody>
+<tr><td>Example</td><td>"There is no task 9"</td><td>"Unknown tool"</td></tr>
+<tr><td>How it is sent</td><td>A normal <code>result</code> with <code>"isError": true</code></td><td>A JSON-RPC <code>error</code> with a code</td></tr>
+<tr><td>Who it is for</td><td>The model. It reads the text and can try again.</td><td>The client program. Something is wrong with the request itself.</td></tr>
+<tr><td>What to write</td><td>What went wrong and what to do next</td><td>A short, exact message</td></tr>
+</tbody>
+</table>
+<p>So when a tool fails for a reason the model could fix, say how. "There is no task 9. Call list_tasks to see the numbers." gives the model its next step. A bare "invalid input" does not.</p>
+
+<h2 id="connect">6. Connect it to Claude Code</h2>
+<p>Register the server with its full path. Everything after the <code>--</code> is the command Claude Code will run:</p>
+<table>
+<thead><tr><th scope="col"></th><th scope="col">Command</th></tr></thead>
+<tbody>
+<tr><td>macOS and Linux</td><td><code>claude mcp add tasks -- python3 ~/mcp-tasks/tasks_server.py</code></td></tr>
+<tr><td>Windows</td><td><code>claude mcp add tasks -- python C:\Users\you\mcp-tasks\tasks_server.py</code></td></tr>
+</tbody>
+</table>
+<p>Then ask Claude Code to check it:</p>
+<figure class="terminal">
+<pre><code><span class="c">$ claude mcp add tasks -- python3 ~/mcp-tasks/tasks_server.py</span>
+Added stdio MCP server tasks with command: python3 ~/mcp-tasks/tasks_server.py to local config
+File modified: ~/.claude.json [project: ~/proj]
+<span class="c">$ claude mcp list</span>
+Checking MCP server health…
+
+tasks: python3 ~/mcp-tasks/tasks_server.py - <span class="g">✔ Connected</span></code></pre>
+<figcaption>Claude Code 2.1.322. "Connected" means it started the program, asked who it is and received the tool list.</figcaption>
+</figure>
+<p>In a session, <code>/mcp</code> shows the server and its three tools. From there you talk normally: "add a task to renew the certificate", "what is on my list?". Claude Code asks for permission the first time it uses each tool.</p>
+<p>Three details from our test that save time:</p>
+<ul>
+<li><strong>The working folder is your project.</strong> Claude Code started the server with the project folder as its current directory and set <code>CLAUDE_PROJECT_DIR</code> to the same path. Our script stores its file next to itself instead, so the list is the same in every project.</li>
+<li><strong>Settings go in with <code>--env</code>.</strong> To keep a separate list somewhere else: <code>claude mcp add --env TASKS_FILE=/path/to/work.json --transport stdio work-tasks -- python3 ~/mcp-tasks/tasks_server.py</code>. The script reads that variable on its first lines. The documentation notes that another option must sit between <code>--env</code> and the server's name, which is why <code>--transport stdio</code> is there.</li>
+<li><strong>It is registered for this project only.</strong> That is the default scope. Add <code>--scope user</code> to have it in every project. The three scopes are explained in <a href="/blog/posts/claude-code-plugins-mcp-terminal/#scopes">the plugins and MCP guide</a>.</li>
+</ul>
+<p>When the path is wrong, the same check tells you:</p>
+<figure class="terminal">
+<pre><code><span class="c">$ claude mcp list</span>
+tasks: python3 ~/mcp-tasks/task_server.py - <span class="d">✘ Failed to connect — CONNECTION_CLOSED: Connection closed</span>
+<span class="c">$ python3 ~/mcp-tasks/task_server.py</span>
+python3: can't open file '~/mcp-tasks/task_server.py': [Errno 2] No such file or directory</code></pre>
+<figcaption>The file name is misspelled, so Python exited at once. Running the command after the dash yourself shows the real error.</figcaption>
+</figure>
+
+<h2 id="wire">7. See what Claude Code actually sends</h2>
+<p>You do not have to guess what a client says to your server. Put a recorder between them. Save this as <code>tap.py</code>:</p>
+<pre><code>"""tap.py: sit between an MCP client and a server and record every message.
+
+Use:  python3 tap.py wire.log python3 tasks_server.py
+"""
+import subprocess
+import sys
+import threading
+
+log = open(sys.argv[1], "a", buffering=1)
+server = subprocess.Popen(sys.argv[2:], stdin=subprocess.PIPE, stdout=subprocess.PIPE, text=True, bufsize=1)
+
+
+def replies():
+    for line in server.stdout:
+        log.write("server  " + line)
+        sys.stdout.write(line)
+        sys.stdout.flush()
+
+
+threading.Thread(target=replies, daemon=True).start()
+for line in sys.stdin:
+    log.write("client  " + line)
+    server.stdin.write(line)
+    server.stdin.flush()
+server.stdin.close()
+server.wait()</code></pre>
+<p>Register the server through it, then run the health check:</p>
+<pre><code>claude mcp remove tasks
+claude mcp add tasks -- python3 ~/mcp-tasks/tap.py ~/mcp-tasks/wire.log python3 ~/mcp-tasks/tasks_server.py
+claude mcp list</code></pre>
+<p>This is what landed in <code>wire.log</code>, with the long lines shortened:</p>
+<figure class="terminal wrap">
+<pre><code><span class="c">client</span>  {"jsonrpc":"2.0","id":"server-discover-probe-1","method":"server/discover","params":{"_meta":{"io.modelcontextprotocol/protocolVersion":"2026-07-28","io.modelcontextprotocol/clientInfo":{"name":"claude-code","title":"Claude Code","version":"2.1.322", …},"io.modelcontextprotocol/clientCapabilities":{"roots":{"listChanged":true},"elicitation":{"form":{},"url":{}}}}}}
+<span class="g">server</span>  {"jsonrpc": "2.0", "id": "server-discover-probe-1", "result": {"resultType": "complete", "supportedVersions": ["2026-07-28"], …}}
+<span class="c">client</span>  {"method":"tools/list","jsonrpc":"2.0","id":0,"params":{"_meta":{"io.modelcontextprotocol/protocolVersion":"2026-07-28", …}}}
+<span class="g">server</span>  {"jsonrpc": "2.0", "id": 0, "result": {"resultType": "complete", "tools": [{"name": "add_task", …}], "ttlMs": 3600000, "cacheScope": "public"}}</code></pre>
+<figcaption>Two requests and two replies. There is no opening handshake: each request says which version of the protocol it is using.</figcaption>
+</figure>
+<p>Keep <code>tap.py</code>. When a server "does not work", the log shows in seconds whether the client never asked, the server never answered, or the answer was malformed.</p>
+
+<h2 id="eras">8. Why the server answers two kinds of client</h2>
+<p>The log above shows the current revision of the protocol, dated 2026-07-28. It changed how a conversation starts.</p>
+<table>
+<thead><tr><th scope="col"></th><th scope="col">Earlier revisions (2025-11-25 and before)</th><th scope="col">Revision 2026-07-28</th></tr></thead>
+<tbody>
+<tr><td>How it starts</td><td>The client sends <code>initialize</code>, the server answers, the client sends <code>notifications/initialized</code></td><td>No handshake</td></tr>
+<tr><td>Where the version is</td><td>Agreed once, at the start</td><td>In <code>_meta</code> on every request</td></tr>
+<tr><td>"Who are you?"</td><td>Part of <code>initialize</code></td><td><code>server/discover</code>, which servers must implement</td></tr>
+<tr><td>Results</td><td>No <code>resultType</code></td><td>Every result carries <code>resultType</code>; lists also carry caching hints (<code>ttlMs</code>, <code>cacheScope</code>)</td></tr>
+<tr><td>Unsupported version</td><td>The server proposes another in its <code>initialize</code> reply</td><td>Error <code>-32022</code> listing the versions the server supports</td></tr>
+</tbody>
+</table>
+<p>Plenty of clients still speak the earlier way, so a server you want people to use should answer both. Ours does: <code>handle</code> answers <code>server/discover</code> for new clients and <code>initialize</code> for old ones, and the tool methods are the same for both.</p>
+<p>Claude Code handles the other side of this for you. Its documentation says it asks stdio servers whether they support the newer revision and uses it with those that do. We saw exactly that. Against our server it sent <code>server/discover</code> and carried on in the new style. Against an older test server that did not understand the question, it fell back to <code>initialize</code> with version 2025-11-25, and connected just the same.</p>
+<div class="callout warn"><strong>If you upgrade an old server</strong>The documentation notes that Claude Code can skip asking a stdio server about the newer revision for 7 days, for example after the server exited when asked. If you add <code>server/discover</code> to a server and Claude Code keeps using the old handshake, set <code>MCP_PROTOCOL_NEGOTIATION=auto</code> to have it asked again.</div>
+
+<h2 id="sdk">9. The same server with the official SDK</h2>
+<p>Now that the protocol holds no secrets, let a library do the routine parts. Install the official Python SDK in a virtual environment:</p>
+<table>
+<thead><tr><th scope="col"></th><th scope="col">macOS and Linux</th><th scope="col">Windows (PowerShell)</th></tr></thead>
+<tbody>
+<tr><td>Create</td><td><code>python3 -m venv venv</code></td><td><code>python -m venv venv</code></td></tr>
+<tr><td>Install</td><td><code>./venv/bin/pip install "mcp==2.3.0"</code></td><td><code>.\venv\Scripts\pip install "mcp==2.3.0"</code></td></tr>
+</tbody>
+</table>
+<p>Save this as <code>tasks_sdk.py</code>:</p>
+<pre><code>"""tasks_sdk.py: the same to-do list server, written with the official MCP Python SDK."""
+import json
+from pathlib import Path
+
+from mcp.server.mcpserver import MCPServer
+from mcp.server.mcpserver.exceptions import ToolError
+
+STORE = Path(__file__).with_name("tasks.json")
+server = MCPServer("tasks", version="1.0.0")
+
+
+def load():
+    return json.loads(STORE.read_text()) if STORE.exists() else []
+
+
+def save(tasks):
+    STORE.write_text(json.dumps(tasks, indent=2))
+
+
+@server.tool()
+def add_task(text: str) -&gt; str:
+    """Add a task to the to-do list."""
+    tasks = load()
+    tasks.append({"text": text, "done": False})
+    save(tasks)
+    return f"Added task {len(tasks)}: {text}"
+
+
+@server.tool()
+def list_tasks() -&gt; str:
+    """List every task with its number and whether it is done."""
+    lines = [f"{n}. [{'x' if t['done'] else ' '}] {t['text']}" for n, t in enumerate(load(), 1)]
+    return "\n".join(lines) or "No tasks yet."
+
+
+@server.tool()
+def complete_task(number: int) -&gt; str:
+    """Mark one task as done. The number comes from list_tasks."""
+    tasks = load()
+    if not 1 &lt;= number &lt;= len(tasks):
+        raise ToolError(f"There is no task {number}. Call list_tasks to see the numbers.")
+    tasks[number - 1]["done"] = True
+    save(tasks)
+    return f"Done: {tasks[number - 1]['text']}"
+
+
+if __name__ == "__main__":
+    server.run()</code></pre>
+<p>Register it with the virtual environment's Python, so the library is found:</p>
+<figure class="terminal">
+<pre><code><span class="c">$ claude mcp add tasks-sdk -- ~/mcp-tasks/venv/bin/python ~/mcp-tasks/tasks_sdk.py</span>
+Added stdio MCP server tasks-sdk with command: ~/mcp-tasks/venv/bin/python ~/mcp-tasks/tasks_sdk.py to local config
+<span class="c">$ claude mcp list</span>
+Checking MCP server health…
+
+tasks: python3 ~/mcp-tasks/tasks_server.py - <span class="g">✔ Connected</span>
+tasks-sdk: ~/mcp-tasks/venv/bin/python ~/mcp-tasks/tasks_sdk.py - <span class="g">✔ Connected</span></code></pre>
+<figcaption>Both versions, side by side. On Windows the interpreter is <code>venv\Scripts\python.exe</code>.</figcaption>
+</figure>
+<p>What the library took over, compared with the hand-written version:</p>
+<table>
+<thead><tr><th scope="col">Job</th><th scope="col">By hand</th><th scope="col">With the SDK</th></tr></thead>
+<tbody>
+<tr><td>Tool list and schemas</td><td>The <code>TOOLS</code> list, typed out</td><td>Built from each function's name, docstring and type hints</td></tr>
+<tr><td>Checking the input</td><td>Ours checks very little</td><td>Automatic. Sending <code>"one"</code> for <code>number</code> came back as "Input should be a valid integer"</td></tr>
+<tr><td>Both kinds of client</td><td>Two branches in <code>handle</code></td><td>Automatic. It answered <code>server/discover</code> and, on a separate run, an old-style <code>initialize</code></td></tr>
+<tr><td>Reading and writing lines</td><td>The loop at the end</td><td><code>server.run()</code></td></tr>
+</tbody>
+</table>
+<p>Two things we ran into that the examples online often get wrong:</p>
+<ul>
+<li><strong>The class was renamed.</strong> Version 2 of the SDK calls it <code>MCPServer</code>. Code written for version 1 imports <code>FastMCP</code> from <code>mcp.server.fastmcp</code>, and on 2.3.0 that import fails with a message pointing to the migration guide.</li>
+<li><strong>Raise <code>ToolError</code>, not a plain exception.</strong> When our tool raised an ordinary <code>ValueError</code>, the model would have received only "Error executing tool complete_task", with the reason hidden. With <code>ToolError</code> the message arrives whole: "Error executing tool complete_task: There is no task 9. Call list_tasks to see the numbers."</li>
+</ul>
+
+<h2 id="mistakes">10. Mistakes that cost an afternoon</h2>
+<table>
+<thead><tr><th scope="col">Mistake</th><th scope="col">What you see</th><th scope="col">Fix</th></tr></thead>
+<tbody>
+<tr><td>Printing debug text with <code>print()</code></td><td>The specification forbids anything on stdout that is not a protocol message. Claude Code tolerated one stray line in our test; do not count on that from every client.</td><td><code>print("…", file=sys.stderr)</code></td></tr>
+<tr><td>Forgetting to flush</td><td>The client waits and then times out</td><td><code>print(…, flush=True)</code></td></tr>
+<tr><td>A relative path in <code>claude mcp add</code></td><td>Works in one folder, "Failed to connect" in another, because the server starts in the project folder</td><td>Use full paths for the interpreter and the script</td></tr>
+<tr><td>Answering a notification</td><td>Confused clients; a message with no <code>id</code> expects no reply</td><td>Skip any message without an <code>id</code></td></tr>
+<tr><td>A reply spread over several lines</td><td>The client cannot parse it</td><td>One message per line. <code>json.dumps</code> without <code>indent</code> does this for you</td></tr>
+<tr><td>Vague tool descriptions</td><td>The model picks the wrong tool, or none</td><td>Say what the tool does and where each input comes from</td></tr>
+<tr><td>Secrets in the code or the command</td><td>Keys end up in shell history or a repository</td><td>Pass them with <code>--env</code> and read them from the environment</td></tr>
+</tbody>
+</table>
+
+<h2 id="next">11. Make it yours</h2>
+<p>Replace the three functions and you have a different server. Some that take an evening:</p>
+<ul>
+<li><strong>Your notes.</strong> Search a folder of Markdown files and return the matching paragraphs.</li>
+<li><strong>Your database, read-only.</strong> One tool that runs a fixed, named query, such as "orders from the last 7 days". Do not start with a tool that accepts any SQL.</li>
+<li><strong>Your own server's health.</strong> Ask the metrics endpoint from <a href="/blog/posts/vllm-monitoring-prometheus-grafana/">the vLLM monitoring guide</a> and return the queue length and memory in a sentence.</li>
+</ul>
+<div class="callout warn"><strong>A tool runs with your permissions</strong>Whatever your server can do, the model can ask it to do. Start with tools that only read. Check every input as if a stranger had typed it. Give a tool the narrowest job that is still useful, and keep the permission prompt on for anything that writes or deletes.</div>
+<p>For the habits that keep an agent with tools under control, see <a href="/blog/posts/ai-coding-agent-tips/">AI coding agent tips</a> and <a href="/blog/posts/claude-code-hooks-tested/">Claude Code hooks, tested</a>.</p>
