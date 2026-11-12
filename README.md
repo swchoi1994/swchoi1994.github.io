@@ -53,6 +53,18 @@ An article written here can carry visuals without any image files:
 | Real command output | `<figure class="terminal"><pre><code>…</code></pre></figure>`, with `<span class="c">` for the command line and `<span class="g">` for success text. Paste only output from a real run. |
 | A video | `{{video:VIDEO_ID\|Title}}` on its own line. It becomes a still image with a play button; the YouTube player loads only when pressed. |
 
+### Release explainers and the daily release watch
+
+An article about a product release adds one more metadata field:
+
+```json
+"release": {"company": "Anthropic", "name": "Claude Fable 5.2", "announced": "2026-11-09"}
+```
+
+Those articles are listed at `/releases/`, newest announcement first, and the page appears in the sidebar as "AI releases".
+
+A scheduled task checks Anthropic's and OpenAI's own release pages once a day and drafts an explainer for anything new, following `tools/release-pipeline.md`. It opens a pull request for each one and never merges; you publish by merging. Edit that file to change what it watches or how it writes. The task itself is managed from the scheduled tasks list in Claude Code, not from this repository.
+
 ### Series and projects
 
 Two optional metadata fields turn single articles into a course:
