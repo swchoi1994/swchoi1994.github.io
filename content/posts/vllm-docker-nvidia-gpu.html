@@ -11,6 +11,7 @@
     "needs": "A Linux machine with an NVIDIA GPU and its driver, Docker, and sudo rights.",
     "result": "vLLM running as a container that restarts with the machine, answering on a local port."
   },
+  "checked": {"level": "read", "line": "Written from the NVIDIA, Docker and vLLM documentation. The Compose file was syntax-checked; no container was started, as there was no GPU."},
   "note": "The commands follow the NVIDIA, Docker and vLLM documentation as read on November 12, 2026. No GPU was available, so no container was started for this article. The Compose file was checked with docker compose config, which validates the file but does not run it.",
   "sources": [
     {"title": "vLLM docs: Using Docker", "url": "https://docs.vllm.ai/en/latest/deployment/docker.html"},

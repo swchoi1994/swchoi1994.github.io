@@ -11,6 +11,7 @@
     "needs": "The monitoring stack from part 7, and a Telegram account. The test in section 6 needs only Prometheus, Alertmanager and Python on any machine.",
     "result": "Urgent alerts that ring your phone, minor ones that arrive silently, a way to pause them during maintenance, and a check that the alerting itself is alive."
   },
+  "checked": {"level": "partly", "line": "Rules, routing, a delivered alert and a silence were tested locally with Prometheus and Alertmanager. Delivery to Telegram was not."},
   "note": "The rule file, both Alertmanager configurations and the Compose file were validated with promtool, amtool and docker compose config. The end-to-end test in section 6 was run for this article on Linux with Prometheus 2.45.3 and Alertmanager 0.26.0: the messages shown were really delivered to a local receiver, and the silence was really applied. Delivery to Telegram itself was not tested, because that needs a real bot and chat; the Telegram settings are from Alertmanager's documentation and passed amtool's check. The Compose service was checked for syntax, not started. Thresholds and timings are starting points.",
   "sources": [
     {

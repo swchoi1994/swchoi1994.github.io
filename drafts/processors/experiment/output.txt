@@ -1,0 +1,92 @@
+## Tools
+gcc (Ubuntu 13.3.0-6ubuntu2~24.04.1) 13.3.0
+aarch64-linux-gnu-gcc (Ubuntu 13.3.0-6ubuntu2~24.04.1) 13.3.0
+riscv64-linux-gnu-gcc (Ubuntu 13.3.0-6ubuntu2~24.04.1) 13.3.0
+qemu-aarch64 version 8.2.2 (Debian 1:8.2.2+ds-0ubuntu1.18)
+
+## The same answer from three processors
+x86-64:  120.0
+Arm:     120.0
+RISC-V:  120.0
+
+## dot() on x86-64: 64 bytes
+4 bytes  endbr64
+2 bytes  test   %edx,%edx
+2 bytes  jle    4018d8
+3 bytes  movslq %edx,%rdx
+2 bytes  xor    %eax,%eax
+4 bytes  pxor   %xmm1,%xmm1
+4 bytes  shl    $0x2,%rdx
+3 bytes  nopl   (%rax)
+5 bytes  movss  (%rdi,%rax,1),%xmm0
+5 bytes  mulss  (%rsi,%rax,1),%xmm0
+4 bytes  add    $0x4,%rax
+4 bytes  addss  %xmm0,%xmm1
+3 bytes  cmp    %rax,%rdx
+2 bytes  jne    4018b8
+3 bytes  movaps %xmm1,%xmm0
+1 bytes  ret
+5 bytes  nopl   0x0(%rax,%rax,1)
+4 bytes  pxor   %xmm1,%xmm1
+3 bytes  movaps %xmm1,%xmm0
+1 bytes  ret
+
+## dot() on Arm (AArch64): 52 bytes
+4 bytes  movi v0.2s, #0x0
+4 bytes  cmp w2, #0x0
+4 bytes  b.le 400820
+4 bytes  sbfiz x3, x2, #2, #32
+4 bytes  mov x2, #0x0
+4 bytes  nop
+4 bytes  ldr s2, [x0, x2]
+4 bytes  ldr s1, [x1, x2]
+4 bytes  add x2, x2, #0x4
+4 bytes  fmadd s0, s2, s1, s0
+4 bytes  cmp x3, x2
+4 bytes  b.ne 400808
+4 bytes  ret
+4 bytes  nop
+4 bytes  nop
+4 bytes  nop
+
+## dot() on RISC-V (RV64GC): 38 bytes
+4 bytes  fmv.w.x fa0,zero
+4 bytes  blez a2,10650
+2 bytes  slli a2,a2,0x2
+4 bytes  add a5,a0,a2
+4 bytes  flw fa4,0(a0)
+4 bytes  flw fa5,0(a1)
+2 bytes  addi a0,a0,4
+2 bytes  addi a1,a1,4
+4 bytes  fmadd.s fa0,fa4,fa5,fa0
+4 bytes  bne a0,a5,1063a
+2 bytes  ret
+2 bytes  ret
+
+## With vector instructions switched on (-O3 -ffast-math)
+x86-64 AVX2:  120.0
+Arm NEON:     120.0
+Arm SVE:      120.0
+RISC-V V:     120.0
+
+### x86-64 with AVX2 (256-bit, 8 numbers at a time): the instructions that do the arithmetic
+vmovups (%rdi,%rax,1),%ymm4
+vmulps (%rcx,%rax,1),%ymm4,%ymm0
+vaddps %ymm0,%ymm1,%ymm1
+vextractf128 $0x1,%ymm1,%xmm3
+
+### Arm with NEON (128-bit, 4 numbers at a time): the instructions that do the arithmetic
+movi	v0.4s, #0x0
+fmla	v0.4s, v2.4s, v1.4s
+faddp	v0.4s, v0.4s, v0.4s
+faddp	v0.4s, v0.4s, v0.4s
+
+### Arm with SVE (the processor decides the width): the instructions that do the arithmetic
+whilelo	p0.s, wzr, w2
+ld1w	{z2.s}, p0/z, [x0, x3, lsl #2]
+ld1w	{z1.s}, p0/z, [x1, x3, lsl #2]
+fmla	z0.s, p0/m, z1.s, z2.s
+whilelo	p0.s, w3, w2
+
+### RISC-V with the V extension: the instructions that do the arithmetic
+(none: this compiler produced no vector instructions for this target)
