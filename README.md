@@ -22,6 +22,8 @@ Posts written for the Korean Naver blog only (tax, welfare, housing and similar 
 
 ## Articles written in this repository
 
+Whoever writes, a person or an AI, follows `tools/writing-guide.md`: how a draft gets onto the site, what the build refuses, how to say what was tested, and how to keep a post from reading as machine-made. Working material that is not published, such as experiment output and research notes for a planned series, lives under `drafts/`; the build ignores that folder.
+
 Most articles arrive through the sync. An article can also be written here: add `content/posts/<slug>.html`, where the file name becomes the URL (`/blog/posts/<slug>/`). The file starts with an HTML comment holding JSON metadata, followed by the body as plain HTML (`<p>`, `<h2 id="...">`, lists, `<pre><code>`, tables):
 
 ```html
