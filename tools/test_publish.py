@@ -268,6 +268,21 @@ class PublicationTest(unittest.TestCase):
         self.assertNotIn('<iframe', body)
         self.assertNotIn('{{video', body)
 
+    def test_release_explainers_are_listed_newest_announcement_first(self):
+        covered = [p for p in self.posts if p.get('release')]
+        self.assertTrue(covered, 'expected at least one article with release metadata')
+        listing = (publish.OUT / 'releases/index.html').read_text()
+        rows = re.findall(r'<tr><td><time datetime="([^"]+)">', listing)
+        self.assertEqual(rows, sorted((p['release']['announced'] for p in covered), reverse=True))
+        for post in covered:
+            self.assertIn(post['url'], listing)
+            self.assertIn(html.escape(post['release']['name']), listing)
+            # Facts about a release come from the company itself: at least one source on its own domain.
+            domains = {'Anthropic': ('anthropic.com', 'claude.com'), 'OpenAI': ('openai.com',)}.get(post['release']['company'])
+            if domains:
+                self.assertTrue(any(urlsplit(src['url']).netloc.endswith(domains) for src in post['native']['sources']), post['slug'])
+        self.assertIn('<a href="/releases/"><span>', (publish.OUT / 'index.html').read_text())
+
     def test_naver_only_articles_stay_off_the_english_site(self):
         skipped = [slug for slug, _ in publish.SKIPPED]
         self.assertTrue(skipped, 'expected the Korean tax and welfare posts to be recognised')

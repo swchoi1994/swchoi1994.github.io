@@ -171,6 +171,11 @@ def native_articles():
         datetime.datetime.fromisoformat(info['date'])  # a full ISO timestamp, so the feed and sitemap can date it
         if info.get('series') and (info['series'] not in SERIES or not isinstance(info.get('part'), int)):
             raise ValueError(f'A series article needs a series from content/series.json and a whole-number part: {path.name}')
+        if info.get('release'):
+            # A release explainer names the company, the product and the day it was announced.
+            if not all(info['release'].get(key) for key in ('company', 'name', 'announced')):
+                raise ValueError(f'A release needs "company", "name" and "announced": {path.name}')
+            datetime.date.fromisoformat(info['release']['announced'])
         if info.get('cover') and info['cover'] not in MOTIFS:
             raise ValueError(f'Unknown cover "{info["cover"]}" in {path.name}; choose one of {", ".join(MOTIFS)}')
         if info.get('project') and not all(info['project'].get(key) for key in ('needs', 'result')):
@@ -186,7 +191,7 @@ def native_articles():
         posts.append(dict(slug=slug, title=info['title'], description=info['description'], date=info['date'], url=url,
                           topic=info['topic'], minutes=max(1, math.ceil(words / 220)), source=None, schema=schema,
                           image=dict(SOCIAL, alt=info['title'], credit=''),
-                          series=info.get('series'), part=info.get('part'), project=info.get('project'), cover=info.get('cover'),
+                          series=info.get('series'), part=info.get('part'), project=info.get('project'), cover=info.get('cover'), release=info.get('release'),
                           native=dict(body=body, sources=info['sources'], note=info.get('note', ''))))
     return posts
 
@@ -678,6 +683,19 @@ def series_pages(posts):
                         [collection(info['title'], url, members), breadcrumbs([('Home', '/'), ('Series', '/series/'), (info['title'], url)])], active='/series/'))
 
 
+def release_pages(posts):
+    """Product releases covered here, newest announcement first, each linked to its explainer."""
+    covered = sorted((p for p in posts if p.get('release')), key=lambda p: p['release']['announced'], reverse=True)
+    if not covered:
+        return
+    rows = ''.join(f'<tr><td><time datetime="{e(p["release"]["announced"])}">{e(p["release"]["announced"])}</time></td><td>{e(p["release"]["company"])}</td>'
+                   f'<td><a href="{p["url"]}">{e(p["release"]["name"])}</a></td><td>{e(p["description"])}</td></tr>' for p in covered)
+    body = (page_head('<p class="eyebrow">Tracker</p><h1>AI releases, explained</h1><p class="lede">New models and features from the major AI companies: what changed, what it costs and how to use it. Each entry is checked against the company\'s own announcement.</p>')
+            + f'<article class="reading card"><div class="reading-body"><div class="table-scroll" tabindex="0" role="region" aria-label="Releases"><table><thead><tr><th scope="col">Announced</th><th scope="col">Company</th><th scope="col">Release</th><th scope="col">In short</th></tr></thead><tbody>{rows}</tbody></table></div></div></article>')
+    write('/releases/', page('AI releases, explained', 'A running list of AI model and product releases, each with a plain explainer: what changed, prices, availability and how to use it.', '/releases/', body,
+                             [collection('AI releases, explained', '/releases/', covered), breadcrumbs([('Home', '/'), ('AI releases', '/releases/')])]))
+
+
 def project_pages(posts):
     """Follow-along projects: articles that end with something running."""
     # Easiest first: the parts of a series in order, then the stand-alone projects.
@@ -849,10 +867,13 @@ def build():
         EXTRA_NAV.append(('/series/', 'Series'))
     if any(p.get('project') for p in posts):
         EXTRA_NAV.append(('/projects/', 'Projects'))
+    if any(p.get('release') for p in posts):
+        EXTRA_NAV.append(('/releases/', 'AI releases'))
     home(posts, media)
     archive(posts)
     series_pages(posts)
     project_pages(posts)
+    release_pages(posts)
     for slug, (name, description) in TOPICS.items():
         archive([p for p in posts if p['topic'] == slug], f'/topics/{slug}/', name, description, 'Topic')
     cards = ''
@@ -922,7 +943,7 @@ def build():
         entry = ET.SubElement(sitemap, f'{{{ns}}}url')
         ET.SubElement(entry, f'{{{ns}}}loc').text = SITE + url
         # Posts change when published; listing pages change whenever a post is added.
-        if url in dated or url == '/' or url.startswith(('/blog/page/', '/topics/', '/series/', '/projects/')) or url == '/blog/':
+        if url in dated or url == '/' or url.startswith(('/blog/page/', '/topics/', '/series/', '/projects/', '/releases/')) or url == '/blog/':
             ET.SubElement(entry, f'{{{ns}}}lastmod').text = dated.get(url, newest)
     ET.ElementTree(sitemap).write(OUT / 'sitemap.xml', encoding='utf-8', xml_declaration=True)
     print(f'Built {len(posts)} articles, {len(TOPICS)} topic collections and publication pages in {OUT}')
