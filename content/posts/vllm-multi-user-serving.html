@@ -4,6 +4,7 @@
   "description": "How one vLLM server answers many people at once, which limits decide who waits, why --api-key is not enough, and a tested nginx proxy with per-user keys.",
   "date": "2026-11-12T09:43:00+00:00",
   "topic": "ai-automation",
+  "cover": "flow",
   "series": "vllm-server",
   "part": 5,
   "project": {
@@ -71,6 +72,16 @@
 <p>The documentation's conclusion is plain: "Do not rely exclusively on --api-key for securing access to vLLM." Its recommended design is a reverse proxy that allows only the endpoints you choose, blocks the rest, and adds its own authentication, rate limiting and logging. One key shared by a whole team also has a practical problem. You cannot tell who used what, and you cannot remove one person without changing the key for all.</p>
 
 <h2 id="proxy">5. Build the proxy</h2>
+<figure class="diagram">
+<div class="d-flow">
+<div class="d-box"><strong>Alice, Bob, a script</strong>each with a personal key</div>
+<span class="d-arrow">→</span>
+<div class="d-box key"><strong>nginx proxy</strong>checks the key, limits the rate, writes the log</div>
+<span class="d-arrow">→</span>
+<div class="d-box green"><strong>vLLM</strong>no published port, one server key</div>
+</div>
+<figcaption>Three paths pass through. Everything else, such as /metrics and /pause, stops at the proxy with a 404.</figcaption>
+</figure>
 <p>The design has three rules:</p>
 <ul>
 <li>vLLM publishes no port. Only the proxy can reach it, over a private Docker network.</li>

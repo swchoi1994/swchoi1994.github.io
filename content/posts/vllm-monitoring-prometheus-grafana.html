@@ -4,6 +4,7 @@
   "description": "One Compose file for vLLM, node exporter, the NVIDIA DCGM exporter, Prometheus and Grafana, with the queries and alerts for CPU, RAM, GPU and the model server.",
   "date": "2026-11-12T09:45:00+00:00",
   "topic": "ai-automation",
+  "cover": "gauge",
   "series": "vllm-server",
   "part": 7,
   "project": {
@@ -25,6 +26,18 @@
 <p>A model server fails quietly. Nothing crashes; answers just get slower until someone complains. By then you want to know whether the GPU was full, the CPU was starved, the disk ran out, or requests were queueing, and you want last Tuesday's numbers as well as today's. This part sets up that record. It is one Compose file, and most of it was tested for this article.</p>
 
 <h2 id="pieces">1. Five pieces, each with one job</h2>
+<figure class="diagram">
+<div class="d-flow">
+<div class="d-box"><strong>vLLM</strong>requests, latency, cache</div>
+<div class="d-box"><strong>node exporter</strong>CPU, memory, disk</div>
+<div class="d-box"><strong>DCGM exporter</strong>every GPU</div>
+<span class="d-arrow">→</span>
+<div class="d-box key"><strong>Prometheus</strong>collects and stores</div>
+<span class="d-arrow">→</span>
+<div class="d-box green"><strong>Grafana</strong>dashboards</div>
+</div>
+<figcaption>Three sources of numbers, one store, one place to look.</figcaption>
+</figure>
 <table>
 <thead><tr><th scope="col">Piece</th><th scope="col">Job</th><th scope="col">Port</th></tr></thead>
 <tbody>

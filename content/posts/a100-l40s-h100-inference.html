@@ -1,0 +1,119 @@
+<!--
+{
+  "title": "A100 vs L40S vs H100 for LLM inference: how to choose",
+  "description": "Choose a GPU for serving language models by memory first, then interconnect, then price per token: NVIDIA's specifications, cloud prices and worked sums.",
+  "date": "2026-11-12T10:43:00+00:00",
+  "topic": "ai-automation",
+  "cover": "chip",
+  "note": "Specifications are from NVIDIA's product pages and prices from Runpod's and Lambda's public pricing pages, all read on November 12, 2026; prices change often, so check them again before deciding. The memory figures are calculated from model files with a 10 percent runtime reserve, which is an assumption. No GPU was rented or benchmarked for this article, so it gives no tokens-per-second figures; the last section shows how to get your own.",
+  "sources": [
+    {"title": "NVIDIA: A100 Tensor Core GPU", "url": "https://www.nvidia.com/en-us/data-center/a100/"},
+    {"title": "NVIDIA: L40S GPU", "url": "https://www.nvidia.com/en-us/data-center/l40s/"},
+    {"title": "NVIDIA: H100 GPU", "url": "https://www.nvidia.com/en-us/data-center/h100/"},
+    {"title": "Runpod: GPU cloud pricing", "url": "https://www.runpod.io/pricing"},
+    {"title": "Lambda: GPU cloud pricing", "url": "https://lambda.ai/pricing"},
+    {"title": "vLLM docs: Parallelism and scaling", "url": "https://docs.vllm.ai/en/latest/serving/parallelism_scaling/"},
+    {"title": "Qwen docs: vLLM deployment", "url": "https://qwen.readthedocs.io/en/latest/deployment/vllm.html"}
+  ]
+}
+-->
+<p>The A100, L40S and H100 are the three NVIDIA cards you are most likely to be offered for serving a language model, whether you rent by the hour or inherit a server. Marketing pages rank them by speed. For inference, speed is the third question. The first is whether your model fits, and the second is whether the cards can work together. This guide takes them in that order.</p>
+
+<h2 id="specs">1. The three cards, side by side</h2>
+<table>
+<thead><tr><th scope="col"></th><th scope="col">A100 80GB</th><th scope="col">L40S</th><th scope="col">H100</th></tr></thead>
+<tbody>
+<tr><td>Architecture</td><td>Ampere</td><td>Ada Lovelace</td><td>Hopper</td></tr>
+<tr><td>Memory</td><td>80 GB</td><td>48 GB</td><td>80 GB, or 94 GB on the NVL model</td></tr>
+<tr><td>Memory bandwidth</td><td>1,935 to 2,039 GB/s</td><td>864 GB/s</td><td>3.35 to 3.9 TB/s</td></tr>
+<tr><td>NVLink between cards</td><td>Yes</td><td>No</td><td>Yes</td></tr>
+<tr><td>Split into smaller GPUs (MIG)</td><td>Up to 7</td><td>No</td><td>Up to 7</td></tr>
+<tr><td>FP8 listed in the specifications</td><td>No</td><td>Yes</td><td>Yes</td></tr>
+<tr><td>Maximum power</td><td>300 W, or 400 W for the SXM model</td><td>350 W</td><td>Up to 700 W for SXM; 350 to 400 W for NVL</td></tr>
+</tbody>
+</table>
+<p>All figures are from NVIDIA's product pages. An A100 with 40 GB also exists in older servers; everything below about the A100 80GB applies to it with half the memory.</p>
+<p>Newer generations exist as well. Lambda's price list already includes the B200 with 180 GB per GPU. The older cards remain the practical choice for many teams because they are cheaper and easier to get.</p>
+{{video:vLP_8hLBs-U|Nvidia Blackwell at GTC 2024: the chip Jensen Huang held up}}
+
+<h2 id="memory">2. First question: does your model fit?</h2>
+<p>Memory decides which models you can run at all, and how many requests fit beside them. Every request holds working memory, the KV cache, for as long as it is being answered. The method is in <a href="/blog/posts/vllm-gpu-sizing/">the sizing guide</a>; here are its results for two models, keeping a tenth of each card in reserve.</p>
+<figure class="diagram">
+<div class="d-bars">
+<div><p><strong>Qwen3-8B on one L40S, 48 GiB</strong><span>24 requests of 8,192 tokens</span></p><div class="d-bar" style="width:60%"><span class="a" style="flex:15.3">weights</span><span class="b" style="flex:27.9">cache</span><span class="c" style="flex:4.8"></span></div></div>
+<div><p><strong>Qwen3-8B on one A100 or H100, 80 GiB</strong><span>50 requests of 8,192 tokens</span></p><div class="d-bar"><span class="a" style="flex:15.3">weights</span><span class="b" style="flex:56.7">cache</span><span class="c" style="flex:8"></span></div></div>
+<div><p><strong>Qwen2.5-Coder-32B on one A100 or H100, 80 GiB</strong><span>5 requests of 8,192 tokens</span></p><div class="d-bar"><span class="a" style="flex:61">weights</span><span class="b" style="flex:11"></span><span class="c" style="flex:8"></span></div></div>
+</div>
+<p class="d-legend"><span><i class="a"></i>Model weights</span><span><i class="b"></i>KV cache, the room for requests</span><span><i class="c"></i>Runtime reserve</span></p>
+<figcaption>Drawn to scale. A 32B model at full precision does not fit on one 48 GB card at all.</figcaption>
+</figure>
+<table>
+<thead><tr><th scope="col">Model, at 16-bit precision</th><th scope="col">One L40S (48 GB)</th><th scope="col">One A100 or H100 (80 GB)</th><th scope="col">One H100 NVL (94 GB)</th></tr></thead>
+<tbody>
+<tr><td>7B to 8B class, about 15 GiB</td><td>Fits, 24 requests</td><td>Fits, 50 requests</td><td>Fits, with more room still</td></tr>
+<tr><td>32B to 34B class, about 61 to 63 GiB</td><td>Does not fit</td><td>Fits, 5 requests</td><td>Fits, 11 requests</td></tr>
+</tbody>
+</table>
+<p>"Requests" here means requests of 8,192 tokens held at the same moment, a worst case. Two lessons follow. For small models, the 48 GB card is enough, and extra memory only buys concurrency. For 30B-class models at full precision, 80 GB is the entry ticket, and even there the room for requests is tight.</p>
+<p>Quantized builds change the table. A 4-bit build of a 34B model is about 17 GiB and fits on a 48 GB card with room to spare, at some cost in precision.</p>
+
+<h2 id="together">3. Second question: can the cards work together?</h2>
+<p>When one card is not enough, you combine several, and here the three differ sharply. Splitting a model with tensor parallelism makes the cards exchange data at every step. NVLink is the fast connection built for that. The A100 and H100 have it; NVIDIA's page for the L40S lists NVLink support as "No".</p>
+<p>The vLLM documentation draws the consequence directly. For GPUs without NVLink it names the L40S as its example and recommends pipeline parallelism, which splits the model by layers, over tensor parallelism, for higher throughput and lower communication overhead.</p>
+<table>
+<thead><tr><th scope="col">Plan</th><th scope="col">A100 or H100</th><th scope="col">L40S</th></tr></thead>
+<tbody>
+<tr><td>One model on one card</td><td>Simple</td><td>Simple</td></tr>
+<tr><td>Several copies, one per card, behind a load balancer</td><td>Works well</td><td>Works well</td></tr>
+<tr><td>One large model across cards</td><td>Tensor parallelism over NVLink</td><td>Possible, with pipeline parallelism; expect more overhead</td></tr>
+<tr><td>Several small services on one card</td><td>MIG, up to 7 slices</td><td>No MIG; share with <code>--gpu-memory-utilization</code></td></tr>
+</tbody>
+</table>
+<p>So the L40S is at its best running models that fit on one card, replicated as needed. It is a poor base for a model that must span cards.</p>
+
+<h2 id="precision">4. A detail that matters for quantized models</h2>
+<p>NVIDIA lists FP8 performance for the L40S and H100, not for the A100. The Qwen documentation describes the practical effect in vLLM: FP8 model builds run natively on Ada Lovelace and Hopper cards, and since vLLM 0.9.0 they also run on Ampere cards such as the A100 in a mixed mode. If you plan to serve FP8 builds to save memory, the two newer architectures are the natural home.</p>
+
+<h2 id="price">5. Third question: what does it cost?</h2>
+<p>Prices on the day this was written, per GPU per hour, on demand:</p>
+<table>
+<thead><tr><th scope="col">Card</th><th scope="col">Runpod, Secure Cloud</th><th scope="col">Runpod, Community Cloud</th><th scope="col">Lambda, 8-GPU instances</th></tr></thead>
+<tbody>
+<tr><td>A100 80GB</td><td>$1.79</td><td>from $1.19</td><td>$3.19</td></tr>
+<tr><td>H100</td><td>$2.89 (PCIe), $3.99 (SXM)</td><td>from $1.99</td><td>$4.59</td></tr>
+<tr><td>L40S</td><td colspan="3">Not listed on the pages read; look it up at your provider</td></tr>
+</tbody>
+</table>
+<p>The two providers sell different things, single cards against large multi-GPU machines with fast networking, so compare within a column, not across. Within each, the H100 costs about 1.4 to 1.6 times the A100.</p>
+<p>Two sums turn a price into a decision.</p>
+<p><strong>Price per GiB of memory.</strong> If memory is your limit, this is the number. At $1.79 an A100 80GB costs about 2.2 cents per GiB per hour; at $2.89 an H100 costs about 3.6 cents. The same memory is cheaper on the older card.</p>
+<p><strong>Price per million tokens.</strong> If throughput is your limit, this is the number:</p>
+<pre><code>cost per million output tokens = price per hour ÷ (tokens per second × 3600) × 1,000,000</code></pre>
+<p>An example with invented throughput, to show the arithmetic only: a $1.79 card producing 1,000 tokens a second costs $0.50 per million tokens. A $2.89 card producing 2,000 costs $0.40. The dearer card wins if it is at least 1.6 times as fast on your workload, and loses otherwise.</p>
+<div class="callout"><strong>Why the H100 may earn its price</strong>Its memory bandwidth is about 1.7 times the A100's, and writing tokens is limited mainly by how fast the card can read the model. That makes a real speed-up plausible. How large it is for your model and prompts is something only a test can tell you.</div>
+<p>A card that is on all month costs real money: at $1.79 an hour, about $1,290 for 30 days; at $2.89, about $2,080. If your traffic is concentrated in working hours, stopping the server at night matters more than the choice of card.</p>
+
+<h2 id="measure">6. Get your own number in an afternoon</h2>
+<p>Hourly rental makes the comparison cheap. Rent each candidate for an hour and run the same test on both:</p>
+<ol>
+<li>Start the same model with the same flags on each card. The steps are in <a href="/blog/posts/vllm-docker-nvidia-gpu/">vLLM in Docker</a>.</li>
+<li>Run <code>vllm bench serve</code> with prompt and answer lengths like your real traffic, at the concurrency you expect. The command is in <a href="/blog/posts/vllm-gpu-sizing/">the sizing guide</a>.</li>
+<li>Note the output tokens per second and the 95th-percentile time to first token on each.</li>
+<li>Put the tokens per second into the formula above.</li>
+</ol>
+<p>Two hours of rental answers a question that could otherwise cost you months on the wrong hardware.</p>
+
+<h2 id="choose">7. A short guide to choosing</h2>
+<table>
+<thead><tr><th scope="col">Your situation</th><th scope="col">Look first at</th><th scope="col">Why</th></tr></thead>
+<tbody>
+<tr><td>Models up to about 8B, or larger ones quantized</td><td>L40S</td><td>48 GB is enough on one card</td></tr>
+<tr><td>A 30B-class model at full precision, lowest cost</td><td>A100 80GB</td><td>The cheapest way to get 80 GB</td></tr>
+<tr><td>The same model, and latency is what users complain about</td><td>H100</td><td>More bandwidth; confirm with a test</td></tr>
+<tr><td>A model that must span several cards</td><td>A100 or H100</td><td>NVLink</td></tr>
+<tr><td>FP8 model builds</td><td>L40S or H100</td><td>Native support</td></tr>
+<tr><td>Several small services on one card</td><td>A100 or H100</td><td>MIG</td></tr>
+<tr><td>Long contexts with many users on a 30B-class model</td><td>H100 NVL, or two 80 GB cards</td><td>The room for requests is the limit</td></tr>
+</tbody>
+</table>
+<p>Whichever card you choose, the next step is the same: work out how many you need. That is the subject of <a href="/blog/posts/vllm-gpu-sizing/">How many GPUs for N users?</a></p>

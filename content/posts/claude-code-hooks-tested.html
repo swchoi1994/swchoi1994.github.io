@@ -1,0 +1,248 @@
+<!--
+{
+  "title": "Claude Code hooks, tested: five scripts you can copy",
+  "description": "Five small Claude Code hooks with a test script: protect files, block risky commands, format after edits, check before stopping, and log every command.",
+  "date": "2026-11-12T10:44:00+00:00",
+  "topic": "ai-automation",
+  "cover": "shield",
+  "project": {
+    "needs": "Claude Code, a project folder, bash and jq. On Windows, Git for Windows provides bash.",
+    "result": "Five working hooks in .claude/hooks, one settings file that registers them, and a script that proves each one behaves."
+  },
+  "note": "All five scripts and the test script were run for this article on Linux with bash and jq 1.7, and the results table shows the actual exit codes and messages. They were tested the way the documentation describes, by sending sample input to each script, not inside a live Claude Code session. The Windows notes follow Anthropic's documentation as read on November 12, 2026 and were not run on Windows.",
+  "sources": [
+    {"title": "Claude Code docs: Automate actions with hooks", "url": "https://code.claude.com/docs/en/hooks-guide"},
+    {"title": "Claude Code docs: Hooks reference", "url": "https://code.claude.com/docs/en/hooks"},
+    {"title": "Claude Code docs: Best practices", "url": "https://code.claude.com/docs/en/best-practices"}
+  ]
+}
+-->
+<p>An instruction file asks. A hook enforces. When a rule in your project has no exceptions, such as never editing a generated folder, writing it in capital letters does not make it certain. A hook does, because Claude Code runs it every time, whatever the model decided. This guide gives you five small hooks and, more usefully, a way to test them without waiting for an agent to make the mistake.</p>
+
+<h2 id="how">1. How a hook works, in one picture</h2>
+<figure class="diagram">
+<div class="d-flow">
+<div class="d-box"><strong>Claude wants to act</strong>edit a file, run a command, or finish</div>
+<span class="d-arrow">→</span>
+<div class="d-box key"><strong>Your script runs</strong>it receives the details as JSON</div>
+<span class="d-arrow">→</span>
+<div class="d-box green"><strong>Exit 0</strong>no objection, carry on</div>
+<div class="d-box warn"><strong>Exit 2</strong>blocked, and your message goes to Claude</div>
+</div>
+<figcaption>The whole contract: JSON arrives on standard input, and the exit code is the answer.</figcaption>
+</figure>
+<p>Three facts cover most of what you need:</p>
+<ul>
+<li><strong>Input is JSON on standard input.</strong> For a file edit it includes <code>tool_input.file_path</code>. For a shell command it includes <code>tool_input.command</code>.</li>
+<li><strong>Exit code 2 blocks.</strong> Whatever the script printed to standard error is shown to Claude as the reason. The reference is explicit that exit code 1 does not block, even though 1 is the usual code for failure.</li>
+<li><strong>Exit code 0 is not approval.</strong> It only means the hook has no objection. The normal permission prompts still apply.</li>
+</ul>
+<div class="callout"><strong>You need jq</strong>The scripts use <code>jq</code> to read JSON. On macOS install it with <code>brew install jq</code>. On Windows the scripts run under Git Bash, which comes with Git for Windows; install jq with your package manager.</div>
+
+<h2 id="protect">2. Protect files that must not change</h2>
+<p>Event: <code>PreToolUse</code>, for the <code>Edit</code> and <code>Write</code> tools. Save as <code>.claude/hooks/protect-files.sh</code>. It follows the example in Anthropic's guide, with one more pattern for a generated folder:</p>
+<pre><code>#!/bin/bash
+# PreToolUse on Edit|Write: refuse changes to files that must not be touched.
+INPUT=$(cat)
+FILE_PATH=$(echo "$INPUT" | jq -r '.tool_input.file_path // empty')
+FILE_PATH="${FILE_PATH//\\//}"   # Windows paths arrive with backslashes
+
+PROTECTED=(".env" "package-lock.json" "/.git/" "/src/gen/")
+for pattern in "${PROTECTED[@]}"; do
+  if [[ "$FILE_PATH" == *"$pattern"* ]]; then
+    echo "Blocked: $FILE_PATH matches protected pattern '$pattern'. Ask the user before changing it." >&2
+    exit 2
+  fi
+done
+exit 0</code></pre>
+<p>The line that replaces backslashes matters on Windows. The reference says file paths arrive there with backslash separators, even when the script runs under Git Bash, and that a check written with forward slashes then never matches, so the edit goes through as if there were no hook.</p>
+<p>The message is written for Claude, not for you. Tell it what to do next, here "ask the user", so it does not just try another route to the same file.</p>
+
+<h2 id="block">3. Block commands that are hard to undo</h2>
+<p>Event: <code>PreToolUse</code>, for the <code>Bash</code> tool. Save as <code>.claude/hooks/block-commands.sh</code>:</p>
+<pre><code>#!/bin/bash
+# PreToolUse on Bash: stop a short list of commands that are hard to undo.
+INPUT=$(cat)
+COMMAND=$(echo "$INPUT" | jq -r '.tool_input.command // empty')
+
+BLOCKED=("git push --force" "git push -f" "git reset --hard" "rm -rf /" "rm -rf ~" "drop table")
+lowered=$(echo "$COMMAND" | tr '[:upper:]' '[:lower:]')
+for pattern in "${BLOCKED[@]}"; do
+  if [[ "$lowered" == *"$pattern"* ]]; then
+    echo "Blocked: this command contains '$pattern'. Explain what you wanted to do and let the user run it." >&2
+    exit 2
+  fi
+done
+exit 0</code></pre>
+<div class="callout warn"><strong>A seat belt, not a wall</strong>Matching text catches honest mistakes. It does not stop a command that is spelled differently or hidden inside a script. For rules that must hold against anything, use permission deny rules and the sandbox, which Claude Code enforces itself.</div>
+
+<h2 id="format">4. Format a file after every edit</h2>
+<p>Event: <code>PostToolUse</code>, for <code>Edit</code> and <code>Write</code>. Save as <code>.claude/hooks/format-on-edit.sh</code>:</p>
+<pre><code>#!/bin/bash
+# PostToolUse on Edit|Write: format the file that was just changed.
+INPUT=$(cat)
+FILE_PATH=$(echo "$INPUT" | jq -r '.tool_input.file_path // empty')
+[ -f "$FILE_PATH" ] || exit 0
+
+case "$FILE_PATH" in
+  *.json)
+    # jq rewrites the file with standard indentation, and fails on invalid JSON.
+    if formatted=$(jq . "$FILE_PATH" 2>&amp;1); then
+      printf '%s\n' "$formatted" > "$FILE_PATH"
+    else
+      echo "$FILE_PATH is not valid JSON: $formatted" >&amp;2
+      exit 2
+    fi
+    ;;
+  # Add your own formatters here, for example:
+  # *.py) ruff format "$FILE_PATH" ;;
+  # *.ts|*.tsx|*.js) npx prettier --write "$FILE_PATH" ;;
+esac
+exit 0</code></pre>
+<p>The JSON branch does two jobs. It tidies the file, and if the file is not valid JSON it exits with 2, so Claude is told at once and can repair it. The two commented lines show where your own formatters go; they were not run for this article.</p>
+<p>A hook that succeeds is silent. Claude Code shows nothing in the conversation, so check the file itself the first time.</p>
+
+<h2 id="stop">5. Do not finish while the check fails</h2>
+<p>Event: <code>Stop</code>, which fires when Claude tries to end its turn. Save as <code>.claude/hooks/check-before-stop.sh</code>:</p>
+<pre><code>#!/bin/bash
+# Stop: the turn may not end while the project check fails.
+INPUT=$(cat)
+# If this hook already sent Claude back to work once, let it stop this time.
+if [ "$(echo "$INPUT" | jq -r '.stop_hook_active')" = "true" ]; then
+  exit 0
+fi
+
+CHECK="${PROJECT_CHECK:-npm test --silent}"   # replace with your project's check
+if ! output=$($CHECK 2>&amp;1); then
+  echo "The check '$CHECK' failed. Fix it before finishing:" >&amp;2
+  echo "$output" | tail -n 20 >&amp;2
+  exit 2
+fi
+exit 0</code></pre>
+<p>The first <code>if</code> is the important part. Without it, a check that cannot pass would send Claude back to work again and again. The guide says Claude Code overrides a Stop hook after eight blocks in a row, and recommends exactly this test of <code>stop_hook_active</code> so your hook gives way first.</p>
+<p>Keep the check fast. It runs every time Claude finishes a turn, so a type check or a small test group suits it better than a ten-minute suite.</p>
+
+<h2 id="log">6. Keep a record of every command</h2>
+<p>Event: <code>PostToolUse</code>, for <code>Bash</code>. Save as <code>.claude/hooks/log-commands.sh</code>:</p>
+<pre><code>#!/bin/bash
+# PostToolUse on Bash: keep a plain record of every command that ran.
+INPUT=$(cat)
+COMMAND=$(echo "$INPUT" | jq -r '.tool_input.command // empty')
+LOG="${CLAUDE_PROJECT_DIR:-.}/.claude/command-log.txt"
+printf '%s\t%s\n' "$(date -u +%Y-%m-%dT%H:%M:%SZ)" "$COMMAND" >> "$LOG"
+exit 0</code></pre>
+<p>After a long unattended session, this file answers "what did it actually run?" in seconds. Add <code>.claude/command-log.txt</code> to <code>.gitignore</code>.</p>
+
+<h2 id="register">7. Register all five</h2>
+<p>Make the scripts executable, then put this in <code>.claude/settings.json</code>:</p>
+<pre><code>chmod +x .claude/hooks/*.sh</code></pre>
+<pre><code>{
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          { "type": "command", "command": "\"$CLAUDE_PROJECT_DIR\"/.claude/hooks/protect-files.sh" }
+        ]
+      },
+      {
+        "matcher": "Bash",
+        "hooks": [
+          { "type": "command", "command": "\"$CLAUDE_PROJECT_DIR\"/.claude/hooks/block-commands.sh" }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          { "type": "command", "command": "\"$CLAUDE_PROJECT_DIR\"/.claude/hooks/format-on-edit.sh" }
+        ]
+      },
+      {
+        "matcher": "Bash",
+        "hooks": [
+          { "type": "command", "command": "\"$CLAUDE_PROJECT_DIR\"/.claude/hooks/log-commands.sh" }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          { "type": "command", "command": "\"$CLAUDE_PROJECT_DIR\"/.claude/hooks/check-before-stop.sh" }
+        ]
+      }
+    ]
+  }
+}</code></pre>
+<p>The <code>matcher</code> chooses which tools a hook applies to; <code>Edit|Write</code> means either. <code>$CLAUDE_PROJECT_DIR</code> is the project root, so the paths work wherever Claude Code is started from. Committing this file gives the whole team the same hooks. Inside a session, <code>/hooks</code> lists what is registered.</p>
+
+<h2 id="test">8. Test them without Claude</h2>
+<p>A hook you have not tested is a hope. Because the contract is only "JSON in, exit code out", you can test it from the shell. Save this as <code>test-hooks.sh</code> in the project root:</p>
+<pre><code>#!/bin/bash
+# Run each hook the way Claude Code does: JSON on standard input, then read the exit code.
+try() {   # try &lt;expected exit code&gt; &lt;script&gt; &lt;json&gt;
+  message=$(echo "$3" | "$2" 2>&amp;1 >/dev/null); code=$?
+  [ "$code" = "$1" ] &amp;&amp; verdict="ok  " || verdict="FAIL"
+  printf '%s exit %s  %-22s %s\n' "$verdict" "$code" "$(basename "$2")" "${message:0:70}"
+}
+H=.claude/hooks
+try 2 $H/protect-files.sh  '{"tool_name":"Edit","tool_input":{"file_path":"/home/me/app/.env"}}'
+try 0 $H/protect-files.sh  '{"tool_name":"Edit","tool_input":{"file_path":"/home/me/app/src/index.ts"}}'
+try 2 $H/protect-files.sh  '{"tool_name":"Write","tool_input":{"file_path":"C:\\project\\src\\gen\\client.ts"}}'
+try 2 $H/block-commands.sh '{"tool_name":"Bash","tool_input":{"command":"git push --force origin main"}}'
+try 2 $H/block-commands.sh '{"tool_name":"Bash","tool_input":{"command":"psql -c \"DROP TABLE users\""}}'
+try 0 $H/block-commands.sh '{"tool_name":"Bash","tool_input":{"command":"npm test"}}'
+PROJECT_CHECK=false try 2 $H/check-before-stop.sh '{"hook_event_name":"Stop","stop_hook_active":false}'
+PROJECT_CHECK=true  try 0 $H/check-before-stop.sh '{"hook_event_name":"Stop","stop_hook_active":false}'
+PROJECT_CHECK=false try 0 $H/check-before-stop.sh '{"hook_event_name":"Stop","stop_hook_active":true}'</code></pre>
+<p>Each line states the exit code it expects. This is the output from the run for this article:</p>
+<figure class="terminal">
+<pre><code><span class="c">$ ./test-hooks.sh</span>
+<span class="g">ok  </span> exit 2  protect-files.sh       Blocked: /home/me/app/.env matches protected pattern '.env'. Ask the u
+<span class="g">ok  </span> exit 0  protect-files.sh
+<span class="g">ok  </span> exit 2  protect-files.sh       Blocked: C:/project/src/gen/client.ts matches protected pattern '/src/
+<span class="g">ok  </span> exit 2  block-commands.sh      Blocked: this command contains 'git push --force'. Explain what you wa
+<span class="g">ok  </span> exit 2  block-commands.sh      Blocked: this command contains 'drop table'. Explain what you wanted t
+<span class="g">ok  </span> exit 0  block-commands.sh
+<span class="g">ok  </span> exit 2  check-before-stop.sh   The check 'false' failed. Fix it before finishing:
+<span class="g">ok  </span> exit 0  check-before-stop.sh
+<span class="g">ok  </span> exit 0  check-before-stop.sh</code></pre>
+<figcaption>Nine cases, nine as expected. The third line is the Windows path, blocked because the script normalizes the slashes.</figcaption>
+</figure>
+<p>The two remaining hooks change files, so they were checked by their effect:</p>
+<table>
+<thead><tr><th scope="col">Hook</th><th scope="col">Test</th><th scope="col">Result</th></tr></thead>
+<tbody>
+<tr><td><code>format-on-edit.sh</code></td><td>A JSON file written on two cramped lines</td><td>Exit 0; the file was rewritten with standard indentation</td></tr>
+<tr><td><code>format-on-edit.sh</code></td><td>A JSON file cut off halfway</td><td>Exit 2, with a message naming the file as invalid</td></tr>
+<tr><td><code>log-commands.sh</code></td><td>Two commands, <code>npm test</code> and <code>git status</code></td><td>Two lines in the log, each with a UTC timestamp</td></tr>
+</tbody>
+</table>
+<p>Run the test script whenever you change a hook, and add a line for each new rule. If a hook ever lets something through that it should have stopped, the first step is to add that case here and watch it fail.</p>
+
+<h2 id="choose">9. When a hook is the wrong tool</h2>
+<table>
+<thead><tr><th scope="col">You want</th><th scope="col">Use</th></tr></thead>
+<tbody>
+<tr><td>A guideline with exceptions</td><td>A line in <code>CLAUDE.md</code>; let Claude judge</td></tr>
+<tr><td>Something to happen every time, with no exceptions</td><td>A hook</td></tr>
+<tr><td>Access that must be impossible, not just discouraged</td><td>A permission deny rule or the sandbox</td></tr>
+<tr><td>A check that holds even if someone skips the tool</td><td>CI and branch protection</td></tr>
+</tbody>
+</table>
+<p>Anthropic's guide offers a test for both directions. If you keep adding emphasis to a line in <code>CLAUDE.md</code> and it is still missed, it belongs in a hook. If you have hooks for things that are only preferences, delete them.</p>
+
+<h2 id="trouble">10. When a hook does not fire</h2>
+<table>
+<thead><tr><th scope="col">Symptom</th><th scope="col">Check</th></tr></thead>
+<tbody>
+<tr><td>Nothing happens</td><td>Run <code>/hooks</code>. If it is empty, the settings file is in the wrong place or is not valid JSON.</td></tr>
+<tr><td>"Permission denied"</td><td>The script is not executable; run <code>chmod +x</code> again.</td></tr>
+<tr><td>The hook runs but does not block</td><td>It exits with 1, not 2. Only 2 blocks.</td></tr>
+<tr><td>Path checks never match on Windows</td><td>The backslash line from step 2 is missing.</td></tr>
+<tr><td>Claude keeps working and then warns about the Stop hook</td><td>The <code>stop_hook_active</code> test from step 5 is missing.</td></tr>
+<tr><td><code>jq: command not found</code></td><td>Install jq, and open a new terminal.</td></tr>
+</tbody>
+</table>
+<p>For how hooks sit beside the other project files, see <a href="/blog/posts/claude-code-project-setup/">Claude Code project setup</a>. For plugins, which can bring hooks of their own, see <a href="/blog/posts/claude-code-plugins-mcp-terminal/">plugins and MCP servers from the terminal</a>.</p>

@@ -4,6 +4,7 @@
   "description": "Install the NVIDIA Container Toolkit, prove the GPU works inside a container, start vLLM with docker run, then make it a Compose service that survives reboots.",
   "date": "2026-11-12T09:40:00+00:00",
   "topic": "ai-automation",
+  "cover": "stack",
   "series": "vllm-server",
   "part": 2,
   "project": {
@@ -26,6 +27,16 @@
 
 <h2 id="layers">1. The four layers you are stacking</h2>
 <p>A container cannot use a GPU by default. Four things have to line up, and most failures come from one missing layer:</p>
+<figure class="diagram">
+<div class="d-stack">
+<div class="d-box key"><strong>4. vLLM image</strong><span>CUDA libraries, PyTorch and vLLM</span></div>
+<div class="d-box green"><strong>3. NVIDIA Container Toolkit</strong><span>hands GPUs to containers</span></div>
+<div class="d-box"><strong>2. Docker Engine</strong><span>runs containers</span></div>
+<div class="d-box"><strong>1. NVIDIA driver</strong><span>on the host, shared by every container</span></div>
+<div class="d-box ghost"><strong>GPU</strong><span>the hardware</span></div>
+</div>
+<figcaption>Each layer depends on the one below it. Check them from the bottom up.</figcaption>
+</figure>
 <table>
 <thead><tr><th scope="col">Layer</th><th scope="col">What it does</th><th scope="col">How to check it</th></tr></thead>
 <tbody>

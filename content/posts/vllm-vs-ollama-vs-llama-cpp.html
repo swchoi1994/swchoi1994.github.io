@@ -1,0 +1,137 @@
+<!--
+{
+  "title": "vLLM vs Ollama vs llama.cpp: which one to run",
+  "description": "Three ways to run a language model yourself, compared on platforms, model files, concurrency, defaults and security, with a short guide to choosing.",
+  "date": "2026-11-12T10:42:00+00:00",
+  "topic": "ai-automation",
+  "cover": "flow",
+  "note": "Every entry in the tables comes from each project's own documentation or README as read on November 12, 2026. None of the three was installed or timed for this article, so it contains no speed comparison; speed depends on your hardware and model, and the only honest figure is one you measure.",
+  "sources": [
+    {"title": "vLLM docs: GPU installation", "url": "https://docs.vllm.ai/en/latest/getting_started/installation/gpu/"},
+    {"title": "vLLM docs: Security", "url": "https://docs.vllm.ai/en/latest/usage/security/"},
+    {"title": "Ollama docs: FAQ", "url": "https://docs.ollama.com/faq"},
+    {"title": "Ollama docs: Hardware support", "url": "https://docs.ollama.com/gpu"},
+    {"title": "Ollama docs: Importing a model", "url": "https://docs.ollama.com/import"},
+    {"title": "llama.cpp: README", "url": "https://github.com/ggml-org/llama.cpp"},
+    {"title": "llama.cpp: server README", "url": "https://github.com/ggml-org/llama.cpp/blob/master/tools/server/README.md"}
+  ]
+}
+-->
+<p>vLLM, Ollama and llama.cpp all do the same basic thing: they load an open-weight model and answer requests in the OpenAI API format. People compare them as rivals, but they were built for different situations, and the right choice usually follows from two questions. Who will use it, and on what hardware?</p>
+
+<h2 id="short">1. The short answer</h2>
+<figure class="diagram">
+<div class="d-flow">
+<div class="d-box"><strong>One person, one computer</strong>You want it working in five minutes</div>
+<span class="d-arrow">→</span>
+<div class="d-box key"><strong>Ollama</strong></div>
+</div>
+<div class="d-flow" style="margin-top:0.6em">
+<div class="d-box"><strong>Unusual hardware, or full control</strong>CPU only, a small device, your own quantization</div>
+<span class="d-arrow">→</span>
+<div class="d-box green"><strong>llama.cpp</strong></div>
+</div>
+<div class="d-flow" style="margin-top:0.6em">
+<div class="d-box"><strong>Many users, GPUs in a server</strong>An application or a team sends requests at once</div>
+<span class="d-arrow">→</span>
+<div class="d-box warn"><strong>vLLM</strong></div>
+</div>
+<figcaption>Start from who uses it and what it runs on, not from the tool.</figcaption>
+</figure>
+<p>Many setups use two of them: Ollama on each developer's laptop, and vLLM on the shared server. Because all three speak the same API, the application code does not change.</p>
+
+<h2 id="what">2. What each one is</h2>
+<table>
+<thead><tr><th scope="col"></th><th scope="col">Ollama</th><th scope="col">llama.cpp</th><th scope="col">vLLM</th></tr></thead>
+<tbody>
+<tr><td>In one line</td><td>An app that downloads models and runs them</td><td>"LLM inference in C/C++": a command-line tool and a server</td><td>A server for running models on GPUs</td></tr>
+<tr><td>Install</td><td>A desktop app; on Linux, an install script</td><td>An install script, a prebuilt binary, Docker, or build from source</td><td>A Python package or a Docker image</td></tr>
+<tr><td>First command</td><td><code>ollama run &lt;model&gt;</code></td><td><code>llama serve -hf &lt;repo&gt;</code></td><td><code>vllm serve &lt;repo&gt;</code></td></tr>
+<tr><td>Comes with</td><td>A model library you pull from by name</td><td>A chat page served by the server itself</td><td>Metrics, batching and multi-GPU support</td></tr>
+</tbody>
+</table>
+
+<h2 id="hardware">3. Where each one runs</h2>
+<table>
+<thead><tr><th scope="col"></th><th scope="col">Ollama</th><th scope="col">llama.cpp</th><th scope="col">vLLM</th></tr></thead>
+<tbody>
+<tr><td>macOS</td><td>Yes, macOS 14 or newer; GPU on Apple M-series</td><td>Yes; the README calls Apple silicon "a first-class citizen"</td><td>Through a separate build, vLLM-Metal</td></tr>
+<tr><td>Windows</td><td>Yes</td><td>Yes</td><td>Not natively; the documentation points to WSL</td></tr>
+<tr><td>Linux</td><td>Yes</td><td>Yes</td><td>Yes; this is its home</td></tr>
+<tr><td>NVIDIA GPUs</td><td>Yes, compute capability 5.0 and up, with a recent driver</td><td>Yes, with its own CUDA kernels</td><td>Yes; the main target</td></tr>
+<tr><td>Other accelerators</td><td>See its hardware page</td><td>Many backends, including Vulkan, SYCL and AMD through HIP</td><td>AMD and Intel builds are documented</td></tr>
+<tr><td>CPU only</td><td>Works, slowly</td><td>A core use case</td><td>A CPU backend exists, but GPUs are the target</td></tr>
+</tbody>
+</table>
+<p>This table alone settles many choices. On a Windows desktop or a Mac, start with Ollama or llama.cpp. vLLM assumes a Linux machine with a serious GPU.</p>
+
+<h2 id="models">4. Where the model files come from</h2>
+<table>
+<thead><tr><th scope="col"></th><th scope="col">Ollama</th><th scope="col">llama.cpp</th><th scope="col">vLLM</th></tr></thead>
+<tbody>
+<tr><td>Usual source</td><td>Its own model library, by short name</td><td>GGUF files, downloaded from Hugging Face with <code>-hf</code></td><td>Hugging Face repositories, by name</td></tr>
+<tr><td>File format</td><td>Imports GGUF or Safetensors through a Modelfile</td><td>GGUF</td><td>Safetensors, with a fallback to the older PyTorch format</td></tr>
+<tr><td>Quantization</td><td>Does not quantize GGUF files on import; prepare them first</td><td>Built in, from 1.5-bit to 8-bit; <code>-hf</code> picks Q4_K_M by default</td><td>Runs pre-quantized models from the Hub</td></tr>
+</tbody>
+</table>
+<p>Quantization is why the same model can need very different memory in each tool. A default GGUF download is a 4-bit file, about a third the size of the 16-bit weights that vLLM loads by default. That makes llama.cpp and Ollama far easier to fit on small hardware, at some cost in precision. A fair comparison between tools uses the same precision in each.</p>
+
+<h2 id="many">5. What happens with several users</h2>
+<p>This is the real dividing line.</p>
+<table>
+<thead><tr><th scope="col"></th><th scope="col">Ollama</th><th scope="col">llama.cpp</th><th scope="col">vLLM</th></tr></thead>
+<tbody>
+<tr><td>Requests at once, by default</td><td>1 per model; <code>OLLAMA_NUM_PARALLEL</code> raises it</td><td>A number of slots chosen automatically; <code>-np</code> sets it</td><td>Many, batched together at every step</td></tr>
+<tr><td>When busy</td><td>Queues up to 512 requests, then answers with 503</td><td>See its server README</td><td>Requests queue; under memory pressure some are paused and redone</td></tr>
+<tr><td>Memory cost of parallelism</td><td>Grows with parallel requests times context length</td><td>The slots draw on one shared pool</td><td>A shared cache, sized from free GPU memory</td></tr>
+<tr><td>One model across several GPUs</td><td>Not covered in the pages read</td><td>Not covered in the pages read</td><td>Yes, with tensor parallelism</td></tr>
+</tbody>
+</table>
+<p>Ollama's default of one request at a time per model is right for a personal assistant and wrong for a team. llama.cpp's server enables continuous batching by default and can serve a small group well. vLLM is designed around this problem: its scheduler, its cache and its metrics all exist to keep many requests moving on expensive GPUs.</p>
+
+<h2 id="defaults">6. Three defaults that surprise people</h2>
+<table>
+<thead><tr><th scope="col"></th><th scope="col">Ollama</th><th scope="col">llama.cpp</th><th scope="col">vLLM</th></tr></thead>
+<tbody>
+<tr><td>Context length</td><td>4,096 tokens unless you raise it</td><td>Taken from the model</td><td>Taken from the model, often tens of thousands</td></tr>
+<tr><td>Listens on</td><td>127.0.0.1, port 11434</td><td>127.0.0.1; check the port it prints</td><td>Port 8000</td></tr>
+<tr><td>API key</td><td>None; clients send one that is ignored</td><td><code>--api-key</code>, off by default</td><td><code>--api-key</code>, off by default, and it covers only some paths</td></tr>
+<tr><td>Metrics for monitoring</td><td>Not covered in the pages read</td><td><code>--metrics</code>, off by default</td><td>On by default at <code>/metrics</code></td></tr>
+</tbody>
+</table>
+<div class="callout warn"><strong>The same model can look worse in one tool</strong>If answers seem to forget the start of a long document in Ollama but not in vLLM, the cause is usually the 4,096-token default, not the model. Raise it with <code>OLLAMA_CONTEXT_LENGTH</code> before you compare quality.</div>
+<p>None of the three is safe to put on the open internet as installed. Two listen only on the local machine by default, and vLLM's own documentation says not to rely on its API key alone. Put a proxy in front, as in <a href="/blog/posts/vllm-multi-user-serving/">vLLM for a team</a>.</p>
+
+<h2 id="same-code">7. One client, three servers</h2>
+<p>All three accept the OpenAI client. Only the address changes:</p>
+<pre><code>from openai import OpenAI
+
+# Pick one base_url:
+#   Ollama:     http://localhost:11434/v1
+#   llama.cpp:  http://localhost:PORT/v1   (the port the server printed)
+#   vLLM:       http://localhost:8000/v1
+client = OpenAI(base_url="http://localhost:11434/v1", api_key="not-needed-locally")
+
+reply = client.chat.completions.create(
+    model="MODEL_NAME",   # the name each server reports at /v1/models
+    messages=[{"role": "user", "content": "Explain a KV cache in one sentence."}],
+    max_tokens=100,
+)
+print(reply.choices[0].message.content)</code></pre>
+<p>This is the practical argument for not agonizing over the choice. Write your application against the OpenAI format, start with whichever tool fits your machine today, and move later by changing one line.</p>
+
+<h2 id="choose">8. How to choose</h2>
+<table>
+<thead><tr><th scope="col">Your situation</th><th scope="col">Start with</th><th scope="col">Why</th></tr></thead>
+<tbody>
+<tr><td>A laptop or desktop, just you</td><td>Ollama</td><td>One install, models by name, sensible for one user</td></tr>
+<tr><td>A Mac mini as a home assistant</td><td>Ollama</td><td>See <a href="/blog/posts/mac-mini-personal-ai-assistant/">the Mac mini guide</a></td></tr>
+<tr><td>No GPU, or an unusual one</td><td>llama.cpp</td><td>The widest hardware support, and it runs on CPU</td></tr>
+<tr><td>You want to choose the quantization yourself</td><td>llama.cpp</td><td>Quantization is built in</td></tr>
+<tr><td>A few colleagues on one workstation</td><td>llama.cpp server, or Ollama with parallelism raised</td><td>Enough concurrency without a server project</td></tr>
+<tr><td>A team, or an application with real traffic</td><td>vLLM</td><td>Batching, multi-GPU, metrics</td></tr>
+<tr><td>A model too large for one GPU</td><td>vLLM</td><td>Tensor parallelism</td></tr>
+<tr><td>Windows, and you need vLLM</td><td>vLLM inside WSL, or a Linux server</td><td>No native Windows support</td></tr>
+</tbody>
+</table>
+<p>If you are heading for vLLM, the series <a href="/series/vllm-server/">Run your own LLM server with vLLM</a> starts from the first command. If you want numbers, measure the same model at the same precision on your own hardware; <a href="/blog/posts/vllm-gpu-sizing/">the sizing guide</a> shows how to run a load test and read it.</p>

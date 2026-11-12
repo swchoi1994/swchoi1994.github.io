@@ -1,0 +1,341 @@
+<!--
+{
+  "title": "Claude Code plugins and MCP servers: a terminal guide",
+  "description": "Add MCP servers and install plugins in Claude Code from the terminal, on macOS and in Windows Terminal: commands, scopes, secrets, and real command output.",
+  "date": "2026-11-12T10:45:00+00:00",
+  "topic": "ai-automation",
+  "cover": "plug",
+  "project": {
+    "needs": "Claude Code installed on macOS or Windows, a terminal, and Python 3 for the practice server.",
+    "result": "One remote and one local MCP server connected, one plugin installed, and the commands to manage both."
+  },
+  "note": "Every command shown with output was run for this article with Claude Code 2.1.322 on Linux, in an empty test profile; the output is copied as printed, with folder names shortened. The macOS and Windows steps follow Anthropic's documentation as read on November 12, 2026 and were not run on those systems. No sign-in to a remote service was performed, so the OAuth step is described from the documentation.",
+  "sources": [
+    {"title": "Claude Code docs: Connect Claude Code to tools via MCP", "url": "https://code.claude.com/docs/en/mcp"},
+    {"title": "Claude Code docs: Install and manage plugins", "url": "https://code.claude.com/docs/en/discover-plugins"},
+    {"title": "Claude Code docs: Create and distribute a plugin marketplace", "url": "https://code.claude.com/docs/en/plugin-marketplaces"},
+    {"title": "Claude Code docs: Set up Claude Code", "url": "https://code.claude.com/docs/en/setup"},
+    {"title": "Claude Code docs: Configure your terminal", "url": "https://code.claude.com/docs/en/terminal-config"}
+  ]
+}
+-->
+<p>Out of the box, Claude Code can read your files and run commands. Two additions make it far more useful: MCP servers, which connect it to outside tools such as an issue tracker or a database, and plugins, which package ready-made skills and commands. Both are managed from the terminal with a handful of commands. This guide walks through them on macOS and Windows, using output from real runs.</p>
+
+<h2 id="difference">1. Plugin or MCP server: which is which</h2>
+<figure class="diagram">
+<div class="d-flow">
+<div class="d-box"><strong>You</strong>type a request</div>
+<span class="d-arrow">→</span>
+<div class="d-box key"><strong>Claude Code</strong>in your terminal</div>
+<span class="d-arrow">→</span>
+<div class="d-box green"><strong>MCP server</strong>a connector Claude can call</div>
+<span class="d-arrow">→</span>
+<div class="d-box"><strong>Outside tool</strong>Notion, GitHub, a database</div>
+</div>
+<figcaption>An MCP server is a connector. A plugin is a package that can add skills, agents, hooks and MCP servers in one install.</figcaption>
+</figure>
+<table>
+<thead><tr><th scope="col"></th><th scope="col">MCP server</th><th scope="col">Plugin</th></tr></thead>
+<tbody>
+<tr><td>What it is</td><td>One connection to one tool or service</td><td>A bundle: skills, agents, hooks, and sometimes MCP servers</td></tr>
+<tr><td>Where it comes from</td><td>The service itself, or a program you run</td><td>A marketplace, which is a catalog of plugins</td></tr>
+<tr><td>Shell command</td><td><code>claude mcp ...</code></td><td><code>claude plugin ...</code></td></tr>
+<tr><td>Inside a session</td><td><code>/mcp</code></td><td><code>/plugin</code></td></tr>
+</tbody>
+</table>
+<p>The commands come in two forms. Those starting with <code>claude</code> are typed in your normal shell. Those starting with <code>/</code> are typed inside a running Claude Code session.</p>
+
+<h2 id="setup">2. Set up the terminal on macOS and Windows</h2>
+<table>
+<thead><tr><th scope="col"></th><th scope="col">macOS</th><th scope="col">Windows</th></tr></thead>
+<tbody>
+<tr><td>Terminal to use</td><td>Terminal, or iTerm2</td><td>Windows Terminal with PowerShell</td></tr>
+<tr><td>Install</td><td><code>curl -fsSL https://claude.ai/install.sh | bash</code></td><td><code>irm https://claude.ai/install.ps1 | iex</code></td></tr>
+<tr><td>Package manager alternative</td><td><code>brew install --cask claude-code</code></td><td><code>winget install Anthropic.ClaudeCode</code></td></tr>
+<tr><td>Also install</td><td>Nothing</td><td>Git for Windows, recommended so Claude Code can use Bash; without it, it uses PowerShell</td></tr>
+<tr><td>New line in a prompt</td><td>Shift+Enter works in Apple Terminal</td><td>Shift+Enter works in Windows Terminal</td></tr>
+<tr><td>One setting to check</td><td>Settings → Profiles → Keyboard → "Use Option as Meta Key"</td><td>If Backspace deletes a whole word, set <code>CLAUDE_CODE_BS_AS_CTRL_BACKSPACE=0</code></td></tr>
+</tbody>
+</table>
+<p>The macOS setting matters because several shortcuts use the Option key, and Terminal does not send it as a modifier by default. If you accepted the terminal setup prompt on first run, it is already on. On any terminal, Ctrl+J also inserts a new line.</p>
+<p>On Windows, the PowerShell prompt starts with <code>PS C:\</code>. If the install command reports that <code>irm</code> is not recognized, you are in the older CMD shell; the documentation has a separate command for it.</p>
+<p>Then check the installation. Open a new terminal window first, so it picks up the new command:</p>
+<figure class="terminal">
+<pre><code><span class="c">$ claude --version</span>
+2.1.322 (Claude Code)</code></pre>
+</figure>
+<p><code>claude doctor</code> gives a fuller health check without starting a session. Run <code>claude</code> once in a project folder and sign in before continuing.</p>
+
+<h2 id="remote">3. Add a remote MCP server</h2>
+<p>Most services offer a hosted server reached over HTTP. One command registers it. This one is the documentation's own example:</p>
+<pre><code>claude mcp add --transport http notion https://mcp.notion.com/mcp</code></pre>
+<p>The pattern is always <code>claude mcp add --transport http &lt;name&gt; &lt;url&gt;</code>. The name is yours to choose; it is how you refer to the server later.</p>
+<p>Registering is not signing in. Start a session with <code>claude</code>, type <code>/mcp</code>, select the server and complete the sign-in in your browser. Servers that need attention are flagged in that panel.</p>
+<p>For a service that uses a fixed key instead of a browser sign-in, pass it as a header:</p>
+<pre><code>claude mcp add --transport http my-api https://api.example.com/mcp --header "Authorization: Bearer YOUR_TOKEN"</code></pre>
+<div class="callout"><strong>One line</strong>Keep these commands on a single line. Line-continuation characters differ between shells: a backslash in macOS and Linux shells, a backtick in PowerShell. A one-line command works in all of them.</div>
+
+<h2 id="local">4. Add a local MCP server, with a practice server</h2>
+<p>A local server is a program on your own machine that Claude Code starts and talks to. Use it for tools that need direct access to your files or your network. The command has one new element, a double dash:</p>
+<pre><code>claude mcp add --transport stdio &lt;name&gt; -- &lt;command to start the server&gt;</code></pre>
+<p>Everything before <code>--</code> is an option for Claude Code. Everything after it is the server's own command, passed through untouched. Without the double dash, Claude Code would try to read the server's flags as its own.</p>
+<p>To see the whole loop without installing anything, save this small server as <code>hello_mcp.py</code>. It offers one tool that returns a greeting:</p>
+<pre><code>"""A tiny MCP server with one tool, for testing that Claude Code can connect."""
+import json
+import sys
+
+
+def send(message):
+    sys.stdout.write(json.dumps(message) + "\n")
+    sys.stdout.flush()
+
+
+for line in sys.stdin:
+    if not line.strip():
+        continue
+    request = json.loads(line)
+    ident, method = request.get("id"), request.get("method")
+    if method == "initialize":
+        send({"jsonrpc": "2.0", "id": ident, "result": {
+            "protocolVersion": request["params"]["protocolVersion"],
+            "capabilities": {"tools": {}},
+            "serverInfo": {"name": "hello", "version": "0.1.0"}}})
+    elif method == "tools/list":
+        send({"jsonrpc": "2.0", "id": ident, "result": {"tools": [{
+            "name": "say_hello",
+            "description": "Return a greeting for a name",
+            "inputSchema": {"type": "object", "properties": {"name": {"type": "string"}}, "required": ["name"]}}]}})
+    elif method == "tools/call":
+        name = request["params"]["arguments"].get("name", "world")
+        send({"jsonrpc": "2.0", "id": ident, "result": {"content": [{"type": "text", "text": f"Hello, {name}!"}]}})
+    elif ident is not None:
+        send({"jsonrpc": "2.0", "id": ident, "result": {}})</code></pre>
+<p>Add it, using the full path to the file. On Windows the command is usually <code>python</code>, not <code>python3</code>.</p>
+<figure class="terminal">
+<pre><code><span class="c">$ claude mcp add --transport stdio hello -- python3 /path/to/servers/hello_mcp.py</span>
+Added stdio MCP server hello with command: python3 /path/to/servers/hello_mcp.py to local config
+File modified: /path/to/home/.claude.json [project: /path/to/project]
+
+<span class="c">$ claude mcp list</span>
+Checking MCP server health…
+
+hello: python3 /path/to/servers/hello_mcp.py - <span class="g">✔ Connected</span>
+
+<span class="c">$ claude mcp get hello</span>
+hello:
+  Scope: Local config (private to you in this project)
+  Status: <span class="g">✔ Connected</span>
+  Type: stdio
+  Command: python3
+  Args: /path/to/servers/hello_mcp.py
+
+To remove this server, run: claude mcp remove hello -s local</code></pre>
+<figcaption>Real output from Claude Code 2.1.322. Folder names are shortened.</figcaption>
+</figure>
+<p>"Connected" means Claude Code started the program and completed the handshake. In a session, you can now ask it to use the hello tool to greet someone, and it will ask your permission before the first call.</p>
+<p>Real local servers are usually started with a package runner. The documentation's example passes a key through the environment:</p>
+<pre><code>claude mcp add --env AIRTABLE_API_KEY=YOUR_KEY --transport stdio airtable -- npx -y airtable-mcp-server</code></pre>
+<p>Put <code>--transport stdio</code> between <code>--env</code> and the name, as shown. The documentation notes that a name placed directly after <code>--env</code> is read as another variable and rejected.</p>
+
+<h2 id="scopes">5. Choose who gets the server: three scopes</h2>
+<table>
+<thead><tr><th scope="col">Scope</th><th scope="col">Loads in</th><th scope="col">Shared with the team</th><th scope="col">Stored in</th></tr></thead>
+<tbody>
+<tr><td>Local, the default</td><td>This project only</td><td>No</td><td><code>.claude.json</code> in your home folder</td></tr>
+<tr><td>Project</td><td>This project only</td><td>Yes, through version control</td><td><code>.mcp.json</code> in the project</td></tr>
+<tr><td>User</td><td>All your projects</td><td>No</td><td><code>.claude.json</code> in your home folder</td></tr>
+</tbody>
+</table>
+<p>Add <code>--scope project</code> or <code>--scope user</code> to change it. Here is the project scope in a real run, and the file it wrote:</p>
+<figure class="terminal">
+<pre><code><span class="c">$ claude mcp add --transport http notion --scope project https://mcp.notion.com/mcp</span>
+Added HTTP MCP server notion with URL: https://mcp.notion.com/mcp to project config
+File modified: /path/to/project/.mcp.json
+
+<span class="c">$ cat .mcp.json</span>
+{
+  "mcpServers": {
+    "notion": {
+      "type": "http",
+      "url": "https://mcp.notion.com/mcp"
+    }
+  }
+}
+
+<span class="c">$ claude mcp list</span>
+notion: https://mcp.notion.com/mcp (HTTP) - ⏸ Pending approval (run `claude` to approve)
+hello: python3 /path/to/servers/hello_mcp.py - <span class="g">✔ Connected</span></code></pre>
+</figure>
+<p>Notice "Pending approval". A file in a repository cannot switch on its own servers. Each person is asked to approve a project's servers the first time they start a session there. That protects you when you clone someone else's repository.</p>
+<div class="callout warn"><strong>Do not commit secrets</strong><code>.mcp.json</code> is meant to be committed, so keep keys out of it. Write <code>${API_KEY}</code> in the file and let each person set the variable on their own machine. <code>${API_KEY:-fallback}</code> supplies a default.</div>
+<p>Setting a variable differs by system:</p>
+<table>
+<thead><tr><th scope="col"></th><th scope="col">macOS (zsh)</th><th scope="col">Windows (PowerShell)</th></tr></thead>
+<tbody>
+<tr><td>For this terminal window</td><td><code>export API_KEY="value"</code></td><td><code>$env:API_KEY = "value"</code></td></tr>
+<tr><td>For every new window</td><td>Add that line to <code>~/.zshrc</code></td><td><code>setx API_KEY "value"</code>, then open a new window</td></tr>
+</tbody>
+</table>
+
+<h2 id="manage">6. Manage your servers</h2>
+<table>
+<thead><tr><th scope="col">Task</th><th scope="col">Command</th></tr></thead>
+<tbody>
+<tr><td>List servers with their status</td><td><code>claude mcp list</code></td></tr>
+<tr><td>Show one server's details</td><td><code>claude mcp get &lt;name&gt;</code></td></tr>
+<tr><td>Remove a server</td><td><code>claude mcp remove &lt;name&gt;</code></td></tr>
+<tr><td>Sign in, reconnect or disable, inside a session</td><td><code>/mcp</code></td></tr>
+<tr><td>Add from a JSON snippet in a server's README</td><td><code>claude mcp add-json &lt;name&gt; '&lt;json&gt;'</code></td></tr>
+<tr><td>Copy servers from the Claude desktop app</td><td><code>claude mcp add-from-claude-desktop</code>, on macOS and WSL only</td></tr>
+<tr><td>Forget approvals for project servers</td><td><code>claude mcp reset-project-choices</code></td></tr>
+</tbody>
+</table>
+<p>Many servers publish their setup as a JSON block. <code>add-json</code> accepts it directly. A remote entry needs a <code>type</code>; the documentation warns that an entry with a <code>url</code> and no <code>type</code> is treated as an error and skipped.</p>
+<p>Quoting JSON on a command line differs between shells. If <code>add-json</code> gives you trouble in PowerShell, use the ordinary <code>claude mcp add</code> flags, or put the block in <code>.mcp.json</code> with a text editor.</p>
+
+<h2 id="plugins">7. Install a plugin</h2>
+<p>Plugins come from marketplaces. Anthropic's official one is named <code>claude-plugins-official</code>. Inside a session:</p>
+<pre><code>/plugin install commit-commands@claude-plugins-official</code></pre>
+<p>That is the documentation's example, a plugin that adds commands for committing and opening pull requests. In a session the command does not install at once. It opens the plugin's details so you can review them and pick a scope. To browse instead, type <code>/plugin</code> alone and use the Discover tab.</p>
+<table>
+<thead><tr><th scope="col">Scope</th><th scope="col">Who gets it</th><th scope="col">Recorded in</th></tr></thead>
+<tbody>
+<tr><td>User</td><td>You, in every project on this machine</td><td><code>~/.claude/settings.json</code></td></tr>
+<tr><td>Project</td><td>Everyone who works in the repository</td><td><code>.claude/settings.json</code>, which you commit</td></tr>
+<tr><td>Local</td><td>You, in this repository only</td><td><code>.claude/settings.local.json</code></td></tr>
+</tbody>
+</table>
+<p>After installing, read the last line of the summary. "Plugin is now active" means it is ready. "Run /reload-plugins to apply" means one more step. Then type <code>/</code> and look for the plugin's skills, named in the form <code>/commit-commands:commit</code>.</p>
+<p>The same install works from the shell, which is useful in a setup script:</p>
+<pre><code>claude plugin install commit-commands@claude-plugins-official</code></pre>
+<p>From the shell the default scope is user; add <code>--scope project</code> or <code>--scope local</code> to change it. On a brand-new machine where no session has been opened yet, the documentation says to register the marketplace first with <code>claude plugin marketplace add anthropics/claude-plugins-official</code>.</p>
+<div class="callout warn"><strong>Read before you install</strong>A plugin can run hooks and start MCP servers on your machine. Install from publishers you trust, and look at what a plugin contains first; step 9 shows the command.</div>
+
+<h2 id="marketplace">8. Add another marketplace</h2>
+<p>A plugin from a colleague or a community catalog needs its marketplace added once:</p>
+<table>
+<thead><tr><th scope="col">Source</th><th scope="col">Example</th></tr></thead>
+<tbody>
+<tr><td>GitHub repository</td><td><code>claude plugin marketplace add your-org/plugins</code></td></tr>
+<tr><td>Pinned to a tag</td><td><code>claude plugin marketplace add your-org/plugins#v1.2.0</code></td></tr>
+<tr><td>Any git host</td><td><code>claude plugin marketplace add https://gitlab.example.com/group/marketplace.git</code></td></tr>
+<tr><td>A folder on your machine</td><td><code>claude plugin marketplace add ./my-marketplace</code></td></tr>
+</tbody>
+</table>
+<p>Start a local path with <code>./</code>. A bare <code>name/name</code> is read as a GitHub repository. Inside a session, the same commands begin with <code>/plugin marketplace</code>.</p>
+
+<h2 id="practice">9. Practice the whole plugin loop offline</h2>
+<p>You can try every plugin command without touching the network, using a marketplace in a folder. It needs three small files:</p>
+<pre><code>my-marketplace/
+  .claude-plugin/marketplace.json
+  plugins/hello-plugin/
+    .claude-plugin/plugin.json
+    skills/hello/SKILL.md</code></pre>
+<p><code>marketplace.json</code> lists the plugins:</p>
+<pre><code>{
+  "name": "my-marketplace",
+  "owner": { "name": "Your Name" },
+  "plugins": [
+    {
+      "name": "hello-plugin",
+      "source": "./plugins/hello-plugin",
+      "description": "A greeting skill for testing plugin installation"
+    }
+  ]
+}</code></pre>
+<p><code>plugin.json</code> describes the plugin:</p>
+<pre><code>{
+  "name": "hello-plugin",
+  "description": "A greeting skill for testing plugin installation",
+  "version": "0.1.0"
+}</code></pre>
+<p>And <code>SKILL.md</code> is the skill itself:</p>
+<pre><code>---
+name: hello
+description: Greet the user by name. Use when the user asks for a greeting.
+---
+
+Reply with one friendly sentence that greets the user by the name they gave.</code></pre>
+<p>Then run the loop. This is the real output:</p>
+<figure class="terminal">
+<pre><code><span class="c">$ claude plugin validate ./my-marketplace</span>
+Validating marketplace manifest: /path/to/my-marketplace/.claude-plugin/marketplace.json
+
+⚠ Found 2 warnings:
+
+  ❯ description: No marketplace description provided. Adding a description helps users understand what this marketplace offers
+  ❯ plugins[0] plugin.json → author: No author information provided. Consider adding author details for plugin attribution
+
+<span class="g">✔ Validation passed with warnings</span>
+
+<span class="c">$ claude plugin marketplace add ./my-marketplace</span>
+Adding marketplace…<span class="g">✔ Successfully added marketplace: my-marketplace (declared in user settings)</span>
+
+<span class="c">$ claude plugin install hello-plugin@my-marketplace</span>
+Installing plugin "hello-plugin@my-marketplace"...<span class="g">✔ Successfully installed plugin: hello-plugin@my-marketplace (scope: user)</span>
+
+<span class="c">$ claude plugin list</span>
+Installed plugins:
+
+  ❯ hello-plugin@my-marketplace
+    Version: 0.1.0
+    Read from: /path/to/my-marketplace/plugins/hello-plugin
+    Scope: user
+    Status: <span class="g">✔ enabled</span>
+
+<span class="c">$ claude plugin details hello-plugin@my-marketplace</span>
+hello-plugin 0.1.0
+  Description: A greeting skill for testing plugin installation
+  Source: hello-plugin@my-marketplace
+
+Component inventory
+  Skills (1)  hello
+  Agents (0)
+  Hooks (0)
+  MCP servers (0)
+  LSP servers (0)
+
+Projected token cost
+  Always-on:   ~38 tok   added to every session</code></pre>
+<figcaption>Real output from Claude Code 2.1.322. The warnings are advice, not errors.</figcaption>
+</figure>
+<p><code>claude plugin details</code> is the command to remember. It lists what a plugin adds, including hooks and MCP servers, and estimates how many tokens it costs in every session. Run it on any plugin before you rely on it.</p>
+
+<h2 id="maintain">10. Update, disable and remove</h2>
+<table>
+<thead><tr><th scope="col">Task</th><th scope="col">Command</th></tr></thead>
+<tbody>
+<tr><td>List installed plugins</td><td><code>claude plugin list</code></td></tr>
+<tr><td>Turn one off without removing it</td><td><code>claude plugin disable &lt;plugin&gt;@&lt;marketplace&gt;</code></td></tr>
+<tr><td>Turn it back on</td><td><code>claude plugin enable &lt;plugin&gt;@&lt;marketplace&gt;</code></td></tr>
+<tr><td>Update one plugin now</td><td><code>claude plugin update &lt;plugin&gt;@&lt;marketplace&gt;</code></td></tr>
+<tr><td>Remove it</td><td><code>claude plugin uninstall &lt;plugin&gt;@&lt;marketplace&gt;</code></td></tr>
+<tr><td>List, refresh or remove marketplaces</td><td><code>claude plugin marketplace list</code>, <code>update &lt;name&gt;</code>, <code>remove &lt;name&gt;</code></td></tr>
+</tbody>
+</table>
+<p>Plugins from the official marketplace update automatically. For other marketplaces auto-update is off by default, and you can turn it on from the Marketplaces tab of <code>/plugin</code>. A running session keeps the versions it loaded; <code>/reload-plugins</code> applies an update without restarting.</p>
+<p>In the practice run, disable, enable and uninstall each answered with one line, such as <code>✔ Successfully uninstalled plugin: hello-plugin (scope: user)</code>.</p>
+
+<h2 id="trouble">11. When something does not work</h2>
+<table>
+<thead><tr><th scope="col">What you see</th><th scope="col">Cause</th><th scope="col">Fix</th></tr></thead>
+<tbody>
+<tr><td><code>claude</code> is not found after installing</td><td>The terminal was open before the install, or the install folder is not on PATH</td><td>Open a new window; see the documentation's PATH section</td></tr>
+<tr><td>"! Needs authentication" in <code>claude mcp list</code></td><td>Registered but not signed in</td><td>Start a session, run <code>/mcp</code>, sign in</td></tr>
+<tr><td>"✘ Failed to connect" for a local server</td><td>The start command fails</td><td>Run the part after <code>--</code> by itself in the terminal and read the error</td></tr>
+<tr><td>"⏸ Pending approval"</td><td>A project server nobody approved on this machine</td><td>Run <code>claude</code> in the project and approve it</td></tr>
+<tr><td>The server's own flags are rejected</td><td>The <code>--</code> is missing</td><td>Put <code>--</code> before the server command</td></tr>
+<tr><td>The server works in one project, not another</td><td>It was added at local scope</td><td>Add it again with <code>--scope user</code></td></tr>
+<tr><td>A plugin's commands do not appear</td><td>The session loaded before the install</td><td><code>/reload-plugins</code>, or check the Errors tab in <code>/plugin</code></td></tr>
+<tr><td>Hooks with paths misbehave on Windows</td><td>Paths arrive with backslashes</td><td>See the <a href="/blog/posts/claude-code-hooks-tested/">tested hooks guide</a></td></tr>
+</tbody>
+</table>
+
+<h2 id="recap">12. What you can do now</h2>
+<ul>
+<li>Tell a plugin from an MCP server and know which command family manages each.</li>
+<li>Add a remote server, sign in through <code>/mcp</code>, and add a local server with the double dash in the right place.</li>
+<li>Pick local, project or user scope on purpose, and keep secrets out of <code>.mcp.json</code>.</li>
+<li>Install, inspect, update and remove plugins, and add a marketplace from GitHub or a folder.</li>
+</ul>
+<p>Every server and plugin adds tool descriptions that the model reads on each request, so install what you use and remove what you do not. For the project files that sit beside these, see <a href="/blog/posts/claude-code-project-setup/">Claude Code project setup</a>.</p>

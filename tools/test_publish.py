@@ -234,6 +234,40 @@ class PublicationTest(unittest.TestCase):
             publish.CONFIG.clear()
             publish.CONFIG.update(saved)
 
+    def test_cards_carry_a_picture_and_articles_can_embed_figures(self):
+        self.assertTrue(publish.CONFIG.get('card_covers'), 'content/site.json turns card pictures on')
+        archive = (publish.OUT / 'blog/index.html').read_text()
+        cards = re.findall(r'<article class="post">.*?</article>', archive, re.S)
+        self.assertEqual(len(cards), publish.PAGE_SIZE)
+        for card in cards:
+            self.assertEqual(card.count('class="post-cover'), 1)
+            # Decorative: the title is right below, so the picture carries no alt text of its own.
+            self.assertTrue('alt=""' in card or 'aria-hidden="true"' in card)
+        for post in self.posts:
+            cover = publish.card_cover(post)
+            if post['image'].get('small') and not post['image']['src'].endswith('.svg'):
+                self.assertIn(post['image']['small'], cover)
+                self.assertIn('loading="lazy"', cover)
+            else:
+                self.assertIn('<svg viewBox="0 0 320 180"', cover, post['slug'])
+        # Each article written here picks its own motif, so a page of them is not one picture repeated.
+        written = [p for p in self.posts if p.get('native')]
+        self.assertTrue(all(p.get('cover') in publish.MOTIFS for p in written), [p['slug'] for p in written if not p.get('cover')])
+        self.assertGreaterEqual(len({p['cover'] for p in written}), 8)
+        saved = dict(publish.CONFIG)
+        try:
+            publish.CONFIG['card_covers'] = False
+            self.assertEqual(publish.card_cover(self.posts[0]), '')
+        finally:
+            publish.CONFIG.clear()
+            publish.CONFIG.update(saved)
+        # A video placeholder becomes a still image and a button; no player loads until the reader asks.
+        body = publish.native_body(dict(body='<p>Intro</p>{{video:vLP_8hLBs-U|A "quoted" title}}', sources=[], note=''))
+        self.assertIn('data-video="vLP_8hLBs-U"', body)
+        self.assertIn('A &quot;quoted&quot; title', body)
+        self.assertNotIn('<iframe', body)
+        self.assertNotIn('{{video', body)
+
     def test_naver_only_articles_stay_off_the_english_site(self):
         skipped = [slug for slug, _ in publish.SKIPPED]
         self.assertTrue(skipped, 'expected the Korean tax and welfare posts to be recognised')
@@ -392,8 +426,10 @@ class PublicationTest(unittest.TestCase):
             self.assertIn(f'<meta property="og:image" content="{publish.SITE}{social["src"]}">', source)
             self.assertIn(f'<meta property="og:image:width" content="{social["width"]}">', source)
             self.assertIn('<meta name="twitter:card" content="summary_large_image">', source)
-            # The cover is a social preview by default; content/site.json can show it in the article.
-            self.assertEqual('class="article-cover"' in source, bool(publish.CONFIG.get('article_cover')))
+            # content/site.json decides whether a cover opens the article, and only a real illustration qualifies:
+            # never the site's own card (articles written here) or an upstream text graphic.
+            illustrated = not post.get('native') and not image['src'].endswith('.svg')
+            self.assertEqual('class="article-cover"' in source, bool(publish.CONFIG.get('article_cover')) and illustrated, post['slug'])
             if image.get('small'):
                 self.assertTrue((publish.OUT / image['small'].lstrip('/')).is_file())
                 self.assertLess((publish.OUT / image['src'].lstrip('/')).stat().st_size, 300_000)

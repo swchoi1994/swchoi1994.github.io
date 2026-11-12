@@ -8,7 +8,7 @@
     "posts": [],
     "keep": []
   },
-  "article_cover": false,
+  "article_cover": true,
   "adblock_wall": true,
   "comments": {
     "repo": "",
@@ -25,5 +25,6 @@
   "verification": {
     "google": "",
     "bing": ""
-  }
+  },
+  "card_covers": true
 }
