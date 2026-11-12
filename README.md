@@ -41,6 +41,18 @@ Most articles arrive through the sync. An article can also be written here: add 
 
 The build adds the byline, the contents list from the `<h2 id>` headings, the source list, the feed entry and the structured data. These articles have no Korean original, and end with a note saying they were written for this site with AI assistance. The tests hold them to a stricter bar than synced posts: title and description lengths, at least two `https` sources, a `note`, and at least three sections. Write the `note` honestly; say plainly when commands were not run.
 
+### Pictures, diagrams and video in an article
+
+An article written here can carry visuals without any image files:
+
+| What | How to write it |
+| --- | --- |
+| The picture on its card | `"cover": "<motif>"` in the metadata. Motifs are drawn by the build in the page's own colours: `stack`, `bars`, `flow`, `chat`, `terminal`, `gauge`, `shield`, `doc`, `window`, `mail`, `check`, `plug`, `chip`. Without one, the topic's default motif is used. |
+| A tip or warning box | `<div class="callout">`, `<div class="callout warn">` or `<div class="callout ok">`, starting with a `<strong>` label. |
+| A diagram | `<figure class="diagram">` holding `d-flow` (boxes and arrows), `d-stack` (layers) or `d-bars` (proportional bars, each segment sized with `style="flex:N"`), plus a `<figcaption>`. They are plain HTML, so they wrap on phones and follow dark mode. |
+| Real command output | `<figure class="terminal"><pre><code>…</code></pre></figure>`, with `<span class="c">` for the command line and `<span class="g">` for success text. Paste only output from a real run. |
+| A video | `{{video:VIDEO_ID\|Title}}` on its own line. It becomes a still image with a play button; the YouTube player loads only when pressed. |
+
 ### Series and projects
 
 Two optional metadata fields turn single articles into a course:
@@ -66,7 +78,8 @@ Everything below is off until its values are filled in. No IDs are invented by t
 | `content/site.json` → `comments` | giscus settings (`repo`, `repo_id`, `category`, `category_id`) from giscus.app after enabling Discussions and installing the giscus app. Comments load only when a reader opens them. Update the privacy page before enabling. |
 | `content/site.json` → `verification` | Search engine ownership codes: `google` (the `content` value of Search Console's HTML tag) and `bing`. A filled value adds the matching `<meta>` tag to the home page only. The Google property is currently verified through the Analytics tag; adding the HTML tag as well gives a second method. |
 | `content/series.json` | The series that articles can join: `{slug: {title, description}}`. See "Series and projects". |
-| `content/site.json` → `article_cover` | `true` shows the cover illustration inside articles. Default `false`: covers are used for social previews only. |
+| `content/site.json` → `card_covers` | `true` puts a picture on every card in the grid: the article's illustration where it has one, otherwise a drawn motif. The list view stays text-only. `false` returns to text-only cards. |
+| `content/site.json` → `article_cover` | `true` opens an article with its cover illustration and credit line. Only real illustrations are shown; articles written here and posts with only a text graphic have none. `false` keeps covers for cards and social previews only. |
 | `content/post-meta.json` | Optional per-article `mood` and `music`, keyed by article ID, shown under the byline. Enter these by hand; leave an article out to show nothing. |
 | `content/x-posts.json` | The posts shown under "On X" on the home page (date, text, link). X does not offer a public feed, so this list is maintained by hand. |
 

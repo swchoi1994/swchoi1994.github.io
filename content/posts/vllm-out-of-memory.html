@@ -1,0 +1,119 @@
+<!--
+{
+  "title": "vLLM out of memory: find the cause in six checks",
+  "description": "vLLM runs out of memory in three different ways: at startup, under load, and in system RAM. Six checks that tell them apart, with the fix for each.",
+  "date": "2026-11-12T10:41:00+00:00",
+  "topic": "ai-automation",
+  "cover": "gauge",
+  "note": "The causes and fixes come from the vLLM and Qwen documentation as read on November 12, 2026, and one error message is quoted from vLLM's source code on the same day. The memory figures are calculated from published model files. No GPU was available, so none of these failures was reproduced for this article; the Docker and Linux commands are standard ones.",
+  "sources": [
+    {"title": "vLLM docs: Conserving memory", "url": "https://docs.vllm.ai/en/latest/configuration/conserving_memory/"},
+    {"title": "vLLM docs: Optimization and tuning", "url": "https://docs.vllm.ai/en/latest/configuration/optimization/"},
+    {"title": "vLLM docs: Troubleshooting", "url": "https://docs.vllm.ai/en/latest/usage/troubleshooting/"},
+    {"title": "vLLM docs: Parallelism and scaling", "url": "https://docs.vllm.ai/en/latest/serving/parallelism_scaling/"},
+    {"title": "vLLM source: worker memory checks", "url": "https://github.com/vllm-project/vllm/blob/main/vllm/v1/worker/utils.py"},
+    {"title": "Qwen docs: vLLM deployment, FAQ", "url": "https://qwen.readthedocs.io/en/latest/deployment/vllm.html"}
+  ]
+}
+-->
+<p>"Out of memory" from vLLM is three different problems with one name. The model may not fit when it loads. It may fit and then run short when many requests arrive. Or the machine's ordinary RAM, not the GPU, may be what ran out. Each has a different fix, and the common reflex of lowering one flag at random often makes things worse. These six checks, in order, tell you which problem you have.</p>
+
+<h2 id="three">1. Three kinds of "out of memory"</h2>
+<figure class="diagram">
+<div class="d-flow">
+<div class="d-box key"><strong>At startup</strong>The server never becomes ready. The weights, or one full request, do not fit on the GPU.</div>
+<div class="d-box green"><strong>Under load</strong>It starts, then slows or stalls. The cache for requests is full.</div>
+<div class="d-box warn"><strong>In system RAM</strong>The process vanishes with no Python error. The operating system killed it.</div>
+</div>
+<figcaption>Find out which of the three you have before you change anything.</figcaption>
+</figure>
+<p>GPU memory in vLLM is split between two things: the model's weights, which are fixed, and the KV cache, which holds the tokens of every request being answered. The cache gets whatever is left after the weights. Nearly every GPU memory problem is one of those two being too big for the card.</p>
+
+<h2 id="who">2. Check one: is something else on the card?</h2>
+<p>Before blaming the model, look at the GPU:</p>
+<pre><code>nvidia-smi</code></pre>
+<p>The table at the bottom lists every process and the memory it holds. A forgotten notebook, a second server or a previous container that did not stop are the usual finds. vLLM reports this case in words. Its source code raises an error of this form:</p>
+<pre><code>Free memory on device cuda:0 (X/Y GiB) on startup is less than desired GPU memory utilization (...). Decrease GPU memory utilization or reduce GPU memory used by other processes.</code></pre>
+<p>The fix is in the last sentence. Stop the other process, or give this server a different GPU with <code>--gpus device=1</code> in Docker.</p>
+<p>If two servers are meant to share one card, set <code>--gpu-memory-utilization</code> on each, for example 0.5 and 0.5. That is what the flag is for: the documentation describes an explicit value as a hard cap on everything the instance uses.</p>
+
+<h2 id="weights">3. Check two: do the weights fit at all?</h2>
+<p>Add up the weight files in the model's repository and compare with the card. Divide bytes by 1,073,741,824 to get the GiB that GPU tools report.</p>
+<table>
+<thead><tr><th scope="col">Model</th><th scope="col">Weights</th><th scope="col">Smallest single card that holds them</th></tr></thead>
+<tbody>
+<tr><td>Qwen2.5-7B-Instruct</td><td>14.2 GiB</td><td>24 GB</td></tr>
+<tr><td>Qwen3-8B</td><td>15.3 GiB</td><td>24 GB</td></tr>
+<tr><td>Qwen2.5-Coder-32B-Instruct</td><td>61.0 GiB</td><td>80 GB</td></tr>
+<tr><td>Phind-CodeLlama-34B-v2</td><td>62.9 GiB</td><td>80 GB</td></tr>
+</tbody>
+</table>
+<p>If the weights alone are larger than the card, no flag will help. The documentation's options are:</p>
+<ul>
+<li><strong>Split the model across GPUs</strong> with <code>--tensor-parallel-size</code>. This is the standard answer for a model too large for one card.</li>
+<li><strong>Use a quantized build.</strong> Smaller weights at lower precision. Pre-quantized models from the Hub load without extra settings.</li>
+<li><strong>Choose a smaller model.</strong> Often the honest answer for a 24 GB card.</li>
+<li><strong>Offload part to system memory</strong> with <code>--cpu-offload-gb</code>. The reference describes it as a virtual way to enlarge the GPU. Expect it to be much slower; treat it as a way to test, not to serve.</li>
+</ul>
+
+<h2 id="request">4. Check three: does one full request fit?</h2>
+<p>This is the most common startup failure, and the least obvious. The weights fit, but the memory left over cannot hold even one request at the model's full context length.</p>
+<p>The default context comes from the model's own configuration and is often large. Qwen3-8B defaults to 40,960 tokens, and one request of that length needs about 5.6 GiB of cache. On a 24 GB card that is nearly everything that remains:</p>
+<figure class="diagram">
+<div class="d-bars">
+<div><p><strong>Qwen3-8B on 24 GiB, default context of 40,960</strong><span>room for 1 full request</span></p><div class="d-bar"><span class="a" style="flex:15.3">weights 15.3</span><span class="b" style="flex:6.3">cache 6.3</span><span class="c" style="flex:2.4"></span></div></div>
+<div><p><strong>Same card, <code>--max-model-len 8192</code></strong><span>room for 5 full requests</span></p><div class="d-bar"><span class="a" style="flex:15.3">weights 15.3</span><span class="b" style="flex:6.3">cache 6.3</span><span class="c" style="flex:2.4"></span></div></div>
+</div>
+<p class="d-legend"><span><i class="a"></i>Model weights</span><span><i class="b"></i>KV cache</span><span><i class="c"></i>Runtime reserve, assumed 10%</span></p>
+<figcaption>The memory is identical. Only the size of one request changed, from 5.6 GiB to 1.1 GiB.</figcaption>
+</figure>
+<p>The fix is one flag. It is also the first suggestion in the Qwen documentation's own FAQ:</p>
+<pre><code>--max-model-len 8192</code></pre>
+<p>Pick the largest value your users really need. Then confirm in the startup log, where vLLM prints the real numbers:</p>
+<pre><code>GPU KV cache size: 643,232 tokens
+Maximum concurrency for 40,960 tokens per request: 15.70x</code></pre>
+<p>If the second number is below 1, one full request does not fit. Lower <code>--max-model-len</code> until it is comfortably above the number of requests you expect at once.</p>
+
+<h2 id="load">5. Check four: does it start fine and struggle later?</h2>
+<p>When the cache fills up during use, vLLM does not crash. It pauses some requests and recomputes them later, and writes a warning like this one from the documentation:</p>
+<pre><code>WARNING ... Sequence group 0 is preempted by PreemptionMode.RECOMPUTE mode because there is not enough KV cache space. This can affect the end-to-end performance. Increase gpu_memory_utilization or tensor_parallel_size to provide more KV cache memory.</code></pre>
+<p>Users feel this as answers that stop in the middle and resume. The documentation lists the remedies:</p>
+<ol>
+<li>Leave <code>--gpu-memory-utilization</code> unset, or raise it if you lowered it.</li>
+<li>Lower <code>--max-num-seqs</code> or <code>--max-num-batched-tokens</code>, so fewer requests run at once and the rest wait their turn.</li>
+<li>Add GPUs with <code>--tensor-parallel-size</code>, which leaves more of each card free for the cache.</li>
+</ol>
+<p>The second is usually the right first move. A short queue costs users far less than work that is thrown away and redone.</p>
+
+<h2 id="ram">6. Check five: did the process just disappear?</h2>
+<p>If the container stops with no Python traceback, the GPU is probably innocent. Linux kills a process that uses more system RAM than is available, and it does so without asking. Two commands confirm it:</p>
+<pre><code>docker inspect --format '{{.State.OOMKilled}} exit={{.State.ExitCode}}' vllm
+sudo dmesg -T | grep -i -E "out of memory|killed process"</code></pre>
+<p><code>true exit=137</code> from the first, or a "Killed process" line from the second, means system memory ran out. Model weights pass through RAM on their way to the GPU, so a machine with a large GPU and little RAM fails exactly this way. The troubleshooting page also warns that a model too large for RAM makes the system swap, which looks like a hang.</p>
+<ul>
+<li>Give the machine, or the container, more memory. As a rule of thumb, plan for at least the size of the weight files.</li>
+<li>Keep the model cache on a local disk, not a network file system.</li>
+<li>For models that accept images, the documentation notes a processor cache of 4 GiB by default, set by <code>mm_processor_cache_gb</code>, which you can lower.</li>
+<li>Errors that mention shared memory are a different limit: add <code>--ipc=host</code> to the Docker command.</li>
+</ul>
+
+<h2 id="graphs">7. Check six: the last few hundred megabytes</h2>
+<p>If you are close to fitting, two smaller items remain.</p>
+<p><strong>CUDA graphs.</strong> vLLM speeds up inference with CUDA graphs, which the documentation says take extra GPU memory. <code>--enforce-eager</code> turns them off. The model runs slower, so use it to confirm a diagnosis or to squeeze onto a small card, not as a default.</p>
+<p><strong>An outdated habit.</strong> Many older guides tell you to lower <code>--gpu-memory-utilization</code> when you see an out-of-memory error. On current vLLM with NVIDIA GPUs that is usually backwards. The documentation says the server measures free memory after loading and sizes the cache from it, that the setting defaults to 1.0 there, and that anything below 1.0 takes memory away from the cache. Lower it only to leave room for something else on the same card.</p>
+
+<h2 id="table">8. The short version</h2>
+<table>
+<thead><tr><th scope="col">What you see</th><th scope="col">Most likely cause</th><th scope="col">First thing to try</th></tr></thead>
+<tbody>
+<tr><td>"Free memory on device ... is less than desired"</td><td>Another process holds the GPU</td><td><code>nvidia-smi</code>, then stop it</td></tr>
+<tr><td>CUDA out of memory while loading weights</td><td>The weights are larger than the card</td><td>A quantized or smaller model, or more GPUs</td></tr>
+<tr><td>Fails right after loading, or concurrency below 1</td><td>One full-length request does not fit</td><td>Lower <code>--max-model-len</code></td></tr>
+<tr><td>Preemption warnings, answers that stall</td><td>The cache is full under load</td><td>Lower <code>--max-num-seqs</code></td></tr>
+<tr><td>Container gone, exit code 137</td><td>System RAM ran out</td><td>More RAM; check <code>dmesg</code></td></tr>
+<tr><td>Loading takes forever, disk is busy</td><td>The machine is swapping</td><td>More RAM, local disk</td></tr>
+<tr><td>Fits on some starts and not others</td><td>Something else uses the card at times</td><td>Give vLLM its own GPU</td></tr>
+</tbody>
+</table>
+<div class="callout ok"><strong>Change one thing at a time</strong>Each flag here trades something away: context length, concurrency, speed or precision. Change one, restart, and read the two startup lines again. That way you know what each change bought.</div>
+<p>To work out the numbers before you start a server, use the script in <a href="/blog/posts/vllm-gpu-sizing/">GPU sizing for vLLM</a>. To see memory pressure building before users notice, the cache gauge and the preemption counter are on the dashboards in <a href="/blog/posts/vllm-monitoring-prometheus-grafana/">the monitoring guide</a>.</p>

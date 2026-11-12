@@ -1,0 +1,114 @@
+<!--
+{
+  "title": "Claude Fable 5.2 launch: new prices and how to switch",
+  "description": "Anthropic released Claude Fable 5.2 on November 9, 2026 and cut API prices by 20%. What changed, who can use it, the cost in practice, and how to turn it on.",
+  "date": "2026-11-12T10:46:00+00:00",
+  "topic": "ai-automation",
+  "cover": "bars",
+  "note": "Prices, availability and behaviour are from Anthropic's product page, pricing documentation and Claude Code documentation as read on November 12, 2026. This is a summary of published information, not a test of the model's quality: no benchmark was run for this article, and Anthropic's own benchmark claims are not repeated here. Prices change; check the official pricing page before budgeting.",
+  "sources": [
+    {"title": "Anthropic: Claude Fable", "url": "https://www.anthropic.com/claude/fable"},
+    {"title": "Claude Platform docs: Pricing", "url": "https://platform.claude.com/docs/en/about-claude/pricing"},
+    {"title": "Claude Code docs: Model configuration", "url": "https://code.claude.com/docs/en/model-config"}
+  ]
+}
+-->
+<p>On November 9, 2026, Anthropic released Claude Fable 5.2 and lowered the price of its top generally available model by a fifth. For anyone running coding agents or long automated jobs, the price is the news: the same kind of work now costs 20 percent less. This explainer covers what was announced, what it costs in practice, who can use it, and how to switch.</p>
+
+<h2 id="what">1. What was announced</h2>
+<ul>
+<li><strong>A new version.</strong> Claude Fable 5.2 replaces Fable 5.1 as Anthropic's most capable generally available model.</li>
+<li><strong>A price cut.</strong> Input falls from $10 to $8 per million tokens, and output from $50 to $40.</li>
+<li><strong>A sibling with limited access.</strong> Claude Mythos 5.2 is listed at the same prices, with limited availability.</li>
+<li><strong>A faster option.</strong> A fast mode offers up to 2.5 times the output speed at twice the price.</li>
+</ul>
+
+<h2 id="prices">2. The prices, old and new</h2>
+<figure class="diagram">
+<div class="d-bars">
+<div><p><strong>Fable 5.1</strong><span>$50 per million output tokens</span></p><div class="d-bar"><span class="c" style="flex:50">$50</span></div></div>
+<div><p><strong>Fable 5.2</strong><span>$40 per million output tokens</span></p><div class="d-bar" style="width:80%"><span class="a" style="flex:40">$40</span></div></div>
+<div><p><strong>Opus 5.5, for comparison</strong><span>$20 per million output tokens</span></p><div class="d-bar" style="width:40%"><span class="b" style="flex:20">$20</span></div></div>
+</div>
+<figcaption>Output price per million tokens, from Anthropic's pricing table. Bars are drawn to scale.</figcaption>
+</figure>
+<table>
+<thead><tr><th scope="col">Per million tokens</th><th scope="col">Fable 5.1</th><th scope="col">Fable 5.2</th><th scope="col">Change</th></tr></thead>
+<tbody>
+<tr><td>Input</td><td>$10</td><td>$8</td><td>−20%</td></tr>
+<tr><td>Output</td><td>$50</td><td>$40</td><td>−20%</td></tr>
+<tr><td>Cache read</td><td>$0.25</td><td>$0.20</td><td>−20%</td></tr>
+<tr><td>Cache write, 5 minutes</td><td>$12.50</td><td>$10</td><td>−20%</td></tr>
+<tr><td>Cache write, 1 hour</td><td>$20</td><td>$16</td><td>−20%</td></tr>
+</tbody>
+</table>
+<p>Two modifiers from the pricing documentation are worth knowing:</p>
+<ul>
+<li><strong>Fast mode:</strong> $16 input and $80 output per million tokens, for up to 2.5 times the output speed.</li>
+<li><strong>US-only inference:</strong> 1.1 times the standard price on every token category.</li>
+</ul>
+<p>For scale, the same table lists Claude Opus 5.5 at $4 input and $20 output. Fable 5.2 costs exactly twice as much, so it is the model for the hardest work, not for everything.</p>
+
+<h2 id="cost">3. What that means for a real task</h2>
+<p>Agents reread their context on every step, so most of their input is served from the cache. Take a long coding task that uses 2 million input tokens, 1.5 million of them from the cache, and writes 100,000 tokens:</p>
+<table>
+<thead><tr><th scope="col"></th><th scope="col">Tokens</th><th scope="col">At 5.1 prices</th><th scope="col">At 5.2 prices</th></tr></thead>
+<tbody>
+<tr><td>Fresh input</td><td>500,000</td><td>$5.00</td><td>$4.00</td></tr>
+<tr><td>Cached input</td><td>1,500,000</td><td>$0.38</td><td>$0.30</td></tr>
+<tr><td>Output</td><td>100,000</td><td>$5.00</td><td>$4.00</td></tr>
+<tr><td>Total</td><td></td><td>$10.38</td><td>$8.30</td></tr>
+</tbody>
+</table>
+<p>The token counts are an invented example; the arithmetic is exact. Notice where the money goes: 100,000 output tokens cost as much as 500,000 fresh input tokens, and 1.5 million cached tokens cost thirty cents. Keeping the start of your prompts stable, so the cache can be used, saves more than any model switch.</p>
+
+<h2 id="who">4. Who can use it</h2>
+<table>
+<thead><tr><th scope="col">You are</th><th scope="col">Access</th></tr></thead>
+<tbody>
+<tr><td>An individual subscriber</td><td>Pro, Max and Ultra plans</td></tr>
+<tr><td>An organization</td><td>Team and Enterprise plans</td></tr>
+<tr><td>A developer using the API</td><td>The Claude Platform, and through Amazon Web Services, Google Cloud and Microsoft Foundry</td></tr>
+<tr><td>On the free plan</td><td>Not listed</td></tr>
+</tbody>
+</table>
+<div class="callout warn"><strong>Check how your plan bills it</strong>The Claude Code documentation says that, depending on your plan and seat tier, Fable usage can be billed to usage credits instead of your plan's included limits, and that Claude Code can ask for your consent before continuing. Read that prompt before you agree.</div>
+
+<h2 id="switch">5. How to switch in Claude Code</h2>
+<p>Fable is not the default model on any plan. You select it yourself:</p>
+<pre><code>/model fable</code></pre>
+<p>That is typed inside a session. To start a session on it from your shell:</p>
+<pre><code>claude --model fable</code></pre>
+<table>
+<thead><tr><th scope="col">Detail</th><th scope="col">What the documentation says</th></tr></thead>
+<tbody>
+<tr><td>Minimum version</td><td>Claude Code 2.1.321 or later. Check with <code>claude --version</code>.</td></tr>
+<tr><td>Is the choice remembered?</td><td>Yes. <code>/model</code> saves it as the default for new sessions.</td></tr>
+<tr><td>This session only</td><td>Open the picker with <code>/model</code> and press <code>s</code> on the model's row.</td></tr>
+<tr><td>You had 5.1 saved</td><td>On paid plans the saved setting moves to the <code>fable</code> alias, which now means 5.2.</td></tr>
+<tr><td>Subagents</td><td>Those that inherit the main model follow the switch.</td></tr>
+</tbody>
+</table>
+<p>On Windows and macOS the commands are the same. If <code>/model fable</code> reports that the model is not supported, update Claude Code first.</p>
+
+<h2 id="limits">6. What to know before relying on it</h2>
+<ul>
+<li><strong>Some requests are rerouted.</strong> Anthropic says requests flagged by its safety classifiers, most often in cybersecurity and biology, fall back to another model automatically. The product page names Opus 4.8 for cybersecurity and Opus 5 for biology. If you do security work, expect this, and look at the verification program the page describes.</li>
+<li><strong>Data is retained for safety monitoring.</strong> The product page states a 30-day retention by default, and describes an enterprise option compatible with zero retention.</li>
+<li><strong>Mythos is a separate track.</strong> It shares the price list but has limited availability.</li>
+<li><strong>Cheaper is not the same as cheap.</strong> At twice the price of Opus 5.5, routine edits and questions are better sent to a smaller model.</li>
+</ul>
+
+<h2 id="choose">7. Should you switch?</h2>
+<table>
+<thead><tr><th scope="col">Your work</th><th scope="col">Suggestion</th></tr></thead>
+<tbody>
+<tr><td>You already use Fable 5.1</td><td>Switch. The price is lower and the alias moves you anyway.</td></tr>
+<tr><td>Long, multi-step tasks that smaller models abandon or get wrong</td><td>Try it on one such task and compare the result and the bill.</td></tr>
+<tr><td>Everyday edits, questions and small fixes</td><td>Stay on your default model.</td></tr>
+<tr><td>Batch jobs where speed does not matter</td><td>Standard mode; fast mode doubles the price.</td></tr>
+<tr><td>You are sensitive to cost surprises</td><td>Set a spending limit first, and watch <code>/usage</code> for a week.</td></tr>
+</tbody>
+</table>
+<p>The fair test is your own task. Run the same job on your current model and on Fable 5.2, and compare what you got and what it cost. For habits that cut the cost on any model, see <a href="/blog/posts/ai-coding-agent-tips/">AI coding agent tips</a>.</p>
+<p>We also covered this release on our channel, AI2Now: <a href="https://www.instagram.com/p/DfkZcHiCA8w">Anthropic cut its top model price by 20%</a>.</p>
