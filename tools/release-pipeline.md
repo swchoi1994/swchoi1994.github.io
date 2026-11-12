@@ -13,7 +13,9 @@ Write about it:
 
 Skip it: bug-fix updates, research papers, policy essays, funding and hiring news, events, and anything announced more than 7 days ago.
 
-At most two explainers per run. Anthropic and OpenAI releases take priority. If more qualify, take the two that affect the most readers and leave the rest for the next run.
+At most one article per run, and at most three in any seven days, counting explainers and trend articles together. Before writing, count the articles in `content/posts/` dated in the last seven days; if there are already three, write nothing. Anthropic and OpenAI releases take priority. A day with thirty new articles reads as machine-made, and that costs the whole journal its credibility: fewer and better is the rule.
+
+An article must contain something of our own that a reader cannot get from the announcement: a test that was run, a measurement, a worked example with real numbers, or a comparison built from several primary sources. If all you could write is the announcement in other words, skip it.
 
 ## 2. Find what is already covered
 
@@ -51,8 +53,11 @@ Metadata, in addition to the usual fields:
 
 ```json
 "cover": "bars",
+"checked": {"level": "read", "line": "A summary of the company's announcement. Nothing was tested."},
 "release": {"company": "Anthropic", "name": "Product and version", "announced": "YYYY-MM-DD"}
 ```
+
+`checked` says, in one line shown under the summary, what was run. Use `tested` only when everything shown was run, `partly` when some of it was, and `read` when nothing was. Never round up.
 
 `company` is the company's short name, spelled as in `COMPANY_DOMAINS` in `tools/publish.py`: `Anthropic`, `OpenAI`, `Google`, `Amazon`, `Meta`, `Microsoft`, `NVIDIA`, `xAI`, `Mistral`. The build refuses a release from one of these that cites no page on the company's own site. For a company not on that list, add it there with its domains in the same pull request. `announced` is the date on the company's own page. `date` is the time of writing, in UTC.
 
@@ -109,7 +114,7 @@ After the release check, look at the ranking the site shows under "Trending in A
 5. Do not write about a person's private life, a rumour, or a story whose only sources are anonymous. Skip the name and take the next one.
 6. If a new product has started appearing in the news and is not on the watchlist, add it to `content/trend-terms.json` in the same pull request.
 
-One pull request per article, titled `Trend article: <subject>`. The limit of two articles per run covers explainers and trend articles together.
+One pull request per article, titled `Trend article: <subject>`. The limit of one article per run and three per week covers explainers and trend articles together.
 
 Commit the refreshed `content/trending.json` only as part of such a pull request. The deploy workflow refreshes it on its own.
 

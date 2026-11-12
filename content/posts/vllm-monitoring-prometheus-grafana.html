@@ -12,6 +12,7 @@
     "needs": "The GPU host and Docker setup from part 2. About 2 GB of disk for images and data.",
     "result": "Dashboards for CPU, memory, disk, every GPU and the model server, plus alert rules, all started by one command."
   },
+  "checked": {"level": "partly", "line": "The configuration, rules and host queries were run against a live node exporter. GPU and vLLM metrics were checked for syntax only: there was no GPU."},
   "note": "The Compose file was checked with docker compose config. The Prometheus configuration, the alert rules and all fifteen queries were checked with promtool 2.45. The CPU, memory, disk and load queries were also run against a live node exporter 1.7 and returned data, and the target-down alert fired as expected. The GPU and vLLM queries were checked for syntax only: no GPU was available, so DCGM and vLLM metrics were not collected. Metric names follow the NVIDIA and vLLM documentation as read on November 12, 2026.",
   "sources": [
     {"title": "vLLM docs: Production metrics", "url": "https://docs.vllm.ai/en/latest/usage/metrics/"},

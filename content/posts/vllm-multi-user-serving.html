@@ -11,6 +11,7 @@
     "needs": "A working vLLM container from parts 2 to 4, a host name for the server, and a TLS certificate for it.",
     "result": "One HTTPS endpoint where each person has their own key, a rate limit and a usage log, and nothing else is reachable."
   },
+  "checked": {"level": "partly", "line": "The nginx configuration was run against a stand-in server: keys, blocked paths, streaming and rate limits. vLLM itself was not run: there was no GPU."},
   "note": "The vLLM behaviour described here comes from its documentation as read on November 12, 2026. The nginx configuration was run for this article with nginx 1.24.0 against a small stand-in server, not against vLLM: keys, blocked paths, streaming and the rate limit were tested and the results are reported below. The Compose file was checked with docker compose config. No GPU was used.",
   "sources": [
     {"title": "vLLM docs: Security", "url": "https://docs.vllm.ai/en/latest/usage/security/"},

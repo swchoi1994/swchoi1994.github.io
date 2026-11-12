@@ -31,6 +31,7 @@ Most articles arrive through the sync. An article can also be written here: add 
   "description": "At most 160 characters",
   "date": "2026-11-12T09:00:00+00:00",
   "topic": "ai-automation",
+  "checked": {"level": "tested", "line": "One sentence: what was run, on what, and what was not."},
   "note": "How the article was checked, and what was not tested.",
   "sources": [{"title": "Name of the source", "url": "https://..."}]
 }
@@ -40,6 +41,8 @@ Most articles arrive through the sync. An article can also be written here: add 
 ```
 
 The build adds the byline, the contents list from the `<h2 id>` headings, the source list, the feed entry and the structured data. These articles have no Korean original, and end with a note saying they were written for this site with AI assistance. The tests hold them to a stricter bar than synced posts: title and description lengths, at least two `https` sources, a `note`, and at least three sections. Write the `note` honestly; say plainly when commands were not run.
+
+`checked` is the short version of that note, and the build refuses an article without it. Its `level` is `tested` (everything shown was run), `partly` (some of it was) or `read` (written from documentation; nothing was run). The label and the `line` appear directly under the summary, before the reader starts, and cards show "Tested" or "Partly tested". An article that ran nothing is labelled "Not tested" at the top. That is deliberate: it is what separates this journal from pages that hide how they were made. When you later run an article's steps on real hardware, raise its level and say what you ran it on.
 
 ### Pictures, diagrams and video in an article
 

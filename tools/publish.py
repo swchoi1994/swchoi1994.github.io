@@ -119,6 +119,8 @@ CONFIG = content('site.json', {})
 SERIES = content('series.json', {})
 # Sidebar links that exist only when there is something behind them; filled in by build().
 EXTRA_NAV = []
+# How far an article written here was checked by running it. Shown under its summary; the first two also on its card.
+CHECK_LABELS = {'tested': 'Tested', 'partly': 'Partly tested', 'read': 'Not tested'}
 # A ranking older than this is no longer a trend, so the home page stops showing it.
 TREND_MAX_AGE = datetime.timedelta(days=4)
 
@@ -201,6 +203,9 @@ def native_articles():
             raise ValueError(f'Unknown cover "{info["cover"]}" in {path.name}; choose one of {", ".join(MOTIFS)}')
         if info.get('project') and not all(info['project'].get(key) for key in ('needs', 'result')):
             raise ValueError(f'A project needs "needs" and "result": {path.name}')
+        checked = info.get('checked') or {}
+        if checked.get('level') not in CHECK_LABELS or not 20 <= len(checked.get('line', '')) <= 200:
+            raise ValueError(f'Say what was tested: "checked" needs a "level" ({", ".join(CHECK_LABELS)}) and a "line" of 20 to 200 characters: {path.name}')
         url = f'/blog/posts/{slug}/'
         words = len(re.findall(r'\w+', re.sub(r'<[^>]+>', ' ', body)))
         schema = {'@context': 'https://schema.org', '@type': 'BlogPosting', '@id': SITE + url + '#article', 'url': SITE + url,
@@ -212,7 +217,7 @@ def native_articles():
         posts.append(dict(slug=slug, title=info['title'], description=info['description'], date=info['date'], url=url,
                           topic=info['topic'], minutes=max(1, math.ceil(words / 220)), source=None, schema=schema,
                           image=dict(SOCIAL, alt=info['title'], credit=''),
-                          series=info.get('series'), part=info.get('part'), project=info.get('project'), cover=info.get('cover'), release=info.get('release'),
+                          series=info.get('series'), part=info.get('part'), project=info.get('project'), cover=info.get('cover'), release=info.get('release'), checked=info['checked'],
                           native=dict(body=body, sources=info['sources'], note=info.get('note', ''))))
     return posts
 
@@ -448,7 +453,9 @@ def write(url, text):
 
 def meta(post):
     """Publication date and reading time, in the monospace metadata style."""
-    return f'<p class="post-meta"><time datetime="{e(post["date"])}">{post["date"][:10]}</time> · {post["minutes"]} min read</p>'
+    level = (post.get('checked') or {}).get('level')
+    check = f' · <span class="post-check">{CHECK_LABELS[level]}</span>' if level in ('tested', 'partly') else ''
+    return f'<p class="post-meta"><time datetime="{e(post["date"])}">{post["date"][:10]}</time> · {post["minutes"]} min read{check}</p>'
 
 
 def card_cover(post):
@@ -775,6 +782,11 @@ def series_nav(post, members):
     return f'<nav class="series-nav" aria-label="Series parts">{before}{after}</nav>'
 
 
+def checked_line(checked):
+    """What was and was not run for an article written here, stated before the reader starts."""
+    return f'<p class="checked checked-{checked["level"]}"><strong>{CHECK_LABELS[checked["level"]]}</strong><span>{e(checked["line"])}</span></p>'
+
+
 def project_facts(project):
     """What a follow-along project needs and what the reader has at the end."""
     return f'<dl class="facts"><div><dt>You need</dt><dd>{e(project["needs"])}</dd></div><div><dt>You end up with</dt><dd>{e(project["result"])}</dd></div></dl>'
@@ -887,7 +899,7 @@ def article(post, posts):
     mood = ''.join(f'<div><dt>{key}</dt><dd>{e(extra[key])}</dd></div>' for key in ('mood', 'music') if extra.get(key))
     illustrated = not native and not post['image']['src'].endswith('.svg')
     cover = f'<figure class="article-cover">{picture(post, True)}<figcaption>{e(post["image"]["credit"])}</figcaption></figure>' if CONFIG.get('article_cover') and illustrated else ''
-    header = f'''<header class="reading-header"><h1>{e(post['title'])}</h1><p class="byline"><img src="{AVATAR}" width="28" height="28" alt=""><a rel="author" href="/blog/about/">{NAME}</a><span><time datetime="{e(post['date'])}">{post['date'][:10]}</time> · {post['minutes']} min read</span></p>{f'<dl class="mood">{mood}</dl>' if mood else ''}<p class="article-summary"><strong>At a glance</strong>{summary}</p>{project_facts(post['project']) if post.get('project') else ''}{series_box(post, members) if members else ''}</header>'''
+    header = f'''<header class="reading-header"><h1>{e(post['title'])}</h1><p class="byline"><img src="{AVATAR}" width="28" height="28" alt=""><a rel="author" href="/blog/about/">{NAME}</a><span><time datetime="{e(post['date'])}">{post['date'][:10]}</time> · {post['minutes']} min read</span></p>{f'<dl class="mood">{mood}</dl>' if mood else ''}<p class="article-summary"><strong>At a glance</strong>{summary}</p>{checked_line(post['checked']) if post.get('checked') else ''}{project_facts(post['project']) if post.get('project') else ''}{series_box(post, members) if members else ''}</header>'''
     picks = ''.join(card(p) for p in related(post, posts))
     link, words = quote(SITE + post['url'], safe=''), quote(post['title'], safe='')
     follow = f'''<section class="block card follow" aria-label="Share and follow"><p><strong>Found this useful?</strong> Share it, or follow for new guides.</p><div class="follow-links"><a class="button" href="https://x.com/intent/post?url={link}&amp;text={words}">Share on X</a><a class="button" href="https://www.linkedin.com/sharing/share-offsite/?url={link}">Share on LinkedIn</a><a class="button" href="{X_PROFILE}">Follow on X</a><a class="button" href="{YOUTUBE}">YouTube</a><a class="button" href="/blog/feed.xml">RSS</a></div></section>'''

@@ -9,6 +9,7 @@
     "needs": "A vLLM server with a model that supports tool calling, and Claude Code. Section 4's test needs only Python and Claude Code.",
     "result": "Claude Code talking to a model on your own hardware, with a clear view of what works, what does not and what it costs in context."
   },
+  "checked": {"level": "partly", "line": "Claude Code was run against a stand-in server to record what it sends. No model was served: there was no GPU."},
   "note": "The vLLM commands, settings and limits are from vLLM's own page on Claude Code, read on November 12, 2026; no GPU was available, so no model was served for this article. The Claude Code side was tested: Claude Code 2.1.322 was run with those settings against a small stand-in server on Linux, and the request details in section 4 are what that server recorded. That test shows what Claude Code sends, not how well any model answers. Anthropic's position on non-Claude models is quoted from its gateway documentation. The token estimate is ours and is marked as an estimate. The Windows commands follow the same documentation and were not run.",
   "sources": [
     {

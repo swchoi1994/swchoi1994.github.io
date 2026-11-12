@@ -9,6 +9,7 @@
     "needs": "Claude Code, a project folder, bash and jq. On Windows, Git for Windows provides bash.",
     "result": "Five working hooks in .claude/hooks, one settings file that registers them, and a script that proves each one behaves."
   },
+  "checked": {"level": "tested", "line": "All five scripts were run on Linux with sample input; the results shown are the real exit codes. Not run inside a live session or on Windows."},
   "note": "All five scripts and the test script were run for this article on Linux with bash and jq 1.7, and the results table shows the actual exit codes and messages. They were tested the way the documentation describes, by sending sample input to each script, not inside a live Claude Code session. The Windows notes follow Anthropic's documentation as read on November 12, 2026 and were not run on Windows.",
   "sources": [
     {"title": "Claude Code docs: Automate actions with hooks", "url": "https://code.claude.com/docs/en/hooks-guide"},

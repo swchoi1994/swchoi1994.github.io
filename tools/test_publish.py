@@ -342,6 +342,28 @@ class PublicationTest(unittest.TestCase):
         self.assertIn('/blog/posts/claude-code-plugins-mcp-terminal/', page)
         self.assertIn('<a href="/trending/"><span>', (publish.OUT / 'index.html').read_text())
 
+    def test_articles_written_here_say_up_front_what_was_tested(self):
+        native = [p for p in self.posts if p.get('native')]
+        self.assertTrue(native)
+        home = (publish.OUT / 'blog/index.html').read_text()
+        for post in native:
+            level, line = post['checked']['level'], post['checked']['line']
+            self.assertIn(level, publish.CHECK_LABELS, post['slug'])
+            page = (publish.OUT / post['url'].strip('/') / 'index.html').read_text()
+            # The statement sits in the header, before the body, with its label.
+            header = page[page.index('<header class="reading-header">'):page.index('<div class="reading-body">')]
+            self.assertIn(f'<p class="checked checked-{level}"><strong>{publish.CHECK_LABELS[level]}</strong><span>{html.escape(line)}</span></p>', header, post['slug'])
+            # "Not tested" must never be dressed up: an article that ran nothing admits it in the same line.
+            if level == 'read':
+                self.assertRegex(line, r'(?i)\bnot?\b|\bnothing\b|\bnone\b|summary|overview|explanation', post['slug'])
+        tested = next(p for p in native if p['checked']['level'] == 'tested')
+        unread = next(p for p in native if p['checked']['level'] == 'read')
+        self.assertIn('<span class="post-check">Tested</span>', publish.card(tested))
+        self.assertNotIn('post-check', publish.card(unread))
+        synced = next(p for p in self.posts if not p.get('native'))
+        self.assertNotIn('post-check', publish.card(synced))
+        self.assertNotIn('class="checked', (publish.OUT / synced['url'].strip('/') / 'index.html').read_text())
+
     def test_release_explainers_are_listed_newest_announcement_first(self):
         covered = [p for p in self.posts if p.get('release')]
         self.assertTrue(covered, 'expected at least one article with release metadata')

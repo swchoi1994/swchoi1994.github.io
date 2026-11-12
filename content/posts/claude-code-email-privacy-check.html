@@ -9,6 +9,7 @@
     "needs": "Claude Code, bash and jq. On Windows, Git for Windows provides bash.",
     "result": "A current version with the built-in protection on, one extra hook that blocks tool calls carrying your address, and a repository with no personal settings file in it."
   },
+  "checked": {"level": "partly", "line": "The hook, its test script and the git checks were run. The reported behaviour and Anthropic's built-in block were not tested."},
   "note": "The report and Anthropic's reply are from the public GitHub issue, and the description of the built-in protection is from the README Anthropic published with its source, both as read on November 12, 2026. We did not reproduce the reported behaviour and did not test the built-in protection; both need a signed-in session. The hook, its test script, the header-printing server and the git checks were run for this article on Linux with bash 5.2, jq 1.7 and git 2.43. The hook was tested by sending it sample input, not inside a live session. A security company's report on saved permission rules was widely discussed this week; its site refused our reader, so nothing here relies on it. Section 6 is our advice.",
   "sources": [
     {
