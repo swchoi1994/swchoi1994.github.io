@@ -20,6 +20,9 @@ SITE = 'https://swchoi1994.github.io'
 NAME = 'Seongwoo Choi'
 BRAND = 'Seongwoo Choi / Journal'
 TAGLINE = 'Practical guides to AI, everyday software, and safer digital habits. Clear steps, original sources.'
+# The home page's heading and the single line under it. Keep the line short enough to stay on one line on a phone.
+HOME_HEADING = 'Clear guides to AI and everyday tech.'
+HOME_LINE = 'Step by step, with every source linked.'
 ADSENSE = 'ca-pub-5340843733211852'
 PAGE_SIZE = 12
 SOCIAL = {'src': '/assets/img/og-default.png', 'width': 1200, 'height': 630}
@@ -373,7 +376,7 @@ def theme_toggle():
 
 def page_head(left):
     """The top row of a page: its title block or breadcrumb on the left, the theme button on the right."""
-    return f'<div class="page-head"><div class="page-title">{left}</div>{theme_toggle()}</div>'
+    return f'<div class="page-head" id="page-head"><div class="page-title">{left}</div>{theme_toggle()}</div>'
 
 
 def ad(slot):
@@ -527,7 +530,7 @@ def home(posts, media):
     more = f'<a class="more" href="/projects/">All {len(projects)} follow-along projects →</a>' if projects else ''
     series = (f'<section class="block" aria-labelledby="series-title"><div class="block-head"><h2 id="series-title">Series <span class="note">Read in order, build one thing</span></h2>{more}</div>'
               f'{"".join(series_feature(slug, members) for slug, members in groups_in_order.items())}</section>') if groups_in_order else ''
-    body = f'''{page_head(f'<p class="eyebrow">Journal</p><h1>Make technology work for you.</h1><p class="lede">{TAGLINE}</p>')}
+    body = f'''{page_head(f'<p class="eyebrow">Journal</p><h1>{HOME_HEADING}</h1><p class="lede">{HOME_LINE}</p>')}
 {search_form(len(posts))}
 {series}
 <section class="block" aria-labelledby="featured-title"><div class="block-head"><h2 id="featured-title">Featured guides <span class="note">Chosen by hand, not by traffic</span></h2>{view_toggle()}</div><div class="posts" data-view="cards" data-switchable>{featured}</div></section>
