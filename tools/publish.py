@@ -13,6 +13,7 @@ import shutil
 from urllib.parse import quote, urlsplit
 import xml.etree.ElementTree as ET
 from affiliates import apply_affiliates, load_affiliates
+from trends import pattern as trend_pattern
 
 ROOT = Path(__file__).resolve().parent.parent
 OUT = ROOT / '_site'
@@ -118,6 +119,8 @@ CONFIG = content('site.json', {})
 SERIES = content('series.json', {})
 # Sidebar links that exist only when there is something behind them; filled in by build().
 EXTRA_NAV = []
+# A ranking older than this is no longer a trend, so the home page stops showing it.
+TREND_MAX_AGE = datetime.timedelta(days=4)
 
 
 def structured(value):
@@ -517,7 +520,119 @@ def x_posts():
     return f'<section class="block card" aria-labelledby="x-title"><div class="block-head"><h2 id="x-title">On X</h2><a class="more" href="{X_PROFILE}">@swchoi1994 {ARROW}</a></div><div class="x-posts">{items}</div></section>'
 
 
-def home(posts, media):
+def trend_ranking(saved, now):
+    """The saved ranking, with no rows when it is missing or older than TREND_MAX_AGE."""
+    try:
+        updated = datetime.datetime.fromisoformat(saved['updated'])
+    except (KeyError, TypeError, ValueError):
+        return dict(rows=[], updated=None, sources=[], days=7)
+    fresh = now - updated <= TREND_MAX_AGE
+    return dict(rows=saved.get('items', []) if fresh else [], updated=updated, sources=saved.get('sources', ['Hacker News']), days=saved.get('days', 7))
+
+
+def trend_hubs(posts, media):
+    """One entry per watchlist name we have something about: its page, our articles and our channel posts."""
+    by_slug = {p['slug']: p for p in posts}
+    hubs = {}
+    for entry in content('trend-terms.json', []):
+        rule = trend_pattern(entry)
+        missing = [slug for slug in entry.get('pin', []) if slug not in by_slug]
+        if missing:
+            raise ValueError(f'content/trend-terms.json: "{entry["term"]}" pins articles that do not exist: {missing}')
+        pinned = [by_slug[slug] for slug in entry.get('pin', [])]
+        found = [p for p in posts if p not in pinned and rule.search(f'{p["title"]} {p["description"]}')]
+        clips = []
+        for item in media:
+            words = re.search(r'<h3>(.*?)</h3>\s*<p>(.*?)</p>', item, re.S)
+            if words and rule.search(html.unescape(re.sub(r'<[^>]+>', ' ', ' '.join(words.groups())))):
+                clips.append(item)
+        if pinned or found or clips:
+            # Videos before picture posts: a video is the fuller treatment.
+            clips.sort(key=lambda item: 'data-video=' not in item)
+            hubs[entry['term']] = dict(url='/trending/' + re.sub(r'[^a-z0-9]+', '-', entry['term'].lower()).strip('-') + '/',
+                                       about=entry.get('about', ''), articles=pinned + found, clips=clips)
+    return hubs
+
+
+def clip_with_poster(item):
+    """A channel post for a trend page. Its YouTube video becomes a still picture at the top; the player loads on click."""
+    found = re.search(r'<div class="video-space"><button type="button" class="video-load" data-video="([\w-]{11})">.*?</button></div>', item, re.S)
+    if not found:
+        return item
+    poster = (f'<div class="video-space"><button type="button" class="video-load video-poster" data-video="{found[1]}" aria-label="Play the video">'
+              f'<img src="https://i.ytimg.com/vi/{found[1]}/hqdefault.jpg" width="480" height="360" alt="" loading="lazy" decoding="async"><span>▶ Watch</span></button></div>')
+    return item.replace(found[0], '').replace('<article class="media-item">', '<article class="media-item">' + poster, 1)
+
+
+def trend_stamp(updated):
+    return f'<time datetime="{updated.isoformat()}">{updated.day} {updated:%b %Y, %H:%M} UTC</time>'
+
+
+def trending_box(trend, hubs):
+    """The home page's ranked list of AI names. Empty without a fresh ranking of at least five names."""
+    rows = trend['rows'][:10]
+    if len(rows) < 5:
+        return ''
+    top = max(row.get('score', row['points']) for row in rows) or 1
+    items = ''
+    for row in rows:
+        hub = hubs.get(row['term'])
+        name = f'<a href="{hub["url"]}">{e(row["term"])}</a>' if hub else f'<span>{e(row["term"])}</span>'
+        tag = '<span class="trend-tag" title="Also among Google\'s trending searches today">Google</span>' if row.get('google') else ''
+        # The bar is the name's score against the first name's; the numbers are on the full ranking.
+        items += f'<li>{name}{tag}<span class="trend-bar" aria-hidden="true"><i style="width:{max(4, round(100 * row.get("score", row["points"]) / top))}%"></i></span></li>'
+    sources = ' and '.join(trend['sources'])
+    return (f'<section class="block card trending" aria-labelledby="trending-title"><div class="block-head"><h2 id="trending-title">Trending in AI <span class="note">{e(sources)}</span></h2>'
+            f'<a class="more" href="/trending/">Full ranking →</a></div><ol>{items}</ol>'
+            f'<p class="block-foot note">Ranked by developer discussion and news coverage this week. Each name opens our guides and videos. Updated {trend_stamp(trend["updated"])}.</p></section>')
+
+
+def trending_pages(trend, hubs):
+    """The full ranking, and one page per watchlist name with our articles and channel posts about it."""
+    if not hubs:
+        return
+    ranking, days, with_news = trend['rows'], trend['days'], 'Google News' in trend['sources']
+    ours = lambda hub: ' · '.join(f'{len(found)} {noun}{"" if len(found) == 1 else "s"}' for found, noun in ((hub['articles'], 'article'), (hub['clips'], 'channel post')) if found)
+    rank = {row['term']: (position, row) for position, row in enumerate(ranking, 1)}
+    rows = ''
+    for position, row in enumerate(ranking, 1):
+        hub = hubs.get(row['term'])
+        name = f'<a href="{hub["url"]}">{e(row["term"])}</a>' if hub else e(row['term'])
+        news = f'<td>{row["news"]:,}</td>' if with_news else ''
+        rows += f'<tr><td>{position}</td><td>{name}</td><td>{row.get("score", "")}</td><td>{row["points"]:,}</td>{news}<td>{ours(hub) if hub else "Nothing yet"}</td></tr>'
+    news_head = '<th scope="col">News articles a day</th>' if with_news else ''
+    table = (f'<p>Updated {trend_stamp(trend["updated"])}. The ranking is refreshed several times a day.</p><div class="table-scroll" tabindex="0" role="region" aria-label="Ranking"><table><thead><tr><th scope="col">Rank</th><th scope="col">Name</th>'
+             f'<th scope="col">Score</th><th scope="col">Hacker News points, {days} days</th>{news_head}<th scope="col">On this site</th></tr></thead><tbody>{rows}</tbody></table></div>') if rows else '<p>The ranking is being refreshed. The pages below stay available.</p>'
+    others = ''.join(f'<li><a href="{hub["url"]}">{e(term)}</a> <span class="note">{ours(hub)}</span></li>' for term, hub in sorted(hubs.items(), key=lambda pair: pair[0].lower()) if term not in rank)
+    method = (f'<h2 id="method">How the ranking works</h2><p>We keep a watchlist of AI names: models, tools, companies and techniques. Several times a day a script measures each name in two public places.</p>'
+              f'<ul><li><strong>Hacker News</strong>, for what developers are discussing. It reads every story from the past {days} days that earned at least 20 points and adds up the points of the stories whose titles mention the name. A story about "Claude Code" counts for Claude Code, not also for Claude.</li>'
+              '<li><strong>Google News</strong>, for coverage. It counts about how many news articles a day mention the name.</li></ul>'
+              '<p>The score is the average of two percentages: the name\'s share of all the Hacker News points, and its share of all the news articles, across the watchlist. A name that is first in one place and absent from the other lands in the middle. '
+              'When Google News cannot be read, the ranking uses Hacker News alone and this page shows no news column.</p>'
+              '<p>The script publishes only the names and their numbers; it never republishes story or article titles. When a name also appears in Google\'s public list of trending searches, it carries a Google tag. '
+              'This is a measure of attention among developers and in the news. It is not a count of searches or of posts on social networks.</p>')
+    sources = ' and '.join(trend['sources']) or 'Hacker News'
+    body = (page_head(f'<p class="eyebrow">{e(sources)}</p><h1>Trending in AI</h1><p class="lede">What is being discussed and covered this week, with our guides and videos on each name.</p>')
+            + f'<article class="reading card"><div class="reading-body">{table}{f"<h2 id=more>Also on our watchlist</h2><ul class=trend-others>{others}</ul>" if others else ""}{method}</div></article>')
+    write('/trending/', page('Trending in AI this week', 'AI models, tools and companies ranked by developer discussion and news coverage this week, each with our guides and videos.', '/trending/', body,
+                             [breadcrumbs([('Home', '/'), ('Trending in AI', '/trending/')])]))
+    for term, hub in hubs.items():
+        position, row = rank.get(term, (None, None))
+        standing = ''
+        if row:
+            news = f' and about {row["news"]:,} news articles a day' if with_news and row.get('news') else ''
+            standing = f'<p class="note">Number {position} this week: {row["points"]:,} points on Hacker News in the past {days} days{news}.</p>'
+        guides = (f'<section class="block" aria-labelledby="guides-title"><div class="block-head"><h2 id="guides-title">Our guides</h2><a class="more" href="/blog/?q={quote(term)}">Search every article →</a></div>'
+                  f'<div class="posts" data-view="cards">{"".join(card(p) for p in hub["articles"][:12])}</div></section>') if hub['articles'] else ''
+        clips = (f'<section class="block card" aria-labelledby="channel-title"><div class="block-head"><h2 id="channel-title">From our channel <span class="note">AI2Now</span></h2><a class="more" href="/videos/">All videos &amp; posts →</a></div>'
+                 f'<div class="media-list">{"".join(clip_with_poster(item) for item in hub["clips"][:6])}</div></section>') if hub['clips'] else ''
+        body = (page_head(f'<p class="eyebrow"><a href="/trending/">Trending in AI</a></p><h1>{e(term)}</h1><p class="lede">{e(hub["about"] or f"Our guides and channel posts about {term}.")}</p>{standing}')
+                + guides + clips)
+        write(hub['url'], page(f'{term}: guides and videos', hub['about'] or f'Guides and videos about {term} from the journal and the AI2Now channel.', hub['url'], body,
+                               [collection(f'{term}: guides and videos', hub['url'], hub['articles'][:12]), breadcrumbs([('Home', '/'), ('Trending in AI', '/trending/'), (term, hub['url'])])]))
+
+
+def home(posts, media, trending=''):
     """The home page: featured guides, latest articles, videos, X posts and the guide spotlight."""
     by_id = {p['slug']: p for p in posts}
     groups = [(name, [by_id[s] for s in ids]) for name, ids in AI_PICKS]
@@ -532,6 +647,7 @@ def home(posts, media):
               f'{"".join(series_feature(slug, members) for slug, members in groups_in_order.items())}</section>') if groups_in_order else ''
     body = f'''{page_head(f'<p class="eyebrow">Journal</p><h1>{HOME_HEADING}</h1><p class="lede">{HOME_LINE}</p>')}
 {search_form(len(posts))}
+{trending}
 {series}
 <section class="block" aria-labelledby="featured-title"><div class="block-head"><h2 id="featured-title">Featured guides <span class="note">Chosen by hand, not by traffic</span></h2>{view_toggle()}</div><div class="posts" data-view="cards" data-switchable>{featured}</div></section>
 <section class="block" aria-labelledby="latest-title"><div class="block-head"><h2 id="latest-title">Latest articles</h2><a class="more" href="/blog/">Browse all {len(posts)} articles →</a></div><div class="posts" data-view="list">{latest}</div></section>
@@ -887,7 +1003,15 @@ def build():
         EXTRA_NAV.append(('/projects/', 'Projects'))
     if any(p.get('release') for p in posts):
         EXTRA_NAV.append(('/releases/', 'AI releases'))
-    home(posts, media)
+    trend = trend_ranking(content('trending.json', {}), datetime.datetime.now(datetime.timezone.utc))
+    hubs = trend_hubs(posts, media)
+    if hubs:
+        EXTRA_NAV.append(('/trending/', 'Trending'))
+    home(posts, media, trending_box(trend, hubs))
+    trending_pages(trend, hubs)
+    uncovered = [row['term'] for row in trend['rows'][:10] if row['term'] not in hubs]
+    if uncovered:
+        print(f'Trending with nothing of ours yet: {", ".join(uncovered)}')
     archive(posts)
     series_pages(posts)
     project_pages(posts)
@@ -961,7 +1085,7 @@ def build():
         entry = ET.SubElement(sitemap, f'{{{ns}}}url')
         ET.SubElement(entry, f'{{{ns}}}loc').text = SITE + url
         # Posts change when published; listing pages change whenever a post is added.
-        if url in dated or url == '/' or url.startswith(('/blog/page/', '/topics/', '/series/', '/projects/', '/releases/')) or url == '/blog/':
+        if url in dated or url == '/' or url.startswith(('/blog/page/', '/topics/', '/series/', '/projects/', '/releases/', '/trending/')) or url == '/blog/':
             ET.SubElement(entry, f'{{{ns}}}lastmod').text = dated.get(url, newest)
     ET.ElementTree(sitemap).write(OUT / 'sitemap.xml', encoding='utf-8', xml_declaration=True)
     print(f'Built {len(posts)} articles, {len(TOPICS)} topic collections and publication pages in {OUT}')

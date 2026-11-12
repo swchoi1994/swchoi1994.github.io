@@ -12,6 +12,7 @@ import xml.etree.ElementTree as ET
 
 import indexnow
 import publish
+import trends
 from affiliates import apply_affiliates, load_affiliates
 
 
@@ -267,6 +268,78 @@ class PublicationTest(unittest.TestCase):
         self.assertIn('A &quot;quoted&quot; title', body)
         self.assertNotIn('<iframe', body)
         self.assertNotIn('{{video', body)
+
+    def test_trend_ranking_counts_each_story_for_the_most_specific_name(self):
+        terms = [{'term': 'Claude Code'}, {'term': 'Claude'}, {'term': 'MCP', 'match': '(?-i:MCP)|model context protocol'},
+                 {'term': 'vLLM'}, {'term': 'LLMs', 'match': 'llms?'}, {'term': 'Qwen'}]
+        stories = [{'title': 'Claude Code ships a new hook', 'points': 300},      # Claude Code, not also Claude
+                   {'title': 'Why I left Claude', 'points': 120},
+                   {'title': 'MCP Explained', 'points': 90},
+                   {'title': 'The mcp command on Plan 9', 'points': 500},        # lower case: not the protocol
+                   {'title': 'Serving LLMs with vLLM', 'points': 40}]            # two names; "vLLM" is not "LLM"
+        discussed = trends.rank(stories, terms, searches={'claude', 'weather'})
+        self.assertEqual([(row['term'], row['points'], row['stories']) for row in discussed],
+                         [('Claude Code', 300, 1), ('Claude', 120, 1), ('MCP', 90, 1), ('LLMs', 40, 1), ('vLLM', 40, 1)])
+        self.assertEqual([row['term'] for row in discussed if row['google']], ['Claude'])
+        # A name that begins longer names leaves them out of its news search.
+        self.assertEqual(trends.news_query({'term': 'Claude', 'news': '"Claude" Anthropic'}, terms), '"Claude" Anthropic -"Claude Code"')
+        self.assertEqual(trends.news_query({'term': 'vLLM'}, terms), '"vLLM"')
+        # A busy name fills the 100-article feed, so it is counted over a shorter window and scaled to a day.
+        feeds = iter(['<item>' * 100, '<item>' * 100, '<item>' * 7])
+        self.assertEqual(trends.news_rate('"Busy"', fetch=lambda url: next(feeds)), 7 * 24)
+        self.assertEqual(trends.news_rate('"Quiet"', fetch=lambda url: '<item>' * 12), 12)
+
+    def test_trend_score_averages_each_source_and_survives_a_missing_one(self):
+        discussed = [{'term': 'A', 'points': 300, 'stories': 3, 'google': False}, {'term': 'B', 'points': 100, 'stories': 1, 'google': False}]
+        both = trends.blend(discussed, {'A': 10, 'B': 10, 'C': 80})
+        # A: 75% of points, 10% of news. B: 25%, 10%. C: none, 80%.
+        self.assertEqual([(row['term'], row['score']) for row in both], [('A', 42.5), ('C', 40.0), ('B', 17.5)])
+        self.assertEqual(both[1]['points'], 0)
+        alone = trends.blend(discussed, {})
+        self.assertEqual([(row['term'], row['score'], row['news']) for row in alone], [('A', 75.0, None), ('B', 25.0, None)])
+
+    def test_trending_box_needs_a_fresh_ranking_and_links_names_to_our_pages(self):
+        now = datetime.datetime(2026, 11, 12, 12, tzinfo=datetime.timezone.utc)
+        names = ['Claude Code', 'vLLM', 'Not written yet', 'MCP', 'Gemini', 'NVIDIA']
+        saved = {'updated': '2026-11-12T06:00:00+00:00', 'days': 7, 'sources': ['Hacker News', 'Google News'],
+                 'items': [{'term': name, 'score': 40 - 5 * n, 'points': 100, 'stories': 2, 'news': 10, 'google': n == 0} for n, name in enumerate(names)]}
+        trend = publish.trend_ranking(saved, now)
+        box = publish.trending_box(trend, {'Claude Code': {'url': '/trending/claude-code/'}, 'vLLM': {'url': '/trending/vllm/'}})
+        self.assertEqual(re.findall(r'<li><(?:a href="[^"]*"|span)>([^<]+)<', box), names)
+        self.assertIn('<a href="/trending/claude-code/">Claude Code</a>', box)
+        self.assertIn('<span>Not written yet</span>', box)
+        self.assertEqual(box.count('class="trend-tag"'), 1)
+        self.assertIn('Hacker News and Google News', box)
+        self.assertIn('<time datetime="2026-11-12T06:00:00+00:00">12 Nov 2026, 06:00 UTC</time>', box)
+        # Too old, missing or too short: no box, so the home page never shows a stale "trend".
+        self.assertEqual(publish.trend_ranking(saved, now + datetime.timedelta(days=5))['rows'], [])
+        self.assertEqual(publish.trend_ranking({}, now)['rows'], [])
+        self.assertEqual(publish.trending_box(dict(trend, rows=trend['rows'][:4]), {}), '')
+
+    def test_each_watchlist_name_we_cover_has_a_page_with_articles_and_channel_videos(self):
+        terms = json.loads((publish.ROOT / 'content/trend-terms.json').read_text())
+        names = [entry['term'] for entry in terms]
+        self.assertEqual(len(names), len(set(names)), 'a name appears twice on the watchlist')
+        video = ('<article class="media-item"><div><p class="post-meta">AI2Now · 2026.11.10</p><h3>Nvidia Blackwell: the chip on stage</h3><p>A short documentary.</p>'
+                 '<div class="video-space"><button type="button" class="video-load" data-video="vLP_8hLBs-U">▶ Watch on YouTube</button></div></div></article>')
+        other = '<article class="media-item"><img class="" src="/x.jpg" alt=""><div><h3>IKEA began as pens</h3><p>History.</p></div></article>'
+        hubs = publish.trend_hubs(self.posts, [other, video])
+        self.assertEqual(hubs['NVIDIA']['clips'], [video])
+        self.assertEqual(hubs['NVIDIA']['articles'][0]['slug'], 'a100-l40s-h100-inference')   # pinned articles lead
+        self.assertEqual([p['slug'] for p in hubs['vLLM']['articles'][:7]], [f for f in next(e for e in terms if e['term'] == 'vLLM')['pin']])
+        poster = publish.clip_with_poster(video)
+        self.assertIn('<article class="media-item"><div class="video-space"><button type="button" class="video-load video-poster" data-video="vLP_8hLBs-U"', poster)
+        self.assertNotIn('<iframe', poster)       # the player still loads only on click
+        self.assertEqual(publish.clip_with_poster(other), other)
+        index = (publish.OUT / 'trending/index.html').read_text()
+        self.assertIn('How the ranking works', index)
+        linked = set(re.findall(r'href="(/trending/[a-z0-9-]+/)"', index))
+        self.assertTrue(linked)
+        for href in linked:
+            self.assertTrue((publish.OUT / href.strip('/') / 'index.html').is_file(), href)
+        page = (publish.OUT / 'trending/claude-code/index.html').read_text()
+        self.assertIn('/blog/posts/claude-code-plugins-mcp-terminal/', page)
+        self.assertIn('<a href="/trending/"><span>', (publish.OUT / 'index.html').read_text())
 
     def test_release_explainers_are_listed_newest_announcement_first(self):
         covered = [p for p in self.posts if p.get('release')]
