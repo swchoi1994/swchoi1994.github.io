@@ -1,0 +1,135 @@
+<!--
+{
+  "title": "Gemini 4 Carbon is out: prices, limits and how to use it",
+  "description": "Google made Gemini 4 Carbon generally available on November 10, 2026. The introductory price ends November 30. What it is, what it costs and when to pick it.",
+  "date": "2026-11-12T11:40:00+00:00",
+  "topic": "ai-automation",
+  "cover": "chip",
+  "release": {"company": "Google", "name": "Gemini 4 Carbon", "announced": "2026-11-10"},
+  "note": "Prices, limits and availability are from Google's announcement posts and Gemini API documentation as read on November 12, 2026. This is a summary of published information: the model was not run for this article, and Google's benchmark results are reported as Google's claims. The cost example uses invented token counts to show the arithmetic. Prices change on December 1, 2026; check the pricing page before budgeting.",
+  "sources": [
+    {"title": "Google: Gemini 4 Carbon is now available", "url": "https://blog.google/innovation-and-ai/models-and-research/gemini-models/gemini-4-carbon-now-available/"},
+    {"title": "Google: Gemini 4 Carbon is now available for developers", "url": "https://blog.google/innovation-and-ai/technology/developers-tools/gemini-4-carbon-developers/"},
+    {"title": "Gemini API docs: Pricing", "url": "https://ai.google.dev/gemini-api/docs/pricing"},
+    {"title": "Gemini API docs: What's new in Gemini 4 Carbon", "url": "https://ai.google.dev/gemini-api/docs/whats-new-gemini-4-carbon"},
+    {"title": "Gemini API docs: Release notes", "url": "https://ai.google.dev/gemini-api/docs/changelog"},
+    {"title": "Claude Platform docs: Pricing", "url": "https://platform.claude.com/docs/en/about-claude/pricing"}
+  ]
+}
+-->
+<p>On November 10, 2026, Google made Gemini 4 Carbon generally available. Two weeks earlier it had gone only to a group of security teams. Carbon is Google's strongest reasoning model, and for now it is priced the same as its lighter sibling, Gemini 4 Argon. The detail that matters for budgets is the date on the price list: the introductory rate ends on November 30, and the price doubles the next day.</p>
+
+<h2 id="what">1. What was announced</h2>
+<ul>
+<li><strong>General availability.</strong> Carbon is open to paying developers and enterprises through the Gemini API, and is rolling out to Google AI Ultra subscribers in the Gemini app, AI Mode in Search and Google Antigravity.</li>
+<li><strong>The top of the Gemini 4 line.</strong> Google describes Carbon as built for work that tests the limits of a model's reasoning: complex multi-step coding and debugging, dense documents, scientific problems and security auditing.</li>
+<li><strong>An introductory price.</strong> $2 per million input tokens and $10 per million output tokens until November 30, 2026.</li>
+<li><strong>A preview of agent teams.</strong> Google is previewing a <code>/swarm</code> command in Antigravity that turns one prompt into a coordinated group of agents.</li>
+</ul>
+
+<h2 id="price">2. The price, and the date it changes</h2>
+<figure class="diagram">
+<div class="d-bars">
+<div><p><strong>Gemini 4 Carbon, until November 30</strong><span>$10 per million output tokens</span></p><div class="d-bar" style="width:25%"><span class="b" style="flex:10">$10</span></div></div>
+<div><p><strong>Gemini 4 Carbon, from December 1</strong><span>$20 per million output tokens</span></p><div class="d-bar" style="width:50%"><span class="a" style="flex:20">$20</span></div></div>
+<div><p><strong>Claude Opus 5.5, for comparison</strong><span>$20 per million output tokens</span></p><div class="d-bar" style="width:50%"><span class="c" style="flex:20">$20</span></div></div>
+<div><p><strong>Claude Fable 5.2, for comparison</strong><span>$40 per million output tokens</span></p><div class="d-bar"><span class="c" style="flex:40">$40</span></div></div>
+</div>
+<figcaption>Output price per million tokens, from each company's own price list. Bars are drawn to scale.</figcaption>
+</figure>
+<table>
+<thead><tr><th scope="col">Per million tokens</th><th scope="col">Through November 30, 2026</th><th scope="col">From December 1, 2026</th></tr></thead>
+<tbody>
+<tr><td>Input</td><td>$2.00</td><td>$4.00</td></tr>
+<tr><td>Output, including thinking tokens</td><td>$10.00</td><td>$20.00</td></tr>
+<tr><td>Cached input</td><td>$0.10</td><td>$0.20</td></tr>
+</tbody>
+</table>
+<p>Three notes from Google's pricing page:</p>
+<ul>
+<li><strong>There is no free tier</strong> for Carbon. Every token is billed, including the model's thinking tokens.</li>
+<li><strong>Caching is automatic only.</strong> The page says explicit caching is not supported.</li>
+<li><strong>Grounding with Google Search</strong> is free for 5,000 requests a month, shared across recent Gemini models, then $14 per 1,000 requests.</li>
+</ul>
+<div class="callout warn"><strong>Budget at the December price</strong>Anything you build this month will run at twice the token price from December 1. Do your sums with $4 and $20, and treat November as a discount.</div>
+
+<h2 id="argon">3. Carbon or Argon: same price list, different bill</h2>
+<p>Carbon and Argon share the same context window, the same built-in tools and the same price per token. Google's documentation says the main difference is how many thinking tokens each spends per turn. Carbon spends more, to explore and to verify its work, which raises both the token count and the wait.</p>
+<table>
+<thead><tr><th scope="col"></th><th scope="col">Gemini 4 Argon</th><th scope="col">Gemini 4 Carbon</th></tr></thead>
+<tbody>
+<tr><td>Google's description</td><td>Efficient; the choice for most software and knowledge work</td><td>Strongest reasoning; for tasks at the limit</td></tr>
+<tr><td>Price per token</td><td colspan="2">Identical</td></tr>
+<tr><td>Tokens used per turn</td><td>Fewer</td><td>More</td></tr>
+<tr><td>Speed</td><td>Faster replies</td><td>Slower</td></tr>
+<tr><td>Google's examples</td><td>Interactive coding, day-to-day feature work</td><td>Root-cause debugging, architecture, dense multimodal analysis, security audits</td></tr>
+</tbody>
+</table>
+<p>So an identical price list does not mean an identical bill. A task that takes Argon 30,000 output tokens might take Carbon more, and you pay for the difference. Here is the arithmetic for one request with 200,000 input tokens and 30,000 output tokens, which are invented numbers:</p>
+<table>
+<thead><tr><th scope="col"></th><th scope="col">Until November 30</th><th scope="col">From December 1</th></tr></thead>
+<tbody>
+<tr><td>Input, 200,000 tokens</td><td>$0.40</td><td>$0.80</td></tr>
+<tr><td>Output and thinking, 30,000 tokens</td><td>$0.30</td><td>$0.60</td></tr>
+<tr><td>Total</td><td>$0.70</td><td>$1.40</td></tr>
+</tbody>
+</table>
+
+<h2 id="specs">4. The limits that matter</h2>
+<table>
+<thead><tr><th scope="col">Property</th><th scope="col">Value</th></tr></thead>
+<tbody>
+<tr><td>Model code</td><td><code>gemini-4-carbon</code></td></tr>
+<tr><td>Context window</td><td>1,048,576 tokens, shared by input, thinking and output</td></tr>
+<tr><td>Output in a normal request</td><td>Up to 65,536 tokens</td></tr>
+<tr><td>Output with long decode</td><td>Up to the full window, minus your input, as a background job</td></tr>
+<tr><td>Inputs</td><td>Text, images, video, audio and PDF</td></tr>
+<tr><td>Thinking levels</td><td><code>low</code>, <code>medium</code> (the default), <code>high</code></td></tr>
+</tbody>
+</table>
+<p>The shared window is worth a second look. Input, thinking and output draw on one budget, so a very large prompt leaves less room for the answer.</p>
+
+<h2 id="use">5. How to use it</h2>
+<p><strong>In the Gemini app:</strong> Carbon is rolling out to Google AI Ultra subscribers. If you are on another plan, it is not listed for you yet.</p>
+<p><strong>Through the API:</strong> you need the paid tier. Google's quickstart, in Python:</p>
+<pre><code>from google import genai
+
+client = genai.Client()
+
+interaction = client.interactions.create(
+    model="gemini-4-carbon",
+    input="Explain what a race condition is and show a minimal example in Go.",
+)
+print(interaction.output_text)</code></pre>
+<p>The structure is Google's; the prompt is ours. You can also try the model in Google AI Studio without writing code.</p>
+<p>Three settings from Google's guide decide what you pay and how long you wait:</p>
+<ul>
+<li><strong>Thinking level.</strong> The guide calls it the main control over quality, latency and token use. Its advice is to run your own evaluations at all three levels and pick the lowest that meets your quality bar. Keep <code>medium</code> unless a workload needs <code>high</code>.</li>
+<li><strong>Output limit.</strong> <code>max_output_tokens</code> caps thinking and answer together. If an existing application sets it below 32,768, the guide says to raise it to at least that, because Carbon can spend more of the limit on thinking. To use fewer tokens, lower the thinking level instead.</li>
+<li><strong>Timeouts.</strong> Longer reasoning means longer requests. The migration notes say to make sure your HTTP timeouts allow for it.</li>
+</ul>
+
+<h2 id="claims">6. What Google claims, and how to read it</h2>
+<p>Google's announcement says Carbon ranks first on three third-party benchmarks, CursorBench 4.0, Perplexity's WANDR and Zapier's AutomationBench, at more than two times lower cost per task than the next best external model. It also reports strong results on security tasks for the version offered to vetted defenders.</p>
+<p>Two cautions. The cost comparison was made at the introductory price, which doubles on December 1. And a benchmark tells you how a model did on someone else's tasks. The only number that should decide your choice is how it does on yours.</p>
+
+<h2 id="know">7. What to know before relying on it</h2>
+<ul>
+<li><strong>Data use.</strong> On the paid tier, the pricing page states that your content is not used to improve Google's products.</li>
+<li><strong>Security features are gated.</strong> The strongest cybersecurity capabilities are offered through a separate program for vetted defenders, which is where Carbon first appeared.</li>
+<li><strong>It is the expensive choice by design.</strong> Google itself says Argon remains the right model for the majority of software and knowledge work.</li>
+</ul>
+
+<h2 id="choose">8. Should you switch?</h2>
+<table>
+<thead><tr><th scope="col">Your situation</th><th scope="col">Suggestion</th></tr></thead>
+<tbody>
+<tr><td>You use Argon and it does the job</td><td>Stay. Same price per token, fewer tokens, faster.</td></tr>
+<tr><td>Argon gives up or gets it wrong on your hardest tasks</td><td>Try Carbon on those tasks only, and compare the result and the token count.</td></tr>
+<tr><td>You want to evaluate it cheaply</td><td>Do it before November 30, while it costs half.</td></tr>
+<tr><td>You are choosing between vendors</td><td>From December 1 its price matches Claude Opus 5.5. Compare on your own tasks, not on price.</td></tr>
+<tr><td>You are on a free plan</td><td>Not available. Argon is also paid-only in the API.</td></tr>
+</tbody>
+</table>
+<p>For the other recent price change at the top of the market, see <a href="/blog/posts/claude-fable-5-2-launch/">the Claude Fable 5.2 launch explainer</a>. All release explainers are listed on the <a href="/releases/">AI releases</a> page.</p>
+<p>We also covered this release on our channel, AI2Now: <a href="https://www.instagram.com/p/Dfm-QUqCHv8">Gemini 4 Carbon is over 2x cheaper per task</a>.</p>
