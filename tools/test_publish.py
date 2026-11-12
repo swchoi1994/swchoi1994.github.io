@@ -277,10 +277,10 @@ class PublicationTest(unittest.TestCase):
                    {'title': 'MCP Explained', 'points': 90},
                    {'title': 'The mcp command on Plan 9', 'points': 500},        # lower case: not the protocol
                    {'title': 'Serving LLMs with vLLM', 'points': 40}]            # two names; "vLLM" is not "LLM"
-        discussed = trends.rank(stories, terms, searches={'claude', 'weather'})
+        discussed = trends.rank(stories, terms, {'Google': {'claude', 'mcp', 'weather'}, 'Grokipedia': {'Claude', 'MCP', 'Claude Code review'}})
         self.assertEqual([(row['term'], row['points'], row['stories']) for row in discussed],
                          [('Claude Code', 300, 1), ('Claude', 120, 1), ('MCP', 90, 1), ('LLMs', 40, 1), ('vLLM', 40, 1)])
-        self.assertEqual([row['term'] for row in discussed if row['google']], ['Claude'])
+        self.assertEqual({row['term']: row['also'] for row in discussed if row['also']}, {'Claude': ['Google', 'Grokipedia'], 'MCP': ['Grokipedia']})
         # A name that begins longer names leaves them out of its news search.
         self.assertEqual(trends.news_query({'term': 'Claude', 'news': '"Claude" Anthropic'}, terms), '"Claude" Anthropic -"Claude Code"')
         self.assertEqual(trends.news_query({'term': 'vLLM'}, terms), '"vLLM"')
@@ -290,7 +290,7 @@ class PublicationTest(unittest.TestCase):
         self.assertEqual(trends.news_rate('"Quiet"', fetch=lambda url: '<item>' * 12), 12)
 
     def test_trend_score_averages_each_source_and_survives_a_missing_one(self):
-        discussed = [{'term': 'A', 'points': 300, 'stories': 3, 'google': False}, {'term': 'B', 'points': 100, 'stories': 1, 'google': False}]
+        discussed = [{'term': 'A', 'points': 300, 'stories': 3, 'also': []}, {'term': 'B', 'points': 100, 'stories': 1, 'also': []}]
         both = trends.blend(discussed, {'A': 10, 'B': 10, 'C': 80})
         # A: 75% of points, 10% of news. B: 25%, 10%. C: none, 80%.
         self.assertEqual([(row['term'], row['score']) for row in both], [('A', 42.5), ('C', 40.0), ('B', 17.5)])
@@ -302,13 +302,13 @@ class PublicationTest(unittest.TestCase):
         now = datetime.datetime(2026, 11, 12, 12, tzinfo=datetime.timezone.utc)
         names = ['Claude Code', 'vLLM', 'Not written yet', 'MCP', 'Gemini', 'NVIDIA']
         saved = {'updated': '2026-11-12T06:00:00+00:00', 'days': 7, 'sources': ['Hacker News', 'Google News'],
-                 'items': [{'term': name, 'score': 40 - 5 * n, 'points': 100, 'stories': 2, 'news': 10, 'google': n == 0} for n, name in enumerate(names)]}
+                 'items': [{'term': name, 'score': 40 - 5 * n, 'points': 100, 'stories': 2, 'news': 10, 'also': ['Google', 'Grokipedia'] if n == 0 else []} for n, name in enumerate(names)]}
         trend = publish.trend_ranking(saved, now)
         box = publish.trending_box(trend, {'Claude Code': {'url': '/trending/claude-code/'}, 'vLLM': {'url': '/trending/vllm/'}})
         self.assertEqual(re.findall(r'<li><(?:a href="[^"]*"|span)>([^<]+)<', box), names)
         self.assertIn('<a href="/trending/claude-code/">Claude Code</a>', box)
         self.assertIn('<span>Not written yet</span>', box)
-        self.assertEqual(box.count('class="trend-tag"'), 1)
+        self.assertEqual(re.findall(r'class="trend-tag"[^>]*>([^<]+)<', box), ['Google', 'Grokipedia'])
         self.assertIn('Hacker News and Google News', box)
         self.assertIn('<time datetime="2026-11-12T06:00:00+00:00">12 Nov 2026, 06:00 UTC</time>', box)
         # Too old, missing or too short: no box, so the home page never shows a stale "trend".

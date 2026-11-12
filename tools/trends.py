@@ -11,6 +11,9 @@ Writes content/trending.json, which the site build turns into the "Trending in A
 home page and the pages under /trending/. The deploy workflow runs this before each build.
 Standard library only.
 
+Two general trending lists, Google's trending searches and Grokipedia's home page, cover every
+subject and do not affect the ranking. A watchlist name that appears on one is tagged with it.
+
 The names to rank are in content/trend-terms.json. Only those names and their numbers reach the
 site: story and article titles are read to count them and are never published. If Hacker News
 cannot be read the script exits with an error and leaves the existing file alone, so a build
@@ -41,6 +44,9 @@ WINDOWS = (('1d', 1), ('6h', 4), ('1h', 24))
 # appears there only on a big day; when one does, the site marks it.
 SEARCHES = 'https://trends.google.com/trending/rss?geo={geo}'
 GEOS = ('US', 'GB', 'IN', 'KR')
+# Grokipedia's home page carries a short list of trending articles, also on every subject. Only that
+# page is read: its robots.txt asks automated readers to stay out of /api/.
+GROKIPEDIA = 'https://grokipedia.com/'
 AGENT = {'User-Agent': 'journal-trends/1.0'}
 
 
@@ -98,7 +104,7 @@ def fetch_news(terms):
 
 
 def fetch_searches():
-    """Lower-cased search terms from Google's trending feeds. A feed that fails is skipped."""
+    """Search terms from Google's trending feeds, as typed. A feed that fails is skipped."""
     searches = set()
     for geo in GEOS:
         try:
@@ -106,8 +112,21 @@ def fetch_searches():
         except OSError as problem:
             print(f'trends: Google trending searches for {geo} skipped: {problem}', file=sys.stderr)
             continue
-        searches.update(title.strip().lower() for title in re.findall(r'<item>\s*<title>(.*?)</title>', feed, re.S))
+        searches.update(title.strip() for title in re.findall(r'<item>\s*<title>(.*?)</title>', feed, re.S))
     return searches
+
+
+def fetch_grokipedia():
+    """Titles from the trending list on Grokipedia's home page; empty if it cannot be read."""
+    try:
+        page = read(GROKIPEDIA)
+        start = re.search(r'trendingPages\s*=\s*(?=\[)', page)
+        entries = json.JSONDecoder().raw_decode(page, start.end())[0] if start else []
+        # "Claude (language model)" is about Claude: drop a bracketed qualifier.
+        return {re.sub(r'\s*\(.*\)$', '', entry['title']).strip() for entry in entries}
+    except (OSError, ValueError, KeyError, TypeError) as problem:
+        print(f'trends: Grokipedia trending list skipped: {problem}', file=sys.stderr)
+        return set()
 
 
 def pattern(entry):
@@ -115,11 +134,16 @@ def pattern(entry):
     return re.compile(rf'(?<![\w.-])(?:{entry.get("match") or re.escape(entry["term"])})(?![\w-])', re.I)
 
 
-def rank(stories, terms, searches=()):
+def rank(stories, terms, lists=None):
     """Watchlist names with at least one story, ordered by total points, most discussed first.
 
     A story counts for every name its title mentions, except a name whose match lies inside a
     longer one: "Claude Code ships X" counts for Claude Code, not also for Claude.
+
+    `lists` maps a place's name to the trending terms seen there today, such as
+    {'Google': {...}, 'Grokipedia': {...}}. A name found on one is marked with that place in `also`.
+    The whole term must match the name's rule, so a rule that insists on capitals ("MCP") is not
+    set off by the same letters typed in lower case.
     """
     rules = [(entry['term'], pattern(entry)) for entry in terms]
     totals = {name: [0, 0] for name, _ in rules}
@@ -134,7 +158,7 @@ def rank(stories, terms, searches=()):
                     key=lambda item: (-item[1], -item[2], item[0].lower()))
     rules = dict(rules)
     return [{'term': name, 'points': points, 'stories': count,
-             'google': any(rules[name].fullmatch(search) for search in searches)}
+             'also': [place for place, seen in (lists or {}).items() if any(rules[name].fullmatch(item) for item in seen)]}
             for name, points, count in ranked]
 
 
@@ -147,7 +171,7 @@ def blend(discussed, news):
     """
     rows = {row['term']: dict(row, news=None) for row in discussed}
     for name, rate in news.items():
-        rows.setdefault(name, {'term': name, 'points': 0, 'stories': 0, 'google': False})['news'] = rate
+        rows.setdefault(name, {'term': name, 'points': 0, 'stories': 0, 'also': []})['news'] = rate
     all_points = sum(row['points'] for row in rows.values()) or 1
     all_news = sum(news.values()) or 1
     for row in rows.values():
@@ -163,7 +187,7 @@ def main():
         stories = fetch_stories(now)
     except (OSError, ValueError, KeyError) as problem:
         sys.exit(f'trends: Hacker News could not be read, keeping the existing ranking: {problem}')
-    discussed = rank(stories, terms, fetch_searches())
+    discussed = rank(stories, terms, {'Google': fetch_searches(), 'Grokipedia': fetch_grokipedia()})
     if len(discussed) < 5:
         sys.exit(f'trends: only {len(discussed)} names matched {len(stories)} stories, keeping the existing ranking')
     news = fetch_news(terms)

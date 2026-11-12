@@ -578,7 +578,7 @@ def trending_box(trend, hubs):
     for row in rows:
         hub = hubs.get(row['term'])
         name = f'<a href="{hub["url"]}">{e(row["term"])}</a>' if hub else f'<span>{e(row["term"])}</span>'
-        tag = '<span class="trend-tag" title="Also among Google\'s trending searches today">Google</span>' if row.get('google') else ''
+        tag = ''.join(f'<span class="trend-tag" title="Also on {e(place)}\'s general trending list today">{e(place)}</span>' for place in row.get('also', []))
         # The bar is the name's score against the first name's; the numbers are on the full ranking.
         items += f'<li>{name}{tag}<span class="trend-bar" aria-hidden="true"><i style="width:{max(4, round(100 * row.get("score", row["points"]) / top))}%"></i></span></li>'
     sources = ' and '.join(trend['sources'])
@@ -609,7 +609,7 @@ def trending_pages(trend, hubs):
               '<li><strong>Google News</strong>, for coverage. It counts about how many news articles a day mention the name.</li></ul>'
               '<p>The score is the average of two percentages: the name\'s share of all the Hacker News points, and its share of all the news articles, across the watchlist. A name that is first in one place and absent from the other lands in the middle. '
               'When Google News cannot be read, the ranking uses Hacker News alone and this page shows no news column.</p>'
-              '<p>The script publishes only the names and their numbers; it never republishes story or article titles. When a name also appears in Google\'s public list of trending searches, it carries a Google tag. '
+              '<p>The script publishes only the names and their numbers; it never republishes story or article titles. Two general trending lists are also checked: Google\'s public list of trending searches and the trending list on Grokipedia\'s home page. They cover every subject, so they do not affect the ranking; a name that appears on one carries its tag. '
               'This is a measure of attention among developers and in the news. It is not a count of searches or of posts on social networks.</p>')
     sources = ' and '.join(trend['sources']) or 'Hacker News'
     body = (page_head(f'<p class="eyebrow">{e(sources)}</p><h1>Trending in AI</h1><p class="lede">What is being discussed and covered this week, with our guides and videos on each name.</p>')

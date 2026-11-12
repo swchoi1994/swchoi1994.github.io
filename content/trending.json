@@ -1,5 +1,5 @@
 {
-  "updated": "2026-11-12T11:59:42+00:00",
+  "updated": "2026-11-12T12:28:57+00:00",
   "days": 7,
   "sources": [
     "Hacker News",
@@ -8,105 +8,107 @@
   "items": [
     {
       "term": "NVIDIA",
-      "points": 3074,
+      "points": 3089,
       "stories": 8,
-      "google": false,
+      "also": [],
       "news": 2400,
-      "score": 30.5
+      "score": 31.9
     },
     {
       "term": "AI agents",
-      "points": 3182,
+      "points": 3190,
       "stories": 16,
-      "google": false,
-      "news": 600,
-      "score": 13.1
+      "also": [],
+      "news": 552,
+      "score": 13.0
     },
     {
       "term": "Anthropic",
-      "points": 729,
-      "stories": 8,
-      "google": false,
-      "news": 864,
-      "score": 10.1
+      "points": 809,
+      "stories": 9,
+      "also": [],
+      "news": 624,
+      "score": 8.3
     },
     {
       "term": "Claude Code",
-      "points": 3179,
+      "points": 3180,
       "stories": 4,
-      "google": false,
-      "news": 30,
-      "score": 7.6
+      "also": [],
+      "news": 31,
+      "score": 7.5
     },
     {
       "term": "Claude Fable",
       "points": 2924,
       "stories": 7,
-      "google": false,
+      "also": [],
       "news": 27,
       "score": 6.9
     },
     {
       "term": "Gemini",
-      "points": 1852,
+      "points": 1858,
       "stories": 4,
-      "google": false,
-      "news": 90,
+      "also": [],
+      "news": 86,
       "score": 5.1
     },
     {
       "term": "OpenAI",
       "points": 262,
       "stories": 3,
-      "google": false,
-      "news": 364,
+      "also": [],
+      "news": 344,
       "score": 4.2
     },
     {
       "term": "Claude",
       "points": 1380,
       "stories": 5,
-      "google": false,
-      "news": 81,
-      "score": 3.9
-    },
-    {
-      "term": "GPUs",
-      "points": 761,
-      "stories": 5,
-      "google": false,
-      "news": 53,
-      "score": 2.3
+      "also": [],
+      "news": 80,
+      "score": 4.0
     },
     {
       "term": "ChatGPT",
       "points": 351,
       "stories": 3,
-      "google": false,
-      "news": 140,
-      "score": 2.2
+      "also": [
+        "Grokipedia"
+      ],
+      "news": 160,
+      "score": 2.5
+    },
+    {
+      "term": "GPUs",
+      "points": 761,
+      "stories": 5,
+      "also": [],
+      "news": 53,
+      "score": 2.3
     },
     {
       "term": "Claude Opus",
       "points": 852,
       "stories": 2,
-      "google": false,
+      "also": [],
       "news": 24,
       "score": 2.2
     },
     {
       "term": "AI coding",
-      "points": 575,
+      "points": 582,
       "stories": 5,
-      "google": false,
-      "news": 25,
+      "also": [],
+      "news": 27,
       "score": 1.6
     },
     {
       "term": "Local models",
-      "points": 678,
+      "points": 679,
       "stories": 3,
-      "google": false,
+      "also": [],
       "news": 2,
       "score": 1.6
     },
@@ -114,56 +116,56 @@
       "term": "DeepSeek",
       "points": 483,
       "stories": 1,
-      "google": false,
-      "news": 21,
+      "also": [],
+      "news": 22,
       "score": 1.3
     },
     {
       "term": "Inference",
       "points": 328,
       "stories": 3,
-      "google": false,
-      "news": 57,
+      "also": [],
+      "news": 55,
       "score": 1.3
     },
     {
       "term": "LLMs",
       "points": 406,
       "stories": 7,
-      "google": false,
-      "news": 25,
+      "also": [],
+      "news": 24,
       "score": 1.2
     },
     {
       "term": "MCP",
       "points": 404,
       "stories": 2,
-      "google": false,
+      "also": [],
       "news": 27,
       "score": 1.2
     },
     {
       "term": "RAG",
-      "points": 214,
+      "points": 215,
       "stories": 1,
-      "google": false,
+      "also": [],
       "news": 11,
       "score": 0.6
+    },
+    {
+      "term": "Quantization",
+      "points": 117,
+      "stories": 1,
+      "also": [],
+      "news": 9,
+      "score": 0.4
     },
     {
       "term": "Apple Intelligence",
       "points": 0,
       "stories": 0,
-      "google": false,
+      "also": [],
       "news": 31,
-      "score": 0.3
-    },
-    {
-      "term": "Quantization",
-      "points": 116,
-      "stories": 1,
-      "google": false,
-      "news": 8,
       "score": 0.3
     }
   ]
