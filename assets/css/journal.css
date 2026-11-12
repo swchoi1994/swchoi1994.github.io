@@ -211,7 +211,8 @@ a.post-label:hover { color: var(--accent); text-decoration: underline; }
 .checked-tested strong { background: var(--ok-tint); color: var(--accent); }
 .checked-partly strong { border: 1px solid var(--accent); color: var(--accent); }
 .checked-read strong { background: var(--inset); color: var(--sub); }
-.post-check { font-weight: 600; color: var(--accent); }
+.post-check b { font-weight: 600; color: var(--accent); }
+.posts[data-view="list"] .post-check { display: none; }
 .facts { display: grid; gap: 8px; margin-top: 16px; font-size: 14.5px; line-height: 1.5; }
 .facts div { display: grid; grid-template-columns: 9.5em minmax(0, 1fr); gap: 12px; }
 .facts dt { font-family: var(--mono); font-size: 12px; letter-spacing: 0.04em; text-transform: uppercase; color: var(--muted); padding-top: 2px; }

@@ -454,7 +454,8 @@ def write(url, text):
 def meta(post):
     """Publication date and reading time, in the monospace metadata style."""
     level = (post.get('checked') or {}).get('level')
-    check = f' · <span class="post-check">{CHECK_LABELS[level]}</span>' if level in ('tested', 'partly') else ''
+    # The separator sits inside the label so the list view, which has no room for it, can hide both together.
+    check = f'<span class="post-check"> · <b>{CHECK_LABELS[level]}</b></span>' if level in ('tested', 'partly') else ''
     return f'<p class="post-meta"><time datetime="{e(post["date"])}">{post["date"][:10]}</time> · {post["minutes"]} min read{check}</p>'
 
 

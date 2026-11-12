@@ -358,7 +358,7 @@ class PublicationTest(unittest.TestCase):
                 self.assertRegex(line, r'(?i)\bnot?\b|\bnothing\b|\bnone\b|summary|overview|explanation', post['slug'])
         tested = next(p for p in native if p['checked']['level'] == 'tested')
         unread = next(p for p in native if p['checked']['level'] == 'read')
-        self.assertIn('<span class="post-check">Tested</span>', publish.card(tested))
+        self.assertIn('<span class="post-check"> · <b>Tested</b></span>', publish.card(tested))
         self.assertNotIn('post-check', publish.card(unread))
         synced = next(p for p in self.posts if not p.get('native'))
         self.assertNotIn('post-check', publish.card(synced))
