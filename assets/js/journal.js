@@ -96,11 +96,26 @@
     }, { once: true });
   }
 
-  // Fixed ad units, and a polite request when the ad script was blocked. Reading is never gated.
+  // Fixed ad units, and what happens when the ad script was blocked. The owner chooses in
+  // content/site.json: a wall that pauses the page (when #ad-wall is present) or a dismissible notice.
   for (const unit of document.querySelectorAll('ins.adsbygoogle')) {
     try { (window.adsbygoogle = window.adsbygoogle || []).push({}); } catch { /* the unit simply stays empty */ }
   }
   const note = document.getElementById('ad-note');
+  const wall = document.getElementById('ad-wall');
+  // adsBlocked is set by the ad script's onerror; a loaded script sets adsbygoogle.loaded.
+  const adsMissing = () => window.adsBlocked === true || !(window.adsbygoogle && window.adsbygoogle.loaded);
+  // Crawlers and test browsers never load ads; they must still see the page.
+  const automated = /bot|crawl|spider|slurp|preview|lighthouse|headless/i.test(navigator.userAgent);
+  const showWall = () => {
+    const app = document.querySelector('.app');
+    wall.hidden = false;
+    app.inert = true;
+    app.setAttribute('aria-hidden', 'true');
+    document.body.classList.add('walled');
+    wall.querySelector('[data-ad-wall-reload]').focus();
+  };
+  if (wall) wall.querySelector('[data-ad-wall-reload]').addEventListener('click', () => location.reload());
   if (note) {
     const week = 7 * 24 * 60 * 60 * 1000;
     const dismissed = Number(store.get('adNoteDismissed')) || 0;
@@ -111,9 +126,13 @@
       event.currentTarget.setAttribute('aria-expanded', String(!help.hidden));
     });
     window.addEventListener('load', () => {
-      // adsBlocked is set by the ad script's onerror; a loaded script replaces the plain array.
-      const blocked = window.adsBlocked === true || (navigator.onLine && !(window.adsbygoogle && window.adsbygoogle.loaded));
-      if (blocked && Date.now() - dismissed > week) note.hidden = false;
+      if (automated || !navigator.onLine || !adsMissing()) return;
+      // Look twice: a slow connection is not an ad blocker.
+      setTimeout(() => {
+        if (!adsMissing()) return;
+        if (wall) showWall();
+        else if (Date.now() - dismissed > week) note.hidden = false;
+      }, 1500);
     });
   }
 

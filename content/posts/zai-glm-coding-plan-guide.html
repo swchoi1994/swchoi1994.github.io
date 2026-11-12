@@ -1,0 +1,94 @@
+<!--
+{
+  "title": "Z.ai GLM Coding Plan: models, limits, and Claude Code setup",
+  "description": "Z.ai sells GLM models two ways: a pay-per-token API and a coding subscription from $18 a month. Prices, credit limits, key types and the Claude Code settings.",
+  "date": "2026-11-12T11:30:00+00:00",
+  "topic": "ai-automation",
+  "note": "This is an overview of Z.ai's documentation as read on November 12, 2026, not a hands-on review. No account was created, nothing was subscribed to, and no requests were sent. Prices, credits and rules are Z.ai's published figures.",
+  "sources": [
+    {"title": "Z.ai docs: Pricing", "url": "https://docs.z.ai/guides/overview/pricing"},
+    {"title": "Z.ai docs: GLM-5.3", "url": "https://docs.z.ai/guides/llm/glm-5.3"},
+    {"title": "Z.ai docs: GLM Coding Plan overview", "url": "https://docs.z.ai/devpack/overview"},
+    {"title": "Z.ai docs: Coding Plan quick start", "url": "https://docs.z.ai/devpack/quick-start"},
+    {"title": "Z.ai docs: Claude Code", "url": "https://docs.z.ai/devpack/tool/claude"},
+    {"title": "Z.ai docs: API key management guide", "url": "https://docs.z.ai/devpack/notice/api-key-management"},
+    {"title": "Z.ai docs: Usage policy", "url": "https://docs.z.ai/devpack/usage-policy"}
+  ]
+}
+-->
+<p>Z.ai makes the GLM family of models. It sells them in two ways that are easy to confuse: an API billed per token, and a subscription called the GLM Coding Plan for use inside coding tools. They have different prices, different keys and different rules. This guide sets out what the documentation says about each, and how the plan connects to Claude Code.</p>
+
+<h2 id="two-ways">1. Two ways to pay, two kinds of key</h2>
+<p>The standard API is pay-as-you-go. You top up a balance and each call is charged per token. The Coding Plan is a monthly subscription with a usage allowance, and it only works in supported coding tools.</p>
+<p>Since October 16, 2026 the keys for the two are managed separately, and the type of key decides how a call is billed. The documentation gives the case that catches people out: a Standard API key used in a coding tool does not draw on your Coding Plan allowance, even if you have a subscription. It is charged to your balance. Create the key from the section that matches what you are paying for.</p>
+
+<h2 id="models">2. The models and what the API charges</h2>
+<p>The current flagship is GLM-5.3. The documentation describes it as text-only, with a 1M-token context window and a maximum output of 128K tokens. Reasoning is always on, with three effort levels: <code>low</code>, <code>high</code> and <code>max</code>.</p>
+<table>
+<thead><tr><th scope="col">Per 1M tokens</th><th scope="col">Input</th><th scope="col">Cached input</th><th scope="col">Output</th></tr></thead>
+<tbody>
+<tr><td>GLM-5.3</td><td>$1.40</td><td>$0.26</td><td>$4.40</td></tr>
+<tr><td>GLM-5.3-FlashX</td><td>$0.37</td><td>$0.075</td><td>$1.25</td></tr>
+<tr><td>GLM-5.3-Flash</td><td>$0.15</td><td>$0.03</td><td>$0.50</td></tr>
+</tbody>
+</table>
+<p>Storing cached input is listed as free for a limited time. The built-in web search tool costs $0.01 per use. Two older models, GLM-4.7-Flash and GLM-4.5-Flash, are listed as free.</p>
+<p>The API follows the OpenAI format. With the OpenAI SDK, set the base URL to <code>https://api.z.ai/api/paas/v4/</code> and use a Standard API key.</p>
+
+<h2 id="plan">3. What the Coding Plan includes</h2>
+<p>The plan starts at $18 a month and has three tiers: Lite, Pro and Max. The documentation does not list the Pro and Max prices on the pages read for this guide; they are on the subscription page.</p>
+<p>All tiers include GLM-5.3 and GLM-5.3-Flash. Requests for GLM-5.2 or GLM-5.1 are routed to GLM-5.3, and requests for GLM-4.7 go to GLM-5.3-Flash. Every tier also includes image understanding and three MCP servers: web search, web reader and Zread.</p>
+<p>Usage is counted in credits, with a limit per five hours and a limit per week:</p>
+<table>
+<thead><tr><th scope="col">Tier</th><th scope="col">Credits per 5 hours</th><th scope="col">Credits per week</th><th scope="col">Suggested use</th></tr></thead>
+<tbody>
+<tr><td>Lite</td><td>2,000</td><td>10,000</td><td>One project at a time</td></tr>
+<tr><td>Pro</td><td>12,000</td><td>60,000</td><td>One or two projects at once</td></tr>
+<tr><td>Max</td><td>28,000</td><td>140,000</td><td>Two or more projects at once</td></tr>
+</tbody>
+</table>
+<p>The five-hour allowance refills five hours after it is used. The weekly allowance resets every seven days from the day you subscribe. Credits are calculated from tokens: input, cached input and output tokens are each multiplied by a rate for the model, added together and divided by 10,000. Tool calls through the MCP servers use credits too. The billing page in the console shows the tokens and tool calls counted against you.</p>
+<p>Whether a tier is enough depends on how the multipliers apply to your work, which this guide could not measure. Start on the lowest tier and watch the usage page for a week before moving up.</p>
+
+<h2 id="claude-code">4. Connect it to Claude Code</h2>
+<p>The plan offers an endpoint in Anthropic's format, which is what Claude Code speaks. After installing Claude Code, the documentation's setup adds three values to <code>~/.claude/settings.json</code>:</p>
+<pre><code>{
+  "env": {
+    "ANTHROPIC_AUTH_TOKEN": "your_zai_api_key",
+    "ANTHROPIC_BASE_URL": "https://api.z.ai/api/anthropic",
+    "API_TIMEOUT_MS": "3000000"
+  }
+}</code></pre>
+<p>Use a Coding Plan key here, not a Standard one. Open a new terminal window for the change to take effect, then run <code>claude</code> in your project.</p>
+<p>By default the plan maps Claude Code's three model slots to GLM-5.3-Flash. To use GLM-5.3 for the larger slots, the documentation's manual configuration sets them explicitly in the same <code>env</code> block:</p>
+<pre><code>"ANTHROPIC_DEFAULT_HAIKU_MODEL": "glm-5.3-flash[1m]",
+"ANTHROPIC_DEFAULT_SONNET_MODEL": "glm-5.3[1m]",
+"ANTHROPIC_DEFAULT_OPUS_MODEL": "glm-5.3[1m]"</code></pre>
+<p>Z.ai also offers two shortcuts: a helper started with <code>npx @z_ai/coding-helper</code>, and a shell script that edits the settings file for you. Both change files on your machine. Editing <code>settings.json</code> by hand takes a minute and lets you see exactly what was added.</p>
+<p>Other tools use other endpoints on the same plan:</p>
+<table>
+<thead><tr><th scope="col">Protocol</th><th scope="col">Base URL</th></tr></thead>
+<tbody>
+<tr><td>Anthropic Messages</td><td><code>https://api.z.ai/api/anthropic</code></td></tr>
+<tr><td>OpenAI Chat Completions</td><td><code>https://api.z.ai/api/coding/paas/v4</code></td></tr>
+<tr><td>OpenAI Responses</td><td><code>https://api.z.ai/api/v1</code></td></tr>
+</tbody>
+</table>
+<p>How Claude Code's own project files work is covered in <a href="/blog/posts/claude-code-project-setup/">Claude Code project setup</a>. They apply the same way whichever model is answering.</p>
+
+<h2 id="rules">5. Rules that can get an account restricted</h2>
+<p>The usage policy is short and worth reading before subscribing:</p>
+<ul>
+<li>The subscription is for the subscriber only. Sharing an account or letting several people use it is prohibited.</li>
+<li>The plan may only be used in officially supported tools. Using a plan key elsewhere may lead to restricted benefits.</li>
+<li>Violations can trigger rate limiting or an account freeze, and the policy says accounts with more than three violations may be banned.</li>
+</ul>
+<p>If you want to call the models from your own scripts or a product, that is what the standard API and its separate key are for.</p>
+
+<h2 id="choose">6. Which one to choose</h2>
+<ul>
+<li>You work in Claude Code, Cline, OpenCode or a similar tool most days: the Coding Plan gives a fixed monthly cost.</li>
+<li>You are building something that calls the model, or your use is occasional: the pay-per-token API has no subscription and no tool restriction.</li>
+<li>You want both: keep two keys and check which one each tool is configured with.</li>
+</ul>
+<p>This guide did not review Z.ai's privacy terms or test the models. Read the terms before sending confidential code, and try your own tasks before committing to a tier. A similar setup with a different provider is described in the <a href="/blog/posts/deepseek-api-guide/">DeepSeek API guide</a>.</p>

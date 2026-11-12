@@ -1,10 +1,15 @@
 {
   "naver_only": {
-    "source_domains": [".go.kr", ".or.kr", "kepco.co.kr"],
+    "source_domains": [
+      ".go.kr",
+      ".or.kr",
+      "kepco.co.kr"
+    ],
     "posts": [],
     "keep": []
   },
   "article_cover": false,
+  "adblock_wall": true,
   "comments": {
     "repo": "",
     "repo_id": "",

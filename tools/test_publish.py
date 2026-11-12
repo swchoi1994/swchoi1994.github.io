@@ -1,4 +1,5 @@
 """Publication acceptance checks: discoverability, preserved content and affiliate boundaries."""
+import datetime
 import html
 from html.parser import HTMLParser
 import json
@@ -9,6 +10,7 @@ import unittest
 from urllib.parse import urljoin, urlsplit, unquote, parse_qs
 import xml.etree.ElementTree as ET
 
+import indexnow
 import publish
 from affiliates import apply_affiliates, load_affiliates
 
@@ -216,6 +218,44 @@ class PublicationTest(unittest.TestCase):
         finally:
             publish.CONFIG.clear()
             publish.CONFIG.update(saved)
+
+    def test_ad_blocker_wall_follows_the_owner_setting(self):
+        saved = dict(publish.CONFIG)
+        try:
+            publish.CONFIG['adblock_wall'] = True
+            walled = publish.page('Journal', 'Articles', '/blog/', '<h1>Journal</h1>')
+            self.assertEqual(walled.count('id="ad-wall"'), 1)
+            self.assertIn('data-ad-wall-reload', walled)
+            # The wall sits outside the page shell it pauses, and offers a way to report a false alarm.
+            self.assertGreater(walled.index('id="ad-wall"'), walled.index('class="site-footer"'))
+            self.assertIn('href="/blog/contact/"', walled[walled.index('id="ad-wall"'):])
+            self.assertNotIn('id="ad-wall"', publish.page('About', 'About', '/blog/about/', '<h1>About</h1>', ads=False))
+            publish.CONFIG['adblock_wall'] = False
+            polite = publish.page('Journal', 'Articles', '/blog/', '<h1>Journal</h1>')
+            self.assertNotIn('id="ad-wall"', polite)
+            self.assertIn('id="ad-note"', polite)
+        finally:
+            publish.CONFIG.clear()
+            publish.CONFIG.update(saved)
+        for name in ('about', 'contact', 'editorial', 'privacy'):
+            self.assertNotIn('ad-wall', (publish.OUT / 'blog' / name / 'index.html').read_text(), name)
+
+    def test_articles_offer_sharing_and_following(self):
+        post = self.posts[0]
+        source = (publish.OUT / post['url'].lstrip('/') / 'index.html').read_text()
+        self.assertIn('https://x.com/intent/post?url=https%3A%2F%2Fswchoi1994.github.io%2Fblog%2Fposts%2F', source)
+        self.assertIn('https://www.linkedin.com/sharing/share-offsite/?url=https%3A%2F%2F', source)
+        self.assertIn(f'href="{publish.X_PROFILE}"', source)
+
+    def test_indexnow_submits_only_recently_changed_pages(self):
+        sitemap = (publish.OUT / 'sitemap.xml').read_bytes()
+        newest = datetime.date.fromisoformat(self.posts[0]['date'][:10])
+        urls = indexnow.recent(sitemap, newest)
+        self.assertIn(publish.SITE + self.posts[0]['url'], urls)
+        self.assertIn(publish.SITE + '/', urls)
+        self.assertNotIn(publish.SITE + '/blog/about/', urls)
+        self.assertEqual(indexnow.recent(sitemap, newest + datetime.timedelta(days=30)), [])
+        self.assertEqual((publish.ROOT / f'{indexnow.KEY}.txt').read_text().strip(), indexnow.KEY)
 
     def test_information_pages_keep_the_ad_free_boundary(self):
         for name in ('about', 'contact', 'editorial', 'privacy'):

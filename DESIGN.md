@@ -38,16 +38,18 @@ Dark mode follows the reader's system setting until they use the toggle; the cho
 
 - Interface and reading: Inter, 400 to 700.
 - Metadata (dates, read time, counts, labels): JetBrains Mono, 400 to 500.
-- Page title 28px/1.2, article title up to 30px/1.25, section heading 17px, card title 16px, article body 17px/1.7 with a measure of at most about 85 characters.
+- On phones: page title 24px, article title 25px, card title 16px, article body 17px/1.7. On desktop these scale with the window; at 1540px the article body is about 20px/1.75. Headings inside an article are sized in `em`, so they scale with the body text.
 - Sentence case everywhere. Hyphens, not em dashes, in interface copy.
 
 ## Layout
 
-- Desktop (1024px and up): a 248px sticky sidebar (brand, author, Read, Topics with counts, Elsewhere) and a content column up to 1120px. Articles use an 800px column with a 300px rail for the contents list and the author.
+Widths are shares of the screen, not fixed pixels, so the layout fills any window.
+
+- Desktop (1024px and up): the sidebar takes 16% of the width (never less than 210px, so its labels fit) and the content takes the rest, with 2.6% side padding. On article pages the right rail takes 24% of the content area. Card grids use a fixed number of equal columns: three, or four from 1800px.
+- Text grows with the window as well. Sizes mix `rem` and `vw` inside `clamp()`, which keeps a line of article text between about 60 and 90 characters at any width and still follows the reader's own font-size setting. Paragraphs are capped at 88 characters as a safety net.
 - The footer is one quiet row under both columns, pinned to the bottom of the window on short pages. The sidebar column is painted on the page canvas so it always reaches the bottom, including under an anchor ad.
-- 1500px and up: listing pages may show an ad rail in the otherwise empty right margin.
-- Below 1024px: a 56px top bar with the theme and menu buttons, a scrolling row of topic tabs on listing pages, and the sidebar as a full-height sheet. The article becomes full-bleed.
-- 16px side gutters on phones. No horizontal page scroll at any width; wide tables scroll inside their own box.
+- Below 1100px the article rail moves under the article. Below 1024px: a 56px top bar with the theme and menu buttons, a scrolling row of topic tabs on listing pages, and the sidebar as a full-height sheet. The article becomes full-bleed.
+- 16px side gutters on phones. No horizontal page scroll at any width; tables scroll inside their own box.
 - Touch targets are at least 44px.
 
 ## Components
@@ -56,7 +58,8 @@ Dark mode follows the reader's system setting until they use the toggle; the cho
 - **Search**: one rounded field with a magnifier, no button. It lifts on hover and focus.
 - **Article**: title, byline, optional mood and music line, an "At a glance" summary, the body, named sources, then "Keep reading".
 - **Ads**: fixed slots sit at the edges only: the right rail, after the article ends, between home sections and above the footer. Never above the title, inside a paragraph or list, or between a heading and its text. A slot renders only when its ad unit ID is set.
-- **Ad blocker notice**: a dismissible request. It never blocks reading and stays away for a week once dismissed.
+- **Ad blocker wall**: the owner's choice (`adblock_wall`). When ads are blocked, the page is blurred behind one centred card that explains why, gives three steps, and has a reload button and a contact link. With the setting off, a dismissible notice is shown instead. Pages without ads never show either.
+- **Share and follow**: one row of plain link buttons after each article. No third-party share scripts.
 
 ## Interaction
 
