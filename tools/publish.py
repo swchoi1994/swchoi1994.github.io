@@ -70,6 +70,23 @@ ICONS = {
     'grid': '<rect x="4" y="4" width="7" height="7" rx="1.5"/><rect x="13" y="4" width="7" height="7" rx="1.5"/><rect x="4" y="13" width="7" height="7" rx="1.5"/><rect x="13" y="13" width="7" height="7" rx="1.5"/>',
     'list': '<path d="M4 6h16M4 12h16M4 18h16"/>',
 }
+# Drawn covers for articles without an illustration: simple shapes in the page's own colours, so they follow dark mode.
+MOTIFS = {
+    'stack': '<rect class="p" x="95" y="36" width="130" height="30" rx="7"/><circle class="g" cx="111" cy="51" r="4"/><rect class="m" x="124" y="48" width="62" height="6" rx="3"/><rect class="p" x="95" y="75" width="130" height="30" rx="7"/><circle class="k" cx="111" cy="90" r="4"/><rect class="m" x="124" y="87" width="46" height="6" rx="3"/><rect class="p" x="95" y="114" width="130" height="30" rx="7"/><circle class="g" cx="111" cy="129" r="4"/><rect class="m" x="124" y="126" width="72" height="6" rx="3"/>',
+    'bars': '<rect class="p" x="85" y="35" width="150" height="110" rx="10"/><rect class="t" x="105" y="95" width="18" height="34" rx="3"/><rect class="k" x="133" y="75" width="18" height="54" rx="3"/><rect class="t" x="161" y="85" width="18" height="44" rx="3"/><rect class="g" x="189" y="55" width="18" height="74" rx="3"/>',
+    'flow': '<path class="n" d="M96 90H224"/><rect class="p" x="60" y="68" width="56" height="44" rx="9"/><rect class="p" x="132" y="68" width="56" height="44" rx="9"/><rect class="p" x="204" y="68" width="56" height="44" rx="9"/><circle class="k" cx="88" cy="90" r="7"/><circle class="g" cx="160" cy="90" r="7"/><circle class="k" cx="232" cy="90" r="7"/>',
+    'chat': '<rect class="p" x="70" y="38" width="124" height="50" rx="12"/><rect class="m" x="86" y="54" width="74" height="6" rx="3"/><rect class="m" x="86" y="68" width="48" height="6" rx="3"/><rect class="k" x="126" y="96" width="124" height="46" rx="12"/><rect class="w" x="142" y="111" width="68" height="6" rx="3"/><rect class="w" x="142" y="124" width="42" height="6" rx="3"/>',
+    'terminal': '<rect class="p" x="75" y="38" width="170" height="104" rx="10"/><circle class="m" cx="91" cy="52" r="3.5"/><circle class="m" cx="103" cy="52" r="3.5"/><circle class="m" cx="115" cy="52" r="3.5"/><path class="o" d="M93 78l12 10-12 10"/><rect class="g" x="114" y="94" width="34" height="6" rx="3"/><rect class="m" x="93" y="118" width="96" height="6" rx="3"/>',
+    'gauge': '<rect class="p" x="70" y="38" width="180" height="104" rx="10"/><rect class="m" x="88" y="52" width="46" height="6" rx="3"/><path class="o" d="M88 120l28-26 24 14 30-40 26 22 28-18"/><circle class="g" cx="170" cy="68" r="6"/>',
+    'shield': '<path class="p" d="M160 34l52 18v38c0 30-22 47-52 57-30-10-52-27-52-57V52z"/><path class="o" d="M138 90l16 16 30-34"/>',
+    'doc': '<rect class="p" x="105" y="30" width="110" height="120" rx="9"/><rect class="k" x="121" y="48" width="50" height="7" rx="3.5"/><rect class="m" x="121" y="68" width="78" height="6" rx="3"/><rect class="m" x="121" y="84" width="78" height="6" rx="3"/><rect class="t" x="121" y="102" width="36" height="30" rx="4"/><rect class="g" x="163" y="102" width="36" height="30" rx="4"/>',
+    'window': '<rect class="p" x="70" y="38" width="180" height="104" rx="10"/><circle class="m" cx="88" cy="52" r="3.5"/><circle class="m" cx="100" cy="52" r="3.5"/><rect class="t" x="84" y="66" width="70" height="62" rx="6"/><rect class="k" x="162" y="66" width="74" height="28" rx="6"/><rect class="m" x="162" y="100" width="74" height="28" rx="6"/>',
+    'mail': '<rect class="p" x="85" y="45" width="150" height="92" rx="10"/><path class="o" d="M97 60l63 44 63-44"/><circle class="g" cx="232" cy="48" r="10"/>',
+    'check': '<rect class="p" x="100" y="30" width="120" height="120" rx="10"/><rect class="g" x="116" y="48" width="16" height="16" rx="4"/><rect class="m" x="142" y="53" width="60" height="6" rx="3"/><rect class="k" x="116" y="82" width="16" height="16" rx="4"/><rect class="m" x="142" y="87" width="44" height="6" rx="3"/><rect class="t" x="116" y="116" width="16" height="16" rx="4"/><rect class="m" x="142" y="121" width="54" height="6" rx="3"/>',
+    'plug': '<rect class="p" x="58" y="58" width="88" height="64" rx="10"/><rect class="m" x="74" y="86" width="46" height="7" rx="3.5"/><rect class="k" x="146" y="72" width="16" height="11" rx="2"/><rect class="k" x="146" y="97" width="16" height="11" rx="2"/><rect class="p" x="176" y="58" width="88" height="64" rx="10"/><rect class="t" x="176" y="70" width="12" height="15" rx="2"/><rect class="t" x="176" y="95" width="12" height="15" rx="2"/><circle class="g" cx="226" cy="90" r="10"/>',
+    'chip': '<path class="n" d="M130 30v14M160 30v14M190 30v14M130 136v14M160 136v14M190 136v14M98 60h14M98 90h14M98 120h14M208 60h14M208 90h14M208 120h14"/><rect class="p" x="112" y="42" width="96" height="96" rx="12"/><rect class="k" x="136" y="66" width="48" height="48" rx="7"/><rect class="w" x="148" y="86" width="24" height="8" rx="4"/>',
+}
+TOPIC_MOTIFS = {'ai-automation': 'chip', 'windows': 'window', 'google-tools': 'mail', 'office-documents': 'doc', 'privacy-backup': 'shield'}
 # Filled in by build(); read by the shared page shell.
 COUNTS = {}
 SKIPPED = []
@@ -154,6 +171,8 @@ def native_articles():
         datetime.datetime.fromisoformat(info['date'])  # a full ISO timestamp, so the feed and sitemap can date it
         if info.get('series') and (info['series'] not in SERIES or not isinstance(info.get('part'), int)):
             raise ValueError(f'A series article needs a series from content/series.json and a whole-number part: {path.name}')
+        if info.get('cover') and info['cover'] not in MOTIFS:
+            raise ValueError(f'Unknown cover "{info["cover"]}" in {path.name}; choose one of {", ".join(MOTIFS)}')
         if info.get('project') and not all(info['project'].get(key) for key in ('needs', 'result')):
             raise ValueError(f'A project needs "needs" and "result": {path.name}')
         url = f'/blog/posts/{slug}/'
@@ -167,13 +186,22 @@ def native_articles():
         posts.append(dict(slug=slug, title=info['title'], description=info['description'], date=info['date'], url=url,
                           topic=info['topic'], minutes=max(1, math.ceil(words / 220)), source=None, schema=schema,
                           image=dict(SOCIAL, alt=info['title'], credit=''),
-                          series=info.get('series'), part=info.get('part'), project=info.get('project'),
+                          series=info.get('series'), part=info.get('part'), project=info.get('project'), cover=info.get('cover'),
                           native=dict(body=body, sources=info['sources'], note=info.get('note', ''))))
     return posts
 
 
+def video_embed(match):
+    """A YouTube video inside an article: a still image until the reader presses play, so no player loads unasked."""
+    ident, title = match[1], e(match[2].strip())
+    return (f'<figure class="video-embed"><div class="video-space"><button type="button" class="video-load video-poster" data-video="{ident}">'
+            f'<img src="https://i.ytimg.com/vi/{ident}/hqdefault.jpg" width="480" height="360" alt="" loading="lazy" decoding="async"><span>▶ {title}</span></button></div>'
+            f'<figcaption>From our YouTube channel, <a href="{YOUTUBE}">AI2Now</a>. The player loads only when you press play.</figcaption></figure>')
+
+
 def native_body(native):
     """The body of an article written here, followed by its sources and a plain note on how it was made."""
+    native = dict(native, body=re.sub(r'\{\{video:([\w-]{11})\|([^}]+)\}\}', video_embed, native['body']))
     sources = ''.join(f'<li><a href="{e(source["url"])}" target="_blank" rel="noopener noreferrer">{e(source["title"])} {ARROW}</a></li>' for source in native['sources'])
     note = e(native['note']) + ' ' if native['note'] else ''
     return (f'{native["body"]}<section class="source-box"><h2>Sources</h2><ul>{sources}</ul><p>This article reflects public information available when it was written. Versions, defaults and prices can change; check the linked official documentation.</p></section>'
@@ -397,11 +425,22 @@ def meta(post):
     return f'<p class="post-meta"><time datetime="{e(post["date"])}">{post["date"][:10]}</time> · {post["minutes"]} min read</p>'
 
 
+def card_cover(post):
+    """The picture on a card: the article's illustration, or a drawn motif when it has none. Decorative, so no alt text."""
+    if not CONFIG.get('card_covers'):
+        return ''
+    image = post['image']
+    if image.get('small') and not image['src'].endswith('.svg'):
+        return f'<span class="post-cover"><img src="{e(image["small"])}" width="640" height="360" alt="" loading="lazy" decoding="async"></span>'
+    shapes = MOTIFS[post.get('cover') or TOPIC_MOTIFS[post['topic']]]
+    return f'<span class="post-cover motif"><svg viewBox="0 0 320 180" aria-hidden="true" preserveAspectRatio="xMidYMid slice">{shapes}</svg></span>'
+
+
 def card(post, label=None, level=3):
     """One post. The same markup serves the card grid and the list; CSS decides the layout."""
     name = TOPICS[post['topic']][0]
     tag = f'<span class="post-label">{e(label)}</span>' if label else f'<a class="post-label" href="/topics/{post["topic"]}/">{e(name)}</a>'
-    return f'<article class="post">{tag}<h{level}><a href="{post["url"]}">{e(post["title"])}</a></h{level}><p class="post-desc">{e(post["description"])}</p>{meta(post)}</article>'
+    return f'<article class="post">{card_cover(post)}{tag}<h{level}><a href="{post["url"]}">{e(post["title"])}</a></h{level}><p class="post-desc">{e(post["description"])}</p>{meta(post)}</article>'
 
 
 def view_toggle():
@@ -694,7 +733,8 @@ def article(post, posts):
     extra = content('post-meta.json', {}).get(slug, {})
     members = series_parts(posts).get(post.get('series'), [])
     mood = ''.join(f'<div><dt>{key}</dt><dd>{e(extra[key])}</dd></div>' for key in ('mood', 'music') if extra.get(key))
-    cover = f'<figure class="article-cover">{picture(post, True)}<figcaption>{e(post["image"]["credit"])}</figcaption></figure>' if CONFIG.get('article_cover') else ''
+    illustrated = not native and not post['image']['src'].endswith('.svg')
+    cover = f'<figure class="article-cover">{picture(post, True)}<figcaption>{e(post["image"]["credit"])}</figcaption></figure>' if CONFIG.get('article_cover') and illustrated else ''
     header = f'''<header class="reading-header"><h1>{e(post['title'])}</h1><p class="byline"><img src="{AVATAR}" width="28" height="28" alt=""><a rel="author" href="/blog/about/">{NAME}</a><span><time datetime="{e(post['date'])}">{post['date'][:10]}</time> · {post['minutes']} min read</span></p>{f'<dl class="mood">{mood}</dl>' if mood else ''}<p class="article-summary"><strong>At a glance</strong>{summary}</p>{project_facts(post['project']) if post.get('project') else ''}{series_box(post, members) if members else ''}</header>'''
     picks = ''.join(card(p) for p in related(post, posts))
     link, words = quote(SITE + post['url'], safe=''), quote(post['title'], safe='')

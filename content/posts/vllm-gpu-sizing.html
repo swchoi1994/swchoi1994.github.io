@@ -4,6 +4,7 @@
   "description": "Work out GPU memory from a model's config file, turn a number of users into concurrent requests, then load-test with vllm bench serve to find the real limit.",
   "date": "2026-11-12T09:44:00+00:00",
   "topic": "ai-automation",
+  "cover": "bars",
   "series": "vllm-server",
   "part": 6,
   "note": "The memory formula and every figure in the tables were calculated from model configuration files read on Hugging Face on November 12, 2026; the script in this article was run on those files and its output is shown as printed. The 10 percent runtime reserve and the peak factor are assumptions. No GPU was available, so no throughput was measured and the benchmark commands are untested here. Flags follow the vLLM documentation.",
@@ -107,6 +108,15 @@ Maximum concurrency for 40,960 tokens per request: 15.70x</code></pre>
 <tr><td>2 GPUs as one server with tensor parallelism</td><td>81.2 GiB</td><td>108</td></tr>
 </tbody>
 </table>
+<figure class="diagram">
+<div class="d-bars">
+<div><p><strong>1 GPU, 80 GiB</strong><span>12 full requests</span></p><div class="d-bar" style="width:50%"><span class="a" style="flex:62.9">weights</span><span class="b" style="flex:9.1"></span><span class="c" style="flex:8"></span></div></div>
+<div><p><strong>2 GPUs as two separate servers, 160 GiB</strong><span>24 full requests</span></p><div class="d-bar"><span class="a" style="flex:62.9">weights</span><span class="b" style="flex:9.1"></span><span class="c" style="flex:8"></span><span class="a" style="flex:62.9">weights again</span><span class="b" style="flex:9.1"></span><span class="c" style="flex:8"></span></div></div>
+<div><p><strong>2 GPUs as one server, 160 GiB</strong><span>108 full requests</span></p><div class="d-bar"><span class="a" style="flex:62.9">weights</span><span class="b" style="flex:81.2">cache for requests</span><span class="c" style="flex:16"></span></div></div>
+</div>
+<p class="d-legend"><span><i class="a"></i>Model weights</span><span><i class="b"></i>KV cache, the room for requests</span><span><i class="c"></i>Runtime reserve</span></p>
+<figcaption>Phind-CodeLlama-34B on A100 80GB cards, drawn to scale from the figures in the table.</figcaption>
+</figure>
 <p>Two separate servers each load their own copy of the weights. One server across both cards loads the weights once, and the whole second card becomes cache. When a model nearly fills a GPU, splitting it across two gives far more room for requests than running two copies.</p>
 <p>That is a statement about memory only. Tensor parallelism adds communication between the cards on every step, and whether the extra room turns into extra throughput is something the load test in step 8 decides. The two layouts also fail differently: with replicas, one server keeps answering if the other card fails.</p>
 
