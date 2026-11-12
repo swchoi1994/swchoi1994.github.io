@@ -53,7 +53,12 @@ Everything below is off until its values are filled in. No IDs are invented by t
 | `content/post-meta.json` | Optional per-article `mood` and `music`, keyed by article ID, shown under the byline. Enter these by hand; leave an article out to show nothing. |
 | `content/x-posts.json` | The posts shown under "On X" on the home page (date, text, link). X does not offer a public feed, so this list is maintained by hand. |
 
-The ad blocker notice appears when the AdSense script fails to load. It is a dismissible request, stays hidden for a week once dismissed, and never blocks reading.
+When the AdSense script fails to load, the reader sees one of two things, chosen by `adblock_wall` in `content/site.json`:
+
+- `true` (current): a wall. The page is blurred and paused until the reader allows ads and reloads. It offers a link to the contact page for false alarms.
+- `false`: a dismissible notice that never blocks reading and stays hidden for a week once dismissed.
+
+Either way, the About, Contact, Editorial and Privacy pages carry no ad script and so never show it. Search crawlers and headless test browsers are recognised by their user agent and are not walled, because they never load ads. The wall cannot tell an ad blocker from a privacy setting, VPN or network filter that blocks the same script; those readers are walled too.
 
 ## Editorial controls
 
@@ -66,6 +71,7 @@ The ad blocker notice appears when the AdSense script fails to load. It is a dis
 
 - Every page has one `<h1>`, a self-canonical URL, a description of at most 160 characters, Open Graph and Twitter tags with a raster image and its dimensions, and breadcrumbs.
 - Articles carry `BlogPosting` data with `datePublished`, `dateModified`, the author, the topic, and `isBasedOn` pointing at the Korean original. The home page declares the site search.
+- After each deploy, `tools/indexnow.py` submits the pages changed in the last day to IndexNow, which Bing, Naver and Yandex read. It uses the key file already served at the site root and never fails the deploy.
 - The sitemap lists every page, with `lastmod` on articles and listing pages. `llms.txt` gives AI assistants a short map of the topics and featured guides. `robots.txt` blocks no crawler.
 - In article bodies the build turns runs of "①, ②, ③" paragraphs into ordered lists and gives the source list the descriptive link text already used in the article. Nothing else in the text is rewritten.
 - AI search uses the same textual pages as human readers; there is no hidden AI-only content or citation guarantee.

@@ -58,7 +58,8 @@ Widths are shares of the screen, not fixed pixels, so the layout fills any windo
 - **Search**: one rounded field with a magnifier, no button. It lifts on hover and focus.
 - **Article**: title, byline, optional mood and music line, an "At a glance" summary, the body, named sources, then "Keep reading".
 - **Ads**: fixed slots sit at the edges only: the right rail, after the article ends, between home sections and above the footer. Never above the title, inside a paragraph or list, or between a heading and its text. A slot renders only when its ad unit ID is set.
-- **Ad blocker notice**: a dismissible request. It never blocks reading and stays away for a week once dismissed.
+- **Ad blocker wall**: the owner's choice (`adblock_wall`). When ads are blocked, the page is blurred behind one centred card that explains why, gives three steps, and has a reload button and a contact link. With the setting off, a dismissible notice is shown instead. Pages without ads never show either.
+- **Share and follow**: one row of plain link buttons after each article. No third-party share scripts.
 
 ## Interaction
 

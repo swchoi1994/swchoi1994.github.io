@@ -10,7 +10,7 @@ import math
 from pathlib import Path
 import re
 import shutil
-from urllib.parse import urlsplit
+from urllib.parse import quote, urlsplit
 import xml.etree.ElementTree as ET
 from affiliates import apply_affiliates, load_affiliates
 
@@ -317,6 +317,10 @@ def ad(slot):
 AD_NOTE = '''<aside class="ad-note" id="ad-note" aria-label="Ad blocker notice" hidden><p><strong>Ads look blocked on this page.</strong> They are what pays for the journal. If it helps you, please allow ads for this site.</p><div><button type="button" class="button button-primary" data-ad-note-help aria-expanded="false" aria-controls="ad-note-help">How to allow ads</button><button type="button" class="button" data-ad-note-close>Not now</button></div><p id="ad-note-help" hidden>Open your ad blocker’s menu while on this page, choose the option to pause it or not run on this site, then reload. In Brave, use the Shields icon in the address bar.</p></aside>'''
 
 
+# Shown instead of the notice when the owner turns on "adblock_wall": the page is paused until ads are allowed.
+AD_WALL = '''<div class="ad-wall" id="ad-wall" role="dialog" aria-modal="true" aria-labelledby="ad-wall-title" hidden><div class="ad-wall-box"><p class="eyebrow">Before you read</p><h2 id="ad-wall-title">Please allow ads on this site</h2><p>This journal is free and paid for by advertising. Something is blocking the ads, so the articles are paused until ads are allowed for this site.</p><ol><li>Open your ad blocker’s menu while on this page.</li><li>Choose the option to pause it, or not to run on this site.</li><li>Reload the page.</li></ol><p class="note">In Brave, use the Shields icon in the address bar. Without an ad blocker, a privacy setting, VPN or network filter may be what blocks the ad script.</p><div class="ad-wall-actions"><button type="button" class="button button-primary" data-ad-wall-reload>I have allowed ads. Reload</button><a class="button" href="/blog/contact/">Report a problem</a></div></div></div>'''
+
+
 def footer():
     """Copyright line and site information links shown under every page."""
     return f'''<footer class="site-footer"><p>© Seongwoo Choi. Advertising helps support this independent publication.</p><nav aria-label="Site information"><a href="/blog/about/">About</a><a href="/portfolio/">Portfolio &amp; CV</a><a href="/blog/contact/">Contact &amp; partnerships</a><a href="/blog/editorial/">Editorial policy</a><a href="/blog/privacy/">Privacy</a><a href="/blog/feed.xml">RSS</a><a href="https://blog.naver.com/swchoi1994">한국어 · Naver {ARROW}</a></nav></footer>'''
@@ -352,7 +356,7 @@ def page(title, description, url, body, schemas=(), *, active=None, rail='', kin
 {topic_tabs(url) if tabs else ''}
 <div class="page{' page-article' if kind == 'article' else ''}"><div class="page-body"><div class="page-main"><main id="main-content">{AD_NOTE if ads else ''}{body}</main>{ad('footer') if ads else ''}</div>{f'<aside class="{rail_class}" aria-label="Beside the page">{rail}</aside>' if rail else ''}</div>{footer()}</div>
 </div>
-<script src="{asset('/assets/js/journal.js')}" defer></script></body></html>'''
+{AD_WALL if ads and CONFIG.get('adblock_wall') else ''}<script src="{asset('/assets/js/journal.js')}" defer></script></body></html>'''
 
 
 def write(url, text):
@@ -586,9 +590,11 @@ def article(post, posts):
     cover = f'<figure class="article-cover">{picture(post, True)}<figcaption>{e(post["image"]["credit"])}</figcaption></figure>' if CONFIG.get('article_cover') else ''
     header = f'''<header class="reading-header"><h1>{e(post['title'])}</h1><p class="byline"><img src="{AVATAR}" width="28" height="28" alt=""><a rel="author" href="/blog/about/">{NAME}</a><span><time datetime="{e(post['date'])}">{post['date'][:10]}</time> · {post['minutes']} min read</span></p>{f'<dl class="mood">{mood}</dl>' if mood else ''}<p class="article-summary"><strong>At a glance</strong>{summary}</p></header>'''
     picks = ''.join(card(p) for p in related(post, posts))
+    link, words = quote(SITE + post['url'], safe=''), quote(post['title'], safe='')
+    follow = f'''<section class="block card follow" aria-label="Share and follow"><p><strong>Found this useful?</strong> Share it, or follow for new guides.</p><div class="follow-links"><a class="button" href="https://x.com/intent/post?url={link}&amp;text={words}">Share on X</a><a class="button" href="https://www.linkedin.com/sharing/share-offsite/?url={link}">Share on LinkedIn</a><a class="button" href="{X_PROFILE}">Follow on X</a><a class="button" href="{YOUTUBE}">YouTube</a><a class="button" href="/blog/feed.xml">RSS</a></div></section>'''
     reading = f'''{page_head(f'<nav class="breadcrumbs" aria-label="Breadcrumb"><a href="/">Home</a><span aria-hidden="true"> / </span><a href="/topics/{post["topic"]}/">{e(name)}</a></nav>')}
 <article class="reading card">{header}{cover}<div class="reading-body">{inline_contents}{body}</div></article>
-{ad('article_end')}{comments()}
+{follow}{ad('article_end')}{comments()}
 <section class="block next-reading" aria-labelledby="next-title"><div class="block-head"><h2 id="next-title">Keep reading</h2><a class="more" href="/topics/{post['topic']}/">More on this topic →</a></div><div class="posts" data-view="list">{picks}</div></section>{media}'''
     rail = (f'<nav class="toc card" aria-label="In this article"><p class="eyebrow">In this article</p><ol>{links}</ol></nav>' if sections else '') + ad('rail') + f'<section class="card author-box" aria-label="About the author"><p class="author-name"><img src="{AVATAR}" width="44" height="44" alt=""><span><strong>{NAME}</strong><span>AI engineer &amp; founder</span></span></p><p>I’m Seongwoo Choi, an AI engineer and founder based in Abu Dhabi. This journal brings together practical software guides and technology analysis.</p><p><a href="/blog/about/">About the author &amp; editorial approach →</a></p></section>'
 

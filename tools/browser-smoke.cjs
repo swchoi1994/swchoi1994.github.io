@@ -77,14 +77,18 @@ try { ({ chromium } = require('@playwright/test')); } catch { ({ chromium } = re
   await phone.keyboard.press('Escape');
   assert.equal(await phone.getAttribute('#menu-toggle', 'aria-expanded'), 'false');
 
-  // A blocked ad script shows the dismissible request; dismissing it is remembered.
-  const reader = await (await offline({ viewport: { width: 1360, height: 900 } })).newPage();
+  // With the ad script blocked, a real reader's browser gets the wall (the owner's "adblock_wall"
+  // setting) and the page behind it is paused. Test browsers above identify as headless and are spared.
+  const person = 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36';
+  const reader = await (await offline({ viewport: { width: 1360, height: 900 }, userAgent: person })).newPage();
   await reader.goto(origin + '/blog/posts/naver-224444722682/', { waitUntil: 'load' });
-  await reader.waitForSelector('#ad-note:not([hidden])');
-  await reader.click('[data-ad-note-close]');
-  await reader.reload({ waitUntil: 'load' });
-  await reader.waitForTimeout(300);
-  assert.equal(await reader.isVisible('#ad-note'), false);
+  await reader.waitForSelector('#ad-wall:not([hidden])', { timeout: 6000 });
+  assert.equal(await reader.evaluate(() => document.querySelector('.app').inert), true);
+  assert.equal(await reader.evaluate(() => document.activeElement.hasAttribute('data-ad-wall-reload')), true);
+  // The pages that carry no ads carry no wall, so a reader can always reach contact and privacy.
+  await reader.goto(origin + '/blog/contact/', { waitUntil: 'load' });
+  await reader.waitForTimeout(2200);
+  assert.equal(await reader.locator('#ad-wall').count(), 0);
 
   assert.deepEqual(errors, []);
   await browser.close();
