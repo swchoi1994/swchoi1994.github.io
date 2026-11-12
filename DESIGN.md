@@ -38,12 +38,13 @@ Dark mode follows the reader's system setting until they use the toggle; the cho
 
 - Interface and reading: Inter, 400 to 700.
 - Metadata (dates, read time, counts, labels): JetBrains Mono, 400 to 500.
-- Page title 28px/1.2, article title up to 30px/1.25, section heading 17px, card title 16px, article body 17px/1.7 with a measure near 70 characters.
+- Page title 28px/1.2, article title up to 30px/1.25, section heading 17px, card title 16px, article body 17px/1.7 with a measure of at most about 85 characters.
 - Sentence case everywhere. Hyphens, not em dashes, in interface copy.
 
 ## Layout
 
-- Desktop (1024px and up): a 248px sticky sidebar (brand, author, Read, Topics with counts, Elsewhere) and a content column up to 1040px. Articles use a 720px column with a 300px rail for the contents list and the author.
+- Desktop (1024px and up): a 248px sticky sidebar (brand, author, Read, Topics with counts, Elsewhere) and a content column up to 1120px. Articles use an 800px column with a 300px rail for the contents list and the author.
+- The footer is one quiet row under both columns, pinned to the bottom of the window on short pages. The sidebar column is painted on the page canvas so it always reaches the bottom, including under an anchor ad.
 - 1500px and up: listing pages may show an ad rail in the otherwise empty right margin.
 - Below 1024px: a 56px top bar with the theme and menu buttons, a scrolling row of topic tabs on listing pages, and the sidebar as a full-height sheet. The article becomes full-bleed.
 - 16px side gutters on phones. No horizontal page scroll at any width; wide tables scroll inside their own box.

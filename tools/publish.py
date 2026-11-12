@@ -247,7 +247,6 @@ def sidebar(active, url):
 <nav aria-label="Read"><p class="nav-label">Read</p>{link('/', 'Home')}{link('/blog/', 'All articles')}{link('/guides/', 'Guides')}{link('/videos/', 'Videos')}</nav>
 <nav aria-label="Topics"><p class="nav-label">Topics</p>{topics}</nav>
 <nav aria-label="Elsewhere"><p class="nav-label">Elsewhere</p><a href="{YOUTUBE}"><span>YouTube</span>{out}</a><a href="{X_PROFILE}"><span>X</span>{out}</a><a href="https://blog.naver.com/swchoi1994"><span>Naver · 한국어</span>{out}</a><a href="/blog/feed.xml"><span>RSS feed</span>{out}</a></nav>
-<p class="sidebar-foot"><a href="/blog/about/">About</a> · <a href="/portfolio/">Portfolio &amp; CV</a> · <a href="/blog/contact/">Contact</a></p>
 </aside>'''
 
 
@@ -312,7 +311,7 @@ def page(title, description, url, body, schemas=(), *, active=None, rail='', kin
 <header class="topbar"><a class="brand" href="/">Seongwoo Choi<span> / Journal</span></a><div class="topbar-actions"><button type="button" class="icon-button" data-theme-toggle aria-pressed="false" aria-label="Dark mode">{icon('moon', 20)}</button><button type="button" class="icon-button" id="menu-toggle" aria-expanded="false" aria-controls="sidebar" aria-label="Open menu">{icon('menu', 20)}</button></div></header>
 {sidebar(active or url, url)}
 {topic_tabs(url) if tabs else ''}
-<div class="page{' page-article' if kind == 'article' else ''}"><div class="page-main"><main id="main-content">{AD_NOTE if ads else ''}{body}</main>{ad('footer') if ads else ''}{footer()}</div>{f'<aside class="{rail_class}" aria-label="Beside the page">{rail}</aside>' if rail else ''}</div>
+<div class="page{' page-article' if kind == 'article' else ''}"><div class="page-body"><div class="page-main"><main id="main-content">{AD_NOTE if ads else ''}{body}</main>{ad('footer') if ads else ''}</div>{f'<aside class="{rail_class}" aria-label="Beside the page">{rail}</aside>' if rail else ''}</div>{footer()}</div>
 </div>
 <script src="{asset('/assets/js/journal.js')}" defer></script></body></html>'''
 
