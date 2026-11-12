@@ -326,7 +326,8 @@ class PublicationTest(unittest.TestCase):
         hubs = publish.trend_hubs(self.posts, [other, video])
         self.assertEqual(hubs['NVIDIA']['clips'], [video])
         self.assertEqual(hubs['NVIDIA']['articles'][0]['slug'], 'a100-l40s-h100-inference')   # pinned articles lead
-        self.assertEqual([p['slug'] for p in hubs['vLLM']['articles'][:7]], [f for f in next(e for e in terms if e['term'] == 'vLLM')['pin']])
+        pinned = next(entry for entry in terms if entry['term'] == 'vLLM')['pin']
+        self.assertEqual([p['slug'] for p in hubs['vLLM']['articles'][:len(pinned)]], pinned)
         poster = publish.clip_with_poster(video)
         self.assertIn('<article class="media-item"><div class="video-space"><button type="button" class="video-load video-poster" data-video="vLP_8hLBs-U"', poster)
         self.assertNotIn('<iframe', poster)       # the player still loads only on click

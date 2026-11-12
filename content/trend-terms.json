@@ -14,7 +14,7 @@
   {"term": "Llama", "match": "llama(?!\\.cpp)", "news": "\"Llama\" Meta AI model"},
   {"term": "llama.cpp", "match": "llama\\.cpp", "pin": ["vllm-vs-ollama-vs-llama-cpp"]},
   {"term": "Ollama", "pin": ["vllm-vs-ollama-vs-llama-cpp"]},
-  {"term": "vLLM", "about": "The open-source server for running language models on your own GPUs.", "pin": ["vllm-first-server", "vllm-docker-nvidia-gpu", "vllm-serve-qwen", "vllm-phind-codellama-a100", "vllm-multi-user-serving", "vllm-gpu-sizing", "vllm-monitoring-prometheus-grafana"]},
+  {"term": "vLLM", "about": "The open-source server for running language models on your own GPUs.", "pin": ["vllm-first-server", "vllm-docker-nvidia-gpu", "vllm-serve-qwen", "vllm-phind-codellama-a100", "vllm-multi-user-serving", "vllm-gpu-sizing", "vllm-monitoring-prometheus-grafana", "vllm-alerts-alertmanager"]},
   {"term": "Mistral", "news": "\"Mistral AI\""},
   {"term": "Grok", "match": "grok|xai", "news": "\"Grok\" xAI"},
   {"term": "Copilot", "news": "\"Copilot\" Microsoft OR GitHub"},
