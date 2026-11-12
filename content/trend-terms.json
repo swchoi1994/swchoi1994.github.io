@@ -1,5 +1,5 @@
 [
-  {"term": "Claude Code", "about": "Anthropic's coding agent for the terminal. Setup, plugins, hooks and the habits that keep it safe.", "pin": ["claude-code-plugins-mcp-terminal", "claude-code-hooks-tested", "claude-code-project-setup"]},
+  {"term": "Claude Code", "about": "Anthropic's coding agent for the terminal. Setup, plugins, hooks and the habits that keep it safe.", "pin": ["claude-code-email-privacy-check", "claude-code-plugins-mcp-terminal", "claude-code-hooks-tested", "claude-code-project-setup"]},
   {"term": "Claude Fable", "match": "claude fable|fable 5|mythos", "about": "Anthropic's most capable generally available model. Prices, access and when it is worth the cost.", "pin": ["claude-fable-5-2-launch"]},
   {"term": "Claude Opus", "match": "claude opus|opus [45]", "about": "Anthropic's everyday high-end model. How to prompt it and what it costs.", "pin": ["prompting-claude-opus-5-5"]},
   {"term": "Claude", "news": "\"Claude\" Anthropic"},
