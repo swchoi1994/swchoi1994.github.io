@@ -126,7 +126,11 @@ class PublicationTest(unittest.TestCase):
         feed = ET.parse(publish.OUT / 'blog/feed.xml')
         self.assertEqual(feed.findtext('./channel/title'), publish.BRAND)
         self.assertIn('pub-5340843733211852', (publish.OUT / 'ads.txt').read_text())
-        self.assertIn(publish.SITE + self.posts[0]['url'][:6], (publish.OUT / 'llms.txt').read_text())
+        guide = (publish.OUT / 'llms.txt').read_text()
+        for slug in (slug for _, ids in publish.AI_PICKS for slug in ids):
+            self.assertIn(f'{publish.SITE}/blog/posts/{slug}/', guide, slug)
+        for slug in publish.TOPICS:
+            self.assertIn(f'{publish.SITE}/topics/{slug}/', guide, slug)
 
     def test_naver_only_articles_stay_off_the_english_site(self):
         skipped = [slug for slug, _ in publish.SKIPPED]
@@ -195,7 +199,9 @@ class PublicationTest(unittest.TestCase):
     def test_classifier_keeps_reader_intent(self):
         for title, topic in [('Windows Update fails', 'windows'), ('Gmail filters', 'google-tools'), ('Excel SUMIFS #VALUE! error', 'office-documents'), ('Cloud sync and backup', 'privacy-backup'), ('Claude Skills', 'ai-automation'),
                              ('How to check a Windows Wi-Fi password: Select Show', 'windows'), ('Create a Table of Contents in Word: Heading Styles', 'office-documents'),
-                             ('How to check and organize devices signed in to your Google account', 'privacy-backup'), ('Apple revises App Review Guidelines', 'ai-automation')]:
+                             ('How to check and organize devices signed in to your Google account', 'privacy-backup'), ('Apple revises App Review Guidelines', 'ai-automation'),
+                             ('How to check the meaning of OneDrive icons: Read sync status', 'privacy-backup'), ('What to check when a PDF will not upload to Gemini Notebook', 'ai-automation'),
+                             ('How to restore the default PDF app', 'office-documents')]:
             self.assertEqual(publish.topic_for(title), topic)
 
     def test_article_images_reach_search_and_social_previews(self):

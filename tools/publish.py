@@ -83,10 +83,12 @@ CONFIG = content('site.json', {})
 
 
 def structured(value):
+    """One JSON-LD script tag, with "<" escaped so content can never close the tag early."""
     return '<script type="application/ld+json">' + json.dumps(value, ensure_ascii=False).replace('<', '\\u003c') + '</script>'
 
 
 def icon(name, size=16):
+    """An inline stroke icon; decorative, so hidden from assistive technology."""
     return f'<svg class="icon" aria-hidden="true" width="{size}" height="{size}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">{ICONS[name]}</svg>'
 
 
@@ -96,12 +98,13 @@ def asset(path):
 
 
 def topic_for(title):
+    """Assign one topic from the article title; anything unmatched is general AI and technology."""
     text = title.lower()
-    if re.search(r'backup|bitlocker|passkey|2-step|personal information|privacy|permissions|quarantin|isolated files|quick assist|firewall|chatgpt memory|delete gemini|delete chatgpt|signed in to your google account|browser profiles', text):
+    if re.search(r'backup|bitlocker|passkey|2-step|personal information|privacy|permissions|quarantin|isolated files|quick assist|firewall|chatgpt memory|delete gemini|delete chatgpt|signed in to your google account|browser profiles|onedrive', text):
         return 'privacy-backup'
     if re.search(r'gmail|google (drive|calendar|docs|storage)', text):
         return 'google-tools'
-    if re.search(r'excel|\bword\b|powerpoint|pdf|ocr|scanning documents', text) and not re.search(r'\bai\b|chatgpt', text):
+    if re.search(r'excel|\bword\b|powerpoint|pdf|ocr|scanning documents', text) and not re.search(r'\bai\b|chatgpt|gemini|claude|notebooklm', text):
         return 'office-documents'
     if re.search(r'windows|laptop|bluetooth|wi-fi|monitor|task manager|battery|volume mixer|microphone|off-screen|video meeting|photos to a pc', text) and not re.search(r'ollama|rtx spark', text):
         return 'windows'
@@ -131,6 +134,7 @@ def naver_only(slug, schema, source):
 
 
 def load_articles():
+    """Read every synced article that belongs on the English site, newest first."""
     images = json.loads((ROOT / 'content/article-images.json').read_text())
     posts = []
     SKIPPED.clear()
@@ -183,6 +187,7 @@ def short_title(title, limit=60):
 
 
 def document_title(title):
+    """The <title> text: the short title plus the site name when both fit in 60 characters."""
     title = short_title(title)
     for suffix in (' | Seongwoo Choi Journal', ' | Seongwoo Choi'):
         if len(title + suffix) <= 60:
@@ -197,12 +202,14 @@ def social_image(post):
 
 
 def breadcrumbs(items):
+    """BreadcrumbList structured data for a trail of (name, path) pairs."""
     return {'@context': 'https://schema.org', '@type': 'BreadcrumbList', 'itemListElement': [
         {'@type': 'ListItem', 'position': i, 'name': name, 'item': SITE + path}
         for i, (name, path) in enumerate(items, 1)]}
 
 
 def collection(title, url, posts):
+    """CollectionPage structured data listing the posts shown on a listing page."""
     return {'@context': 'https://schema.org', '@type': 'CollectionPage', 'name': title, 'url': SITE + url,
             'isPartOf': {'@id': SITE + '/#website'}, 'mainEntity': {
                 '@type': 'ItemList', 'itemListElement': [
@@ -228,6 +235,7 @@ def add_analytics():
 
 
 def sidebar(active, url):
+    """Site navigation. Marks the current page, or the section an article belongs to."""
     def link(href, label, extra=''):
         current = ' aria-current="page"' if href == url else ' aria-current="true"' if href == active else ''
         return f'<a href="{href}"{current}><span>{label}</span>{extra}</a>'
@@ -251,10 +259,12 @@ def topic_tabs(url):
 
 
 def theme_toggle():
+    """The desktop dark mode button; journal.js wires up every [data-theme-toggle]."""
     return f'<button type="button" class="theme-toggle" data-theme-toggle aria-pressed="false">{icon("moon")}<span>Dark mode</span></button>'
 
 
 def page_head(left):
+    """The top row of a page: its title block or breadcrumb on the left, the theme button on the right."""
     return f'<div class="page-head"><div class="page-title">{left}</div>{theme_toggle()}</div>'
 
 
@@ -270,11 +280,13 @@ AD_NOTE = '''<aside class="ad-note" id="ad-note" aria-label="Ad blocker notice" 
 
 
 def footer():
+    """Copyright line and site information links shown under every page."""
     return f'''<footer class="site-footer"><p>© Seongwoo Choi. Advertising helps support this independent publication.</p><nav aria-label="Site information"><a href="/blog/about/">About</a><a href="/portfolio/">Portfolio &amp; CV</a><a href="/blog/contact/">Contact &amp; partnerships</a><a href="/blog/editorial/">Editorial policy</a><a href="/blog/privacy/">Privacy</a><a href="/blog/feed.xml">RSS</a><a href="https://blog.naver.com/swchoi1994">한국어 · Naver {ARROW}</a></nav></footer>'''
 
 
 def page(title, description, url, body, schemas=(), *, active=None, rail='', kind='website', image=None,
          doc_title=None, head='', tabs=False, article_dates=None):
+    """Wrap a page body in the shared shell: metadata, structured data, navigation, rail and scripts."""
     image = image or SOCIAL
     alt = e(image.get('alt', BRAND))
     dates = ''.join(f'<meta property="article:{key}_time" content="{e(value)}">' for key, value in (article_dates or {}).items())
@@ -304,12 +316,14 @@ def page(title, description, url, body, schemas=(), *, active=None, rail='', kin
 
 
 def write(url, text):
+    """Write a page to its directory-style URL inside the output folder."""
     path = OUT / url.lstrip('/') / 'index.html'
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(text)
 
 
 def meta(post):
+    """Publication date and reading time, in the monospace metadata style."""
     return f'<p class="post-meta"><time datetime="{e(post["date"])}">{post["date"][:10]}</time> · {post["minutes"]} min read</p>'
 
 
@@ -321,10 +335,12 @@ def card(post, label=None, level=3):
 
 
 def view_toggle():
+    """The Cards/List switch for the post list in the same section."""
     return f'<div class="view-toggle" role="group" aria-label="Layout"><button type="button" data-view-set="cards" aria-pressed="true">{icon("grid", 15)}Cards</button><button type="button" data-view-set="list" aria-pressed="false">{icon("list", 15)}List</button></div>'
 
 
 def search_form(count, live=False):
+    """The search field. It submits to the archive; on the archive itself it filters live."""
     ident = ' id="archive-search"' if live else ''
     field = f'<label class="search-field">{icon("search", 18)}<span class="sr-only">Search articles</span><input type="search" name="q"{ident} placeholder="Search {count} articles" autocomplete="off"></label>'
     if not live:
@@ -333,6 +349,7 @@ def search_form(count, live=False):
 
 
 def picture(post, eager=False):
+    """The article cover image with its responsive sources and reserved dimensions."""
     image = post['image']
     responsive = f' srcset="{e(image["small"])} 640w, {e(image["src"])} 1200w" sizes="(max-width: 760px) calc(100vw - 40px), 640px"' if image.get('small') else ''
     return f'<img src="{e(image["src"])}"{responsive} width="{image["width"]}" height="{image["height"]}" alt="{e(image["alt"])}" loading="{"eager" if eager else "lazy"}" decoding="async"' + (' fetchpriority="high"' if eager else '') + '>'
@@ -351,11 +368,13 @@ def youtube_videos(media):
 
 
 def video_tile(video):
+    """A link to one YouTube video with its thumbnail; no player or tracker is loaded."""
     date = f'<time datetime="{video["date"]}">{video["date"]}</time>' if video['date'] else ''
     return f'<a class="video" href="https://www.youtube.com/watch?v={video["id"]}"><span class="video-thumb"><img src="https://i.ytimg.com/vi/{video["id"]}/mqdefault.jpg" width="320" height="180" alt="" loading="lazy" decoding="async"></span><span class="video-title">{video["title"]}</span>{date}</a>'
 
 
 def x_posts():
+    """The owner-maintained posts from content/x-posts.json, or nothing when the list is empty."""
     posts = content('x-posts.json', [])
     if not posts:
         return ''
@@ -367,6 +386,7 @@ def x_posts():
 
 
 def home(posts, media):
+    """The home page: featured guides, latest articles, videos, X posts and the guide spotlight."""
     by_id = {p['slug']: p for p in posts}
     groups = [(name, [by_id[s] for s in ids]) for name, ids in AI_PICKS]
     chosen = [p for _, members in groups for p in members]
@@ -392,6 +412,7 @@ def home(posts, media):
 
 
 def archive(posts, base='/blog/', title='All articles', description='Find a useful answer. Browse the latest guides, or search the complete journal.', eyebrow='The journal'):
+    """A paginated post listing, used for the full archive and for each topic."""
     count = math.ceil(len(posts) / PAGE_SIZE)
     for number in range(1, count + 1):
         def address(i):
@@ -418,6 +439,7 @@ TOKEN_STOP = {'what', 'when', 'check', 'first', 'before', 'from', 'with', 'your'
 
 
 def tokens(title):
+    """Meaningful lowercase words in a title, for comparing articles."""
     return set(re.findall(r'[a-z0-9][a-z0-9+.-]{2,}', title.lower())) - TOKEN_STOP
 
 
@@ -431,6 +453,7 @@ def related(post, posts):
 
 def localize_links(source, current, ids):
     # Only contextual links to an existing English edition change; originals stay credited.
+    """Point links to Korean originals at their English edition when one is published here."""
     def replace(match):
         slug = 'naver-' + match[1]
         return f'href="/blog/posts/{slug}/"' if slug in ids and slug != current else match[0]
@@ -474,6 +497,7 @@ def comments():
 
 
 def article(post, posts):
+    """Render one article: header, body transforms, contents list, related reading and structured data."""
     slug = post['slug']
     source = localize_links(post['source'], slug, {p['slug'] for p in posts})
     found = re.search(r'<div class="reading-body">(.*)</div></article></main>', source, re.S)
@@ -586,6 +610,7 @@ def llms(posts):
 
 
 def build():
+    """Build the whole site into _site/ from the synced inputs and owner settings."""
     posts = load_articles()
     COUNTS.clear()
     COUNTS.update(collections.Counter(p['topic'] for p in posts))
