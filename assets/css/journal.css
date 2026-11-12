@@ -202,6 +202,7 @@ figcaption { margin-top: 8px; font-size: 13px; line-height: 1.5; color: var(--mu
 .reading-body table { width: 100%; border-collapse: collapse; font-size: 15px; line-height: 1.5; }
 .reading-body th, .reading-body td { padding: 10px 12px; border-bottom: 1px solid var(--line); text-align: left; vertical-align: top; }
 .reading-body th { font-size: 13px; font-weight: 600; color: var(--muted); }
+.reading-body td:first-child code { white-space: nowrap; }
 .contact-address { font-family: var(--mono); font-size: 15px; }
 .info-page > h1, .info-page > .reading-body { max-width: 680px; }
 

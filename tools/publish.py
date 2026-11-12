@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 """Render the publication around upstream-synced HTML; never modify sync inputs."""
 import collections
+import datetime
+import email.utils
 import hashlib
 import html
 import json
@@ -133,8 +135,44 @@ def naver_only(slug, schema, source):
     return False
 
 
+def native_articles():
+    """Articles written in this repository: content/posts/<slug>.html, with metadata in a leading JSON comment."""
+    posts = []
+    for path in sorted((ROOT / 'content/posts').glob('*.html')):
+        text = path.read_text()
+        head = re.match(r'\s*<!--(.*?)-->\s*', text, re.S)
+        if not head:
+            raise ValueError(f'Article needs a leading JSON comment: {path.name}')
+        info, slug, body = json.loads(head[1]), path.stem, text[head.end():]
+        missing = [key for key in ('title', 'description', 'date', 'topic', 'sources') if not info.get(key)]
+        if missing or info['topic'] not in TOPICS or slug.startswith('naver-') or not re.fullmatch(r'[a-z0-9]+(?:-[a-z0-9]+)*', slug):
+            raise ValueError(f'Article metadata or file name is not valid: {path.name} {missing}')
+        datetime.datetime.fromisoformat(info['date'])  # a full ISO timestamp, so the feed and sitemap can date it
+        url = f'/blog/posts/{slug}/'
+        words = len(re.findall(r'\w+', re.sub(r'<[^>]+>', ' ', body)))
+        schema = {'@context': 'https://schema.org', '@type': 'BlogPosting', '@id': SITE + url + '#article', 'url': SITE + url,
+                  'headline': info['title'], 'description': info['description'], 'datePublished': info['date'],
+                  'isPartOf': {'@type': 'Blog', '@id': SITE + '/blog/#blog'}, 'mainEntityOfPage': {'@type': 'WebPage', '@id': SITE + url},
+                  'inLanguage': 'en', 'citation': [source['url'] for source in info['sources']], 'wordCount': words}
+        if info.get('updated'):
+            schema['dateModified'] = info['updated']
+        posts.append(dict(slug=slug, title=info['title'], description=info['description'], date=info['date'], url=url,
+                          topic=info['topic'], minutes=max(1, math.ceil(words / 220)), source=None, schema=schema,
+                          image=dict(SOCIAL, alt=info['title'], credit=''),
+                          native=dict(body=body, sources=info['sources'], note=info.get('note', ''))))
+    return posts
+
+
+def native_body(native):
+    """The body of an article written here, followed by its sources and a plain note on how it was made."""
+    sources = ''.join(f'<li><a href="{e(source["url"])}" target="_blank" rel="noopener noreferrer">{e(source["title"])} {ARROW}</a></li>' for source in native['sources'])
+    note = e(native['note']) + ' ' if native['note'] else ''
+    return (f'{native["body"]}<section class="source-box"><h2>Sources</h2><ul>{sources}</ul><p>This article reflects public information available when it was written. Versions, defaults and prices can change; check the linked official documentation.</p></section>'
+            f'<p class="editorial-note">{note}Written for this site with AI assistance, from the sources above. For errors or additional information, please <a href="/blog/contact/">request a correction</a>. <a href="/blog/editorial/">Editorial policy</a></p>')
+
+
 def load_articles():
-    """Read every synced article that belongs on the English site, newest first."""
+    """Read every article that belongs on the English site, synced or written here, newest first."""
     images = json.loads((ROOT / 'content/article-images.json').read_text())
     posts = []
     SKIPPED.clear()
@@ -161,6 +199,7 @@ def load_articles():
                           source=source, schema=data, image=illustration))
     if not posts:
         raise ValueError('No published articles found; refusing to publish an empty site')
+    posts += native_articles()
     return sorted(posts, key=lambda p: (p['date'], p['slug']), reverse=True)
 
 
@@ -488,6 +527,11 @@ def named_sources(body):
     return body[:box.start()] + re.sub(r'<li><a href="([^"]+)"([^>]*)>.*?</a></li>', rename, box[0], flags=re.S) + body[box.end():]
 
 
+def scrollable_tables(body):
+    """Give each table its own scrolling box, so a wide one never pushes a phone page sideways."""
+    return re.sub(r'<table\b.*?</table>', lambda match: f'<div class="table-scroll" tabindex="0" role="region" aria-label="Table">{match[0]}</div>', body, flags=re.S)
+
+
 def comments():
     """Reader comments through giscus (GitHub Discussions). Hidden until the owner fills in content/site.json."""
     c = CONFIG.get('comments', {})
@@ -500,25 +544,31 @@ def comments():
 def article(post, posts):
     """Render one article: header, body transforms, contents list, related reading and structured data."""
     slug = post['slug']
-    source = localize_links(post['source'], slug, {p['slug'] for p in posts})
-    found = re.search(r'<div class="reading-body">(.*)</div></article></main>', source, re.S)
-    summary = re.search(r'<p class="article-summary">(.*?)</p>', source, re.S)
-    if not found or not summary:
-        raise ValueError(f'Article layout changed: {slug}')
-    body = found[1]
     name = TOPICS[post['topic']][0]
+    native = post.get('native')
+    if native:
+        summary, media = e(post['description']), ''
+        body = native_body(native)
+        sections = re.findall(r'<h2 id="([^"]+)">(.*?)</h2>', body, re.S)
+    else:
+        source = localize_links(post['source'], slug, {p['slug'] for p in posts})
+        found = re.search(r'<div class="reading-body">(.*)</div></article></main>', source, re.S)
+        lead = re.search(r'<p class="article-summary">(.*?)</p>', source, re.S)
+        if not found or not lead:
+            raise ValueError(f'Article layout changed: {slug}')
+        body, summary = found[1], lead[1]
+        contents = re.search(r'<nav aria-label="In this article">.*?</nav>', body, re.S)
+        sections = re.findall(r'<li><a href="#([^"]+)">(.*?)</a></li>', contents[0], re.S) if contents else []
+        if contents:
+            body = body.replace(contents[0], '', 1)
+        media = ''
+        for block in re.findall(r'<section class="related-media">.*?</section>', body, re.S):
+            body = body.replace(block, '', 1)
+            if '<h2>Related articles</h2>' not in block:
+                media += block.replace('<section class="related-media">', '<section class="block card related-media">', 1)
+        body = named_sources(numbered_steps(body))
 
-    contents = re.search(r'<nav aria-label="In this article">.*?</nav>', body, re.S)
-    sections = re.findall(r'<li><a href="#([^"]+)">(.*?)</a></li>', contents[0], re.S) if contents else []
-    if contents:
-        body = body.replace(contents[0], '', 1)
-    media = ''
-    for block in re.findall(r'<section class="related-media">.*?</section>', body, re.S):
-        body = body.replace(block, '', 1)
-        if '<h2>Related articles</h2>' not in block:
-            media += block.replace('<section class="related-media">', '<section class="block card related-media">', 1)
-    body = named_sources(numbered_steps(body))
-
+    body = scrollable_tables(body)
     reference = post['image'].get('reference')
     if reference:
         if not (ROOT / reference['src'].lstrip('/')).is_file():
@@ -534,7 +584,7 @@ def article(post, posts):
     extra = content('post-meta.json', {}).get(slug, {})
     mood = ''.join(f'<div><dt>{key}</dt><dd>{e(extra[key])}</dd></div>' for key in ('mood', 'music') if extra.get(key))
     cover = f'<figure class="article-cover">{picture(post, True)}<figcaption>{e(post["image"]["credit"])}</figcaption></figure>' if CONFIG.get('article_cover') else ''
-    header = f'''<header class="reading-header"><h1>{e(post['title'])}</h1><p class="byline"><img src="{AVATAR}" width="28" height="28" alt=""><a rel="author" href="/blog/about/">{NAME}</a><span><time datetime="{e(post['date'])}">{post['date'][:10]}</time> · {post['minutes']} min read</span></p>{f'<dl class="mood">{mood}</dl>' if mood else ''}<p class="article-summary"><strong>At a glance</strong>{summary[1]}</p></header>'''
+    header = f'''<header class="reading-header"><h1>{e(post['title'])}</h1><p class="byline"><img src="{AVATAR}" width="28" height="28" alt=""><a rel="author" href="/blog/about/">{NAME}</a><span><time datetime="{e(post['date'])}">{post['date'][:10]}</time> · {post['minutes']} min read</span></p>{f'<dl class="mood">{mood}</dl>' if mood else ''}<p class="article-summary"><strong>At a glance</strong>{summary}</p></header>'''
     picks = ''.join(card(p) for p in related(post, posts))
     reading = f'''{page_head(f'<nav class="breadcrumbs" aria-label="Breadcrumb"><a href="/">Home</a><span aria-hidden="true"> / </span><a href="/topics/{post["topic"]}/">{e(name)}</a></nav>')}
 <article class="reading card">{header}{cover}<div class="reading-body">{inline_contents}{body}</div></article>
@@ -549,8 +599,9 @@ def article(post, posts):
     for key in ('author', 'publisher'):
         data[key] = {'@type': 'Person', '@id': SITE + '/#person', 'name': NAME, 'url': SITE + '/blog/about/'}
     data['isPartOf'] = dict(data['isPartOf'], url=SITE + '/', name=BRAND)
-    # The Korean original is the source work; say so in a form crawlers can read.
-    data['isBasedOn'] = {'@type': 'BlogPosting', 'inLanguage': 'ko', 'url': f'https://blog.naver.com/swchoi1994/{slug.split("-")[1]}'}
+    if not native:
+        # The Korean original is the source work; say so in a form crawlers can read.
+        data['isBasedOn'] = {'@type': 'BlogPosting', 'inLanguage': 'ko', 'url': f'https://blog.naver.com/swchoi1994/{slug.split("-")[1]}'}
     crumb = breadcrumbs([('Home', '/'), (name, f'/topics/{post["topic"]}/'), (post['title'], post['url'])])
     write(post['url'], page(post['title'], post['description'], post['url'], reading, [data, crumb], active=f'/topics/{post["topic"]}/', rail=rail,
                             kind='article', image=dict(image, alt=post['image']['alt']),
@@ -569,7 +620,7 @@ def info_page(path, posts):
     schemas = []
     if path.parent.name == 'about':
         inner = inner.replace('href="/">portfolio', 'href="/portfolio/">portfolio')
-        inner = inner.replace('<div class="reading-body">', '<div class="reading-body"><h2>About the author</h2><p>I’m Seongwoo Choi, an AI engineer and founder based in Abu Dhabi. My work spans agentic systems, multimodal document intelligence, and product delivery. <a href="/portfolio/">Read my professional background and research</a>.</p><h2>About the journal</h2>', 1)
+        inner = inner.replace('<div class="reading-body">', '<div class="reading-body"><h2>About the author</h2><p>I’m Seongwoo Choi, an AI engineer and founder based in Abu Dhabi. My work spans agentic systems, multimodal document intelligence, and product delivery. <a href="/portfolio/">Read my professional background and research</a>.</p><h2>About the journal</h2><p>Most articles are English editions of my Korean posts on Naver. Some guides are written directly for this site; those have no Korean original and say so at the end.</p>', 1)
         person = json.loads(LD.search((ROOT / 'portfolio/index.html').read_text())[1])
         person['url'] = SITE + '/blog/about/'
         schemas.append({'@context': 'https://schema.org', '@type': 'ProfilePage', 'url': SITE + '/blog/about/', 'mainEntity': person})
@@ -684,6 +735,14 @@ def build():
             item.find('title').text = titles[link]
         elif '/blog/posts/' in (link or ''):
             channel.remove(item)
+    # The upstream feed knows nothing about articles written here; add them at the top, newest first.
+    first = next((index for index, node in enumerate(channel) if node.tag == 'item'), len(channel))
+    for post in reversed([p for p in posts if p.get('native')]):
+        item = ET.Element('item')
+        for tag, text in (('title', post['title']), ('link', SITE + post['url']), ('guid', SITE + post['url']), ('description', post['description']),
+                          ('pubDate', email.utils.format_datetime(datetime.datetime.fromisoformat(post['date'])))):
+            ET.SubElement(item, tag).text = text
+        channel.insert(first, item)
     feed.write(feed_path, encoding='utf-8', xml_declaration=True)
     # One complete sitemap, including every paginated archive and existing guide URL.
     ns = 'http://www.sitemaps.org/schemas/sitemap/0.9'
