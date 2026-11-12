@@ -87,6 +87,18 @@ MOTIFS = {
     'chip': '<path class="n" d="M130 30v14M160 30v14M190 30v14M130 136v14M160 136v14M190 136v14M98 60h14M98 90h14M98 120h14M208 60h14M208 90h14M208 120h14"/><rect class="p" x="112" y="42" width="96" height="96" rx="12"/><rect class="k" x="136" y="66" width="48" height="48" rx="7"/><rect class="w" x="148" y="86" width="24" height="8" rx="4"/>',
 }
 TOPIC_MOTIFS = {'ai-automation': 'chip', 'windows': 'window', 'google-tools': 'mail', 'office-documents': 'doc', 'privacy-backup': 'shield'}
+# A release explainer must cite the company itself. Sites each company publishes on, for the build to check.
+COMPANY_DOMAINS = {
+    'Anthropic': ('anthropic.com', 'claude.com'),
+    'OpenAI': ('openai.com',),
+    'Google': ('blog.google', 'google.com', 'google.dev', 'googleblog.com'),
+    'Amazon': ('aboutamazon.com', 'amazon.com', 'amazon.science'),
+    'Meta': ('meta.com', 'fb.com'),
+    'Microsoft': ('microsoft.com',),
+    'NVIDIA': ('nvidia.com',),
+    'xAI': ('x.ai',),
+    'Mistral': ('mistral.ai',),
+}
 # Filled in by build(); read by the shared page shell.
 COUNTS = {}
 SKIPPED = []
@@ -176,6 +188,9 @@ def native_articles():
             if not all(info['release'].get(key) for key in ('company', 'name', 'announced')):
                 raise ValueError(f'A release needs "company", "name" and "announced": {path.name}')
             datetime.date.fromisoformat(info['release']['announced'])
+            domains = COMPANY_DOMAINS.get(info['release']['company'])
+            if domains and not any(urlsplit(source['url']).netloc.endswith(domains) for source in info['sources']):
+                raise ValueError(f'A {info["release"]["company"]} release must cite a page on {" or ".join(domains)}: {path.name}')
         if info.get('cover') and info['cover'] not in MOTIFS:
             raise ValueError(f'Unknown cover "{info["cover"]}" in {path.name}; choose one of {", ".join(MOTIFS)}')
         if info.get('project') and not all(info['project'].get(key) for key in ('needs', 'result')):

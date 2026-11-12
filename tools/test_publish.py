@@ -278,7 +278,8 @@ class PublicationTest(unittest.TestCase):
             self.assertIn(post['url'], listing)
             self.assertIn(html.escape(post['release']['name']), listing)
             # Facts about a release come from the company itself: at least one source on its own domain.
-            domains = {'Anthropic': ('anthropic.com', 'claude.com'), 'OpenAI': ('openai.com',)}.get(post['release']['company'])
+            domains = publish.COMPANY_DOMAINS.get(post['release']['company'])
+            self.assertTrue(domains, f'add {post["release"]["company"]} to COMPANY_DOMAINS so its sources are checked')
             if domains:
                 self.assertTrue(any(urlsplit(src['url']).netloc.endswith(domains) for src in post['native']['sources']), post['slug'])
         self.assertIn('<a href="/releases/"><span>', (publish.OUT / 'index.html').read_text())

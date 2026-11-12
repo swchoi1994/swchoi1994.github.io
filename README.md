@@ -63,7 +63,7 @@ An article about a product release adds one more metadata field:
 
 Those articles are listed at `/releases/`, newest announcement first, and the page appears in the sidebar as "AI releases".
 
-A scheduled task checks Anthropic's and OpenAI's own release pages once a day and drafts an explainer for anything new, following `tools/release-pipeline.md`. It opens a pull request for each one and never merges; you publish by merging. Edit that file to change what it watches or how it writes. The task itself is managed from the scheduled tasks list in Claude Code, not from this repository.
+A scheduled task checks the release pages of Anthropic, OpenAI and other AI companies once a day and drafts an explainer for anything new, following `tools/release-pipeline.md`. The build refuses a release explainer that cites no page on the company's own site (`COMPANY_DOMAINS` in `tools/publish.py`). It opens a pull request for each one and never merges; you publish by merging. Edit that file to change what it watches or how it writes. The task itself is managed from the scheduled tasks list in Claude Code, not from this repository.
 
 ### Series and projects
 

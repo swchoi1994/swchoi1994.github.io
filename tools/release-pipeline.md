@@ -1,6 +1,6 @@
 # Release pipeline
 
-Instructions for the scheduled task that watches Anthropic and OpenAI for new releases and drafts an explainer for each one. The owner edits this file to change what the task does. The task opens pull requests; it never merges them.
+Instructions for the task that watches AI companies for new releases and drafts an explainer for each one. Anthropic and OpenAI come first; other companies and open-source tools follow when there is room. The owner edits this file to change what the task does. The task opens pull requests; it never merges them.
 
 ## 1. What counts as a release
 
@@ -8,12 +8,12 @@ Write about it:
 
 - A new model or model version.
 - A price change.
-- A new feature that changes how people use Claude, Claude Code, ChatGPT, Codex or either API.
+- A new feature that changes how people use a product readers know: Claude, Claude Code, ChatGPT, Codex, Gemini, a company's API, or a tool people run themselves such as vLLM, Ollama or llama.cpp.
 - A deprecation or shutdown with a date.
 
 Skip it: bug-fix updates, research papers, policy essays, funding and hiring news, events, and anything announced more than 7 days ago.
 
-At most two explainers per run. If more qualify, take the two that affect the most readers and leave the rest for the next run.
+At most two explainers per run. Anthropic and OpenAI releases take priority. If more qualify, take the two that affect the most readers and leave the rest for the next run.
 
 ## 2. Find what is already covered
 
@@ -35,6 +35,9 @@ Facts come from the company's own pages. Other coverage may point you to an anno
 | --- | --- |
 | Anthropic | `https://www.anthropic.com/news`, `https://platform.claude.com/docs/en/release-notes/overview`, `https://code.claude.com/docs/en/changelog` |
 | OpenAI | `https://openai.com/news/rss.xml`, `https://platform.openai.com/docs/changelog`, `https://developers.openai.com/changelog` |
+| Google | `https://blog.google/rss/`, `https://ai.google.dev/gemini-api/docs/changelog` |
+| Amazon, Meta, Microsoft, NVIDIA, xAI, Mistral | The company's own newsroom, product documentation and price list |
+| Open-source tools | The project's own release notes and documentation |
 
 Some OpenAI pages refuse automated readers. When a page cannot be fetched, search the web limited to the company's own domains and read the result there. If the official page for a release cannot be read at all, do not write about that release; say so in your final message.
 
@@ -51,7 +54,7 @@ Metadata, in addition to the usual fields:
 "release": {"company": "Anthropic", "name": "Product and version", "announced": "YYYY-MM-DD"}
 ```
 
-`company` is exactly `Anthropic` or `OpenAI`. `announced` is the date on the company's own page. `date` is the time of writing, in UTC.
+`company` is the company's short name, spelled as in `COMPANY_DOMAINS` in `tools/publish.py`: `Anthropic`, `OpenAI`, `Google`, `Amazon`, `Meta`, `Microsoft`, `NVIDIA`, `xAI`, `Mistral`. The build refuses a release from one of these that cites no page on the company's own site. For a company not on that list, add it there with its domains in the same pull request. `announced` is the date on the company's own page. `date` is the time of writing, in UTC.
 
 Sections, in this order, leaving out any that do not apply:
 
