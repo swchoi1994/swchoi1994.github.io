@@ -2,5 +2,9 @@
   "vllm-server": {
     "title": "Run your own LLM server with vLLM",
     "description": "From the first request to a monitored server for a whole team: Docker on NVIDIA GPUs, Qwen and Phind-CodeLlama, many users at once, GPU sizing, dashboards and alerts."
+  },
+  "processors": {
+    "title": "Processors, explained by looking inside",
+    "description": "x86, Arm and RISC-V compared by compiling the same code, then the companies behind them."
   }
 }
