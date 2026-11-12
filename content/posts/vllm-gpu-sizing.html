@@ -1,0 +1,227 @@
+<!--
+{
+  "title": "How many GPUs for N users? A vLLM sizing method",
+  "description": "Work out GPU memory from a model's config file, turn a number of users into concurrent requests, then load-test with vllm bench serve to find the real limit.",
+  "date": "2026-11-12T09:44:00+00:00",
+  "topic": "ai-automation",
+  "series": "vllm-server",
+  "part": 6,
+  "note": "The memory formula and every figure in the tables were calculated from model configuration files read on Hugging Face on November 12, 2026; the script in this article was run on those files and its output is shown as printed. The 10 percent runtime reserve and the peak factor are assumptions. No GPU was available, so no throughput was measured and the benchmark commands are untested here. Flags follow the vLLM documentation.",
+  "sources": [
+    {"title": "vLLM docs: Parallelism and scaling", "url": "https://docs.vllm.ai/en/latest/serving/parallelism_scaling/"},
+    {"title": "vLLM docs: Optimization and tuning", "url": "https://docs.vllm.ai/en/latest/configuration/optimization/"},
+    {"title": "vLLM docs: vllm bench serve", "url": "https://docs.vllm.ai/en/latest/cli/bench/serve/"},
+    {"title": "vLLM docs: Conserving memory", "url": "https://docs.vllm.ai/en/latest/configuration/conserving_memory/"},
+    {"title": "Hugging Face: Phind/Phind-CodeLlama-34B-v2 config.json", "url": "https://huggingface.co/Phind/Phind-CodeLlama-34B-v2/blob/main/config.json"},
+    {"title": "Hugging Face: Qwen/Qwen3-8B config.json", "url": "https://huggingface.co/Qwen/Qwen3-8B/blob/main/config.json"}
+  ]
+}
+-->
+<p>"How many GPUs do we need for 200 users?" has no answer on a vendor's page, because it depends on your model, your prompts and how patient your users are. It does have a method. Part of it is arithmetic you can do before buying anything, and part is a measurement you must make on real hardware. This part gives you both, with every number shown.</p>
+
+<h2 id="two">1. Two questions, answered separately</h2>
+<table>
+<thead><tr><th scope="col">Question</th><th scope="col">Limited by</th><th scope="col">How you answer it</th></tr></thead>
+<tbody>
+<tr><td>Does it fit?</td><td>GPU memory</td><td>Arithmetic, from two files</td></tr>
+<tr><td>Is it fast enough?</td><td>GPU computation</td><td>A load test</td></tr>
+</tbody>
+</table>
+<p>People often stop after the first question. A setup that fits can still be far too slow for the load, and a setup that is fast can still pause requests because memory runs out. You need both answers, and the larger GPU count wins.</p>
+
+<h2 id="weights">2. Memory, step one: the weights</h2>
+<p>Add up the weight files in the model's repository. That is close to what they occupy on the GPU when the model runs at the precision it was published in.</p>
+<p>Mind the units. File listings use gigabytes of 1,000³ bytes. GPU tools report mebibytes, and a card sold as "80 GB" shows about 80 × 1,024 MiB. To compare, divide bytes by 1,073,741,824 to get GiB. Phind-CodeLlama-34B is 67.5 GB on disk, which is 62.9 GiB.</p>
+
+<h2 id="cache">3. Memory, step two: the cost of one token</h2>
+<p>While a request is being answered, the model keeps two tensors, a key and a value, for every token of that request in every layer. This is the KV cache. Its size per token comes straight from <code>config.json</code>:</p>
+<pre><code>bytes per token = 2 × layers × key-value heads × head dimension × bytes per number</code></pre>
+<table>
+<thead><tr><th scope="col">Term</th><th scope="col">Field in <code>config.json</code></th></tr></thead>
+<tbody>
+<tr><td>layers</td><td><code>num_hidden_layers</code></td></tr>
+<tr><td>key-value heads</td><td><code>num_key_value_heads</code>, or <code>num_attention_heads</code> if the first is absent</td></tr>
+<tr><td>head dimension</td><td><code>head_dim</code>, or <code>hidden_size</code> ÷ <code>num_attention_heads</code></td></tr>
+<tr><td>bytes per number</td><td>2 when <code>torch_dtype</code> is <code>bfloat16</code> or <code>float16</code></td></tr>
+</tbody>
+</table>
+<p>Applied to four models from this series:</p>
+<table>
+<thead><tr><th scope="col">Model</th><th scope="col">Layers × KV heads × head dim</th><th scope="col">Per token</th><th scope="col">One full default context</th></tr></thead>
+<tbody>
+<tr><td>Qwen2.5-7B-Instruct</td><td>28 × 4 × 128</td><td>57,344 bytes</td><td>1.8 GiB at 32,768 tokens</td></tr>
+<tr><td>Qwen3-8B</td><td>36 × 8 × 128</td><td>147,456 bytes</td><td>5.6 GiB at 40,960 tokens</td></tr>
+<tr><td>Phind-CodeLlama-34B-v2</td><td>48 × 8 × 128</td><td>196,608 bytes</td><td>0.75 GiB at 4,096 tokens</td></tr>
+<tr><td>Qwen2.5-Coder-32B-Instruct</td><td>64 × 8 × 128</td><td>262,144 bytes</td><td>8.0 GiB at 32,768 tokens</td></tr>
+</tbody>
+</table>
+<p>Two things stand out. Qwen3-8B is close to Qwen2.5-7B in size but needs more than twice the cache per token, because it has more layers and twice the key-value heads. And context length matters as much as the model: one full-length Qwen2.5-Coder request costs more memory than ten full-length Phind requests.</p>
+
+<h2 id="budget">4. Memory, step three: the budget</h2>
+<pre><code>cache memory = GPU memory − weights − runtime reserve
+tokens in cache = cache memory ÷ bytes per token
+full-length requests at once = tokens in cache ÷ context length</code></pre>
+<p>The runtime reserve covers what vLLM needs besides weights and cache: the working memory of a forward pass and its compiled graphs. On NVIDIA GPUs, the documentation says vLLM measures this itself at startup and gives the rest to the cache, so the true figure is only known on the machine. For planning, this series keeps back a tenth of the card. That is an assumption, chosen to be cautious.</p>
+<p>This script does the arithmetic. Download a model's <code>config.json</code> and save the script as <code>kv_budget.py</code>:</p>
+<pre><code>import json, sys
+
+cfg = json.load(open(sys.argv[1]))   # the model's config.json
+gpu_gib = float(sys.argv[2])         # GPU memory in GiB, added up over all GPUs used
+weights_gib = float(sys.argv[3])     # total size of the weight files in GiB
+reserve = 0.10                       # share kept back for the runtime: an assumption
+
+layers = cfg["num_hidden_layers"]
+kv_heads = cfg.get("num_key_value_heads", cfg["num_attention_heads"])
+head_dim = cfg.get("head_dim", cfg["hidden_size"] // cfg["num_attention_heads"])
+bytes_per_value = 2                  # 16-bit values (bfloat16 or float16)
+
+per_token = 2 * layers * kv_heads * head_dim * bytes_per_value
+cache_gib = gpu_gib * (1 - reserve) - weights_gib
+tokens = cache_gib * 2**30 / per_token
+
+print(f"KV cache per token: {per_token:,} bytes")
+print(f"Left for the cache: {cache_gib:.1f} GiB, about {tokens:,.0f} tokens")
+for length in (4096, 8192, 16384, 32768):
+    print(f"  full requests of {length:,} tokens: {tokens / length:.1f}")</code></pre>
+<p>Run for Phind-CodeLlama-34B on one 80 GB card, it printed:</p>
+<pre><code>$ python kv_budget.py config.json 80 62.85
+KV cache per token: 196,608 bytes
+Left for the cache: 9.1 GiB, about 49,971 tokens
+  full requests of 4,096 tokens: 12.2
+  full requests of 8,192 tokens: 6.1
+  full requests of 16,384 tokens: 3.0
+  full requests of 32,768 tokens: 1.5</code></pre>
+<p>If "Left for the cache" is negative, the model does not fit on that hardware.</p>
+<p><strong>Check it against the server.</strong> When vLLM starts, it logs the real numbers, in lines of this form from the documentation:</p>
+<pre><code>GPU KV cache size: 643,232 tokens
+Maximum concurrency for 40,960 tokens per request: 15.70x</code></pre>
+<p>The first is the measured version of "tokens in cache". The second divides it by your <code>--max-model-len</code>. The documentation's own advice is to add GPUs if these are lower than you need. Once you have a machine, trust these lines over any estimate, including this article's.</p>
+
+<h2 id="surprise">5. The result that surprises people</h2>
+<p>Compare three ways to run Phind-CodeLlama-34B on A100 80GB cards, using the same script:</p>
+<table>
+<thead><tr><th scope="col">Layout</th><th scope="col">Cache memory</th><th scope="col">Full 4,096-token requests</th></tr></thead>
+<tbody>
+<tr><td>1 GPU</td><td>9.1 GiB</td><td>12</td></tr>
+<tr><td>2 GPUs as two separate servers</td><td>2 × 9.1 GiB</td><td>24</td></tr>
+<tr><td>2 GPUs as one server with tensor parallelism</td><td>81.2 GiB</td><td>108</td></tr>
+</tbody>
+</table>
+<p>Two separate servers each load their own copy of the weights. One server across both cards loads the weights once, and the whole second card becomes cache. When a model nearly fills a GPU, splitting it across two gives far more room for requests than running two copies.</p>
+<p>That is a statement about memory only. Tensor parallelism adds communication between the cards on every step, and whether the extra room turns into extra throughput is something the load test in step 8 decides. The two layouts also fail differently: with replicas, one server keeps answering if the other card fails.</p>
+
+<h2 id="users">6. From users to requests at the same moment</h2>
+<p>"200 users" is not 200 simultaneous requests. People read, think and type between questions. The number that matters is how many requests are in progress at once:</p>
+<pre><code>average concurrency = users × requests per user per hour × seconds per request ÷ 3600</code></pre>
+<p>This is Little's law from queueing theory: the average number in a system is the arrival rate times the time each one spends there. A worked example with assumed inputs:</p>
+<table>
+<thead><tr><th scope="col">Input</th><th scope="col">Value</th><th scope="col">Where it comes from</th></tr></thead>
+<tbody>
+<tr><td>Users</td><td>200</td><td>People who will actually use it in a working day</td></tr>
+<tr><td>Requests per user per hour</td><td>30</td><td>A guess to replace with your logs</td></tr>
+<tr><td>Seconds per request</td><td>8</td><td>A guess to replace with a measurement</td></tr>
+<tr><td>Average concurrency</td><td>13.3</td><td>200 × 30 × 8 ÷ 3600</td></tr>
+<tr><td>Peak factor</td><td>3</td><td>An assumption: busy moments compared with the average</td></tr>
+<tr><td>Peak concurrency to plan for</td><td>40</td><td>13.3 × 3</td></tr>
+</tbody>
+</table>
+<p>The same inputs give the output volume. If an answer averages 400 tokens, 200 × 30 × 400 ÷ 3600 is about 670 tokens a second on average, and about 2,000 at peak.</p>
+<p>The three guessed inputs dominate the result, so replace them as soon as you can. The proxy log from part 5 records every request with its duration and the user's name. After a week of a pilot with a few people, you have real numbers.</p>
+<p>Automated clients change everything. A coding agent or a batch job sends requests back to back, with no reading time. Count each one as a user who never pauses.</p>
+
+<h2 id="memory-check">7. First check: does the peak fit in memory?</h2>
+<p>Compare the peak concurrency with the memory table. For the example, 40 requests in progress at peak:</p>
+<ul>
+<li>One A100 80GB holds about 12 full-length Phind requests. Not enough if requests are long.</li>
+<li>Two A100 80GB with tensor parallelism hold about 108. Enough, with room to spare.</li>
+</ul>
+<p>Real requests rarely fill the context, so the true capacity is higher than the worst case. Planning for the worst case is still right, because the alternative is preemption at the busiest moment: requests paused and recomputed exactly when everyone is waiting.</p>
+
+<h2 id="measure">8. Second check: measure the speed</h2>
+<p>No formula predicts tokens per second for your model on your card with your prompts. vLLM ships a load generator for this. With a server running, a basic run looks like:</p>
+<pre><code>vllm bench serve \
+  --backend openai-chat \
+  --base-url http://127.0.0.1:8000 \
+  --endpoint /v1/chat/completions \
+  --model qwen3 \
+  --tokenizer Qwen/Qwen3-8B \
+  --dataset-name random \
+  --random-input-len 1024 \
+  --random-output-len 256 \
+  --num-prompts 300 \
+  --max-concurrency 8 \
+  --percentile-metrics ttft,tpot,itl,e2el \
+  --metric-percentiles 50,95,99 \
+  --save-result</code></pre>
+<table>
+<thead><tr><th scope="col">Flag</th><th scope="col">Meaning</th></tr></thead>
+<tbody>
+<tr><td><code>--model</code>, <code>--tokenizer</code></td><td>The name the server answers to, and the real model whose tokenizer counts the tokens. They differ when you use <code>--served-model-name</code>.</td></tr>
+<tr><td><code>--random-input-len</code>, <code>--random-output-len</code></td><td>Prompt and answer length in tokens. Set them to what your users send and receive.</td></tr>
+<tr><td><code>--max-concurrency</code></td><td>How many requests are in progress at once. This is the dial you turn.</td></tr>
+<tr><td><code>--request-rate</code></td><td>The alternative dial: requests started per second, with random gaps like real traffic. The default sends everything at once.</td></tr>
+<tr><td><code>--percentile-metrics</code></td><td>Which timings to report: time to first token, time per output token, the gap between tokens, and end-to-end time.</td></tr>
+<tr><td><code>--save-result</code></td><td>Writes the results to a JSON file, so runs can be compared.</td></tr>
+</tbody>
+</table>
+<p>The simplest place to run it is inside the server's container, with <code>docker exec</code>. For cleaner numbers, run it from a second machine and point <code>--base-url</code> at the server, so the load generator does not compete for the server's CPU.</p>
+<p><strong>The procedure.</strong> Decide first what "fast enough" means, for example a first token within 2 seconds for 95 percent of requests. Then repeat the run with <code>--max-concurrency</code> at 1, 2, 4, 8, 16, 32 and 64, and fill in a table:</p>
+<table>
+<thead><tr><th scope="col">Concurrency</th><th scope="col">Output tokens per second</th><th scope="col">Time to first token, 95th percentile</th><th scope="col">Time per token, 95th percentile</th></tr></thead>
+<tbody>
+<tr><td>1</td><td>measure</td><td>measure</td><td>measure</td></tr>
+<tr><td>8</td><td>measure</td><td>measure</td><td>measure</td></tr>
+<tr><td>32</td><td>measure</td><td>measure</td><td>measure</td></tr>
+</tbody>
+</table>
+<p>The pattern to expect: total tokens per second climbs as concurrency rises, then flattens, while the waiting times grow. The highest concurrency that still meets your target is the capacity of that server. Call it C.</p>
+<p>Read percentiles, not averages. An average hides the slow requests, and the slow requests are what people remember.</p>
+
+<h2 id="count">9. Turn the measurements into a GPU count</h2>
+<pre><code>servers needed = peak concurrency ÷ C, rounded up
+GPUs needed    = servers × GPUs per server, plus one spare server if downtime matters</code></pre>
+<p>Continuing the example with a peak of 40. The values of C below are placeholders to show the arithmetic, not measurements:</p>
+<table>
+<thead><tr><th scope="col">If one server meets the target up to C =</th><th scope="col">Servers for a peak of 40</th></tr></thead>
+<tbody>
+<tr><td>8</td><td>5</td></tr>
+<tr><td>16</td><td>3</td></tr>
+<tr><td>32</td><td>2</td></tr>
+</tbody>
+</table>
+<p>Then apply the memory check from step 7 to each server, and take whichever requirement is larger.</p>
+<p>The GPUs are not the whole machine:</p>
+<ul>
+<li><strong>CPU:</strong> the documentation recommends at least 2 + N physical cores for N GPUs, and notes that a GPU that is never fully busy often means the CPU is the limit.</li>
+<li><strong>RAM:</strong> weights pass through system memory while loading. Plan for at least the size of the weight files; this is a rule of thumb, not a documented figure.</li>
+<li><strong>Disk:</strong> the weight files plus the container image, on a local disk.</li>
+</ul>
+
+<h2 id="levers">10. Five ways to need fewer GPUs</h2>
+<table>
+<thead><tr><th scope="col">Lever</th><th scope="col">Effect</th><th scope="col">Cost</th></tr></thead>
+<tbody>
+<tr><td>Shorter <code>--max-model-len</code></td><td>More requests fit in the same cache</td><td>Long inputs are rejected</td></tr>
+<tr><td>A cap on <code>max_tokens</code></td><td>Requests finish sooner and free their slot</td><td>Long answers are cut</td></tr>
+<tr><td>A quantized build</td><td>Smaller weights, so more cache or a smaller card</td><td>Lower precision</td></tr>
+<tr><td>A smaller model</td><td>Less memory and more tokens per second</td><td>Weaker answers on hard tasks</td></tr>
+<tr><td>Thinking off by default</td><td>Fewer output tokens per answer</td><td>Weaker multi-step reasoning</td></tr>
+</tbody>
+</table>
+<p>One more is free. vLLM reuses the cache for prompts that start with the same text, such as a shared system prompt, and reports it in the <code>vllm:prefix_cache_hits</code> metric. Keeping the fixed part of your prompts at the start, and identical between requests, lets that work.</p>
+
+<h2 id="limits">11. Where this method stops</h2>
+<ul>
+<li>The memory arithmetic covers standard transformer models with 16-bit weights. Models with unusual attention layouts, images or audio need their own check.</li>
+<li>Random benchmark prompts never repeat, so they understate the benefit of prefix caching. A run with <code>--dataset-name sharegpt</code> and a dataset file is closer to real conversations.</li>
+<li>A benchmark measures one moment. After launch, the dashboards in part 7 tell you whether the plan still holds.</li>
+</ul>
+
+<h2 id="next">12. What you can do now</h2>
+<ul>
+<li>Compute a model's memory per token from its <code>config.json</code>, and the number of requests a card can hold.</li>
+<li>Explain why one server on two GPUs can hold several times more requests than two servers on the same cards.</li>
+<li>Turn "N users" into a peak concurrency, and say which inputs are guesses.</li>
+<li>Run a load test, read it by percentile, and turn the result into a GPU count.</li>
+</ul>
+<p>Last in the series: <a href="/blog/posts/vllm-monitoring-prometheus-grafana/">monitoring the server with Prometheus and Grafana</a>.</p>

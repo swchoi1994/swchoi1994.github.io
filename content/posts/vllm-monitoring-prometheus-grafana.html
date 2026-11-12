@@ -1,0 +1,296 @@
+<!--
+{
+  "title": "Monitor vLLM with Prometheus, Grafana and DCGM in Docker",
+  "description": "One Compose file for vLLM, node exporter, the NVIDIA DCGM exporter, Prometheus and Grafana, with the queries and alerts for CPU, RAM, GPU and the model server.",
+  "date": "2026-11-12T09:45:00+00:00",
+  "topic": "ai-automation",
+  "series": "vllm-server",
+  "part": 7,
+  "project": {
+    "needs": "The GPU host and Docker setup from part 2. About 2 GB of disk for images and data.",
+    "result": "Dashboards for CPU, memory, disk, every GPU and the model server, plus alert rules, all started by one command."
+  },
+  "note": "The Compose file was checked with docker compose config. The Prometheus configuration, the alert rules and all fifteen queries were checked with promtool 2.45. The CPU, memory, disk and load queries were also run against a live node exporter 1.7 and returned data, and the target-down alert fired as expected. The GPU and vLLM queries were checked for syntax only: no GPU was available, so DCGM and vLLM metrics were not collected. Metric names follow the NVIDIA and vLLM documentation as read on November 12, 2026.",
+  "sources": [
+    {"title": "vLLM docs: Production metrics", "url": "https://docs.vllm.ai/en/latest/usage/metrics/"},
+    {"title": "vLLM docs: Prometheus and Grafana example", "url": "https://docs.vllm.ai/en/latest/examples/observability/prometheus_grafana/"},
+    {"title": "Prometheus node exporter: README", "url": "https://github.com/prometheus/node_exporter"},
+    {"title": "NVIDIA DCGM Exporter: Install and run", "url": "https://docs.nvidia.com/datacenter/dcgm/latest/installation/install-dcgm-exporter.html"},
+    {"title": "Grafana docs: Import dashboards", "url": "https://grafana.com/docs/grafana/latest/dashboards/build-dashboards/import-dashboards/"},
+    {"title": "Grafana docs: Get started with Explore", "url": "https://grafana.com/docs/grafana/latest/explore/get-started-with-explore/"},
+    {"title": "vLLM docs: Security", "url": "https://docs.vllm.ai/en/latest/usage/security/"}
+  ]
+}
+-->
+<p>A model server fails quietly. Nothing crashes; answers just get slower until someone complains. By then you want to know whether the GPU was full, the CPU was starved, the disk ran out, or requests were queueing, and you want last Tuesday's numbers as well as today's. This part sets up that record. It is one Compose file, and most of it was tested for this article.</p>
+
+<h2 id="pieces">1. Five pieces, each with one job</h2>
+<table>
+<thead><tr><th scope="col">Piece</th><th scope="col">Job</th><th scope="col">Port</th></tr></thead>
+<tbody>
+<tr><td>vLLM</td><td>Publishes its own numbers at <code>/metrics</code>: requests running and waiting, cache use, latencies, tokens</td><td>8000</td></tr>
+<tr><td>node exporter</td><td>Publishes the machine's numbers: CPU, memory, disk, network, load</td><td>9100</td></tr>
+<tr><td>DCGM exporter</td><td>Publishes each GPU's numbers: utilization, memory, temperature, power. From NVIDIA.</td><td>9400</td></tr>
+<tr><td>Prometheus</td><td>Collects all three every few seconds, stores the history, evaluates alert rules</td><td>9090</td></tr>
+<tr><td>Grafana</td><td>Draws dashboards from what Prometheus stored</td><td>3000</td></tr>
+</tbody>
+</table>
+<p>The exporters hold no history. They answer "what is the value now" each time Prometheus asks. Prometheus keeps the answers, for 15 days by default.</p>
+
+<h2 id="files">2. Three files</h2>
+<p>Make a folder with these three files. The first is <code>compose.yaml</code>. It contains the vLLM service from part 2 and four new ones:</p>
+<pre><code>services:
+  vllm:
+    image: vllm/vllm-openai:latest
+    command:
+      - --model
+      - Qwen/Qwen3-8B
+      - --served-model-name
+      - qwen3
+      - --max-model-len
+      - "16384"
+    environment:
+      HF_TOKEN: ${HF_TOKEN:-}
+    volumes:
+      - ${HOME}/.cache/huggingface:/root/.cache/huggingface
+      - vllm-cache:/root/.cache/vllm
+    ports:
+      - "127.0.0.1:8000:8000"
+    ipc: host
+    restart: unless-stopped
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
+
+  node-exporter:
+    image: quay.io/prometheus/node-exporter:latest
+    command:
+      - --path.rootfs=/host
+    pid: host
+    volumes:
+      - /:/host:ro,rslave
+    restart: unless-stopped
+
+  dcgm-exporter:
+    image: nvcr.io/nvidia/k8s/dcgm-exporter:latest
+    cap_add:
+      - SYS_ADMIN
+    restart: unless-stopped
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
+
+  prometheus:
+    image: prom/prometheus:latest
+    volumes:
+      - ./prometheus.yaml:/etc/prometheus/prometheus.yml:ro
+      - ./alerts.yaml:/etc/prometheus/alerts.yaml:ro
+      - prometheus-data:/prometheus
+    ports:
+      - "127.0.0.1:9090:9090"
+    restart: unless-stopped
+
+  grafana:
+    image: grafana/grafana:latest
+    volumes:
+      - grafana-data:/var/lib/grafana
+    ports:
+      - "127.0.0.1:3000:3000"
+    depends_on:
+      - prometheus
+    restart: unless-stopped
+
+volumes:
+  vllm-cache:
+  prometheus-data:
+  grafana-data:</code></pre>
+<p>Points worth understanding:</p>
+<ul>
+<li><strong>The exporters publish no ports.</strong> All five services share a private Docker network, where each can reach the others by service name. Prometheus asks <code>vllm:8000</code>, <code>node-exporter:9100</code> and <code>dcgm-exporter:9400</code> directly. Nothing about your machine is offered to the outside.</li>
+<li><strong>node exporter needs to see the host, not its own container.</strong> Its README says to mount the host's root read-only and pass <code>--path.rootfs</code>, and to share the host's process namespace. The README's own example also uses the host's network. This file keeps it on the private network instead, so CPU, memory and disk figures are the host's, but network traffic figures are the container's. If you need host network counters, follow the README's variant.</li>
+<li><strong>The DCGM exporter gets the GPUs and one extra capability.</strong> This mirrors NVIDIA's <code>docker run</code> command, which uses <code>--gpus all --cap-add SYS_ADMIN</code>. NVIDIA's guide asks you to review that privilege before using it in production.</li>
+<li><strong>Prometheus and Grafana are bound to 127.0.0.1.</strong> Reach them through an SSH tunnel: <code>ssh -L 3000:127.0.0.1:3000 -L 9090:127.0.0.1:9090 you@server</code>.</li>
+<li><strong>Named volumes keep history and dashboards</strong> when containers are replaced.</li>
+</ul>
+<p>The second file is <code>prometheus.yaml</code>, which says what to collect and how often:</p>
+<pre><code>global:
+  scrape_interval: 15s
+  evaluation_interval: 30s
+
+rule_files:
+  - /etc/prometheus/alerts.yaml
+
+scrape_configs:
+  - job_name: vllm
+    scrape_interval: 5s
+    static_configs:
+      - targets: ["vllm:8000"]
+
+  - job_name: node
+    static_configs:
+      - targets: ["node-exporter:9100"]
+
+  - job_name: dcgm
+    static_configs:
+      - targets: ["dcgm-exporter:9400"]</code></pre>
+<p>vLLM is collected every 5 seconds, as in vLLM's own example, because request load changes quickly. The machine and GPUs are collected every 15 seconds. The DCGM exporter refreshes its own readings every 30 seconds by default, so asking it more often gains nothing.</p>
+<p>The third file is <code>alerts.yaml</code>, in step 7. Create it before starting, because Prometheus will not start if a file it mounts is missing.</p>
+
+<h2 id="start">3. Start it and check every target</h2>
+<pre><code>docker compose config --quiet &amp;&amp; echo "file is valid"
+docker compose up -d
+docker compose ps</code></pre>
+<p>Then open <code>http://localhost:9090/targets</code> through the tunnel. You should see three jobs, each marked UP. This page is the first place to look whenever a dashboard is empty.</p>
+<table>
+<thead><tr><th scope="col">Target that is DOWN</th><th scope="col">Usual reason</th></tr></thead>
+<tbody>
+<tr><td><code>vllm</code></td><td>The model is still loading. It turns UP when the server is ready.</td></tr>
+<tr><td><code>dcgm</code></td><td>The container cannot see the GPUs. Run the test from part 2, step 4.</td></tr>
+<tr><td><code>node</code></td><td>The container did not start; read <code>docker compose logs node-exporter</code>.</td></tr>
+</tbody>
+</table>
+<p>In the test for this article, the node target came up at once and the absent vLLM target was reported as down with a connection error, which is what the page should show while a model loads.</p>
+
+<h2 id="grafana">4. Connect Grafana</h2>
+<ol>
+<li>Open <code>http://localhost:3000</code> and sign in with the default user <code>admin</code> and password <code>admin</code>. Grafana asks for a new password; set one.</li>
+<li>Go to Connections, then Data sources, add a new one and choose Prometheus.</li>
+<li>For the server URL enter <code>http://prometheus:9090</code>. That is the service name on the private network, not <code>localhost</code>. Save and test.</li>
+</ol>
+<p>Now import three dashboards. In Grafana, open Dashboards, choose New, then Import. Paste a dashboard ID or upload a JSON file, click Load, select the Prometheus data source and click Import.</p>
+<table>
+<thead><tr><th scope="col">Dashboard</th><th scope="col">How to import</th><th scope="col">Shows</th></tr></thead>
+<tbody>
+<tr><td>Node Exporter Full</td><td>ID <code>1860</code></td><td>CPU, memory, disk, network and load for the host</td></tr>
+<tr><td>NVIDIA DCGM Exporter Dashboard</td><td>ID <code>12239</code>, published by NVIDIA</td><td>Utilization, memory, temperature and power per GPU</td></tr>
+<tr><td>vLLM</td><td>Upload <code>grafana.json</code> from the Prometheus and Grafana example in the vLLM repository</td><td>Latency, throughput, queue and cache for the model server</td></tr>
+</tbody>
+</table>
+<p>The NVIDIA dashboard on grafana.com was last updated in 2021. If some of its panels stay empty with a current exporter, the metric names have moved on; the queries in the next step show how to find the current names.</p>
+
+<h2 id="explore">5. Ask your own questions with Explore</h2>
+<p>Dashboards answer the questions someone else thought of. Explore, in Grafana's left menu, is where you type a query and see the result at once. It is the fastest way to learn what your metrics mean. These fifteen queries were all checked with Prometheus's own tool; the first four were also run against a live machine.</p>
+<table>
+<thead><tr><th scope="col">Question</th><th scope="col">Query</th></tr></thead>
+<tbody>
+<tr><td>How busy is the CPU, in percent?</td><td><code>100 * (1 - avg(rate(node_cpu_seconds_total{mode="idle"}[5m])))</code></td></tr>
+<tr><td>How much memory is in use, in percent?</td><td><code>100 * (1 - node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes)</code></td></tr>
+<tr><td>How many GiB are free on the root disk?</td><td><code>node_filesystem_avail_bytes{mountpoint="/"} / 2^30</code></td></tr>
+<tr><td>What is the one-minute load?</td><td><code>node_load1</code></td></tr>
+<tr><td>How busy is each GPU, in percent?</td><td><code>DCGM_FI_DEV_GPU_UTIL</code></td></tr>
+<tr><td>How much memory does each GPU use, in MiB?</td><td><code>DCGM_FI_DEV_FB_USED</code></td></tr>
+<tr><td>How many requests are being answered?</td><td><code>vllm:num_requests_running</code></td></tr>
+<tr><td>How many are waiting for a slot?</td><td><code>vllm:num_requests_waiting</code></td></tr>
+<tr><td>How full is the KV cache, in percent?</td><td><code>100 * vllm:kv_cache_usage_perc</code></td></tr>
+<tr><td>How many tokens a second are being written?</td><td><code>rate(vllm:generation_tokens_total[1m])</code></td></tr>
+<tr><td>How long until the first token, for 95% of requests?</td><td><code>histogram_quantile(0.95, sum by (le) (rate(vllm:time_to_first_token_seconds_bucket[5m])))</code></td></tr>
+<tr><td>How long between tokens, for 95%?</td><td><code>histogram_quantile(0.95, sum by (le) (rate(vllm:inter_token_latency_seconds_bucket[5m])))</code></td></tr>
+<tr><td>How long do requests queue, for 95%?</td><td><code>histogram_quantile(0.95, sum by (le) (rate(vllm:request_queue_time_seconds_bucket[5m])))</code></td></tr>
+<tr><td>Were any requests paused in the last hour?</td><td><code>increase(vllm:num_preemptions_total[1h])</code></td></tr>
+<tr><td>What share of prompt tokens came from the prefix cache?</td><td><code>rate(vllm:prefix_cache_hits_total[5m]) / rate(vllm:prefix_cache_queries_total[5m])</code></td></tr>
+</tbody>
+</table>
+<p>Three things to know when reading or writing these:</p>
+<ul>
+<li><strong>Counters get a suffix.</strong> The vLLM documentation lists a counter as <code>vllm:generation_tokens</code>, but in queries it is <code>vllm:generation_tokens_total</code>, as in vLLM's own dashboard file. A counter only ever grows, so you nearly always wrap it in <code>rate()</code> or <code>increase()</code>.</li>
+<li><strong>Latencies are histograms.</strong> They arrive as buckets, and <code>histogram_quantile</code> turns them into "95 percent of requests were faster than this".</li>
+<li><strong>GPU metric names depend on the exporter version.</strong> NVIDIA's guide names <code>DCGM_FI_DEV_GPU_TEMP_CELSIUS</code> and <code>DCGM_FI_DEV_BOARD_POWER_WATTS</code> for temperature and power. To see exactly what your exporter offers, type <code>DCGM_</code> in Explore and read the suggestions.</li>
+</ul>
+<p>vLLM's usage note about memory applies here too. GPU memory will look almost full at all times, because vLLM takes the free memory for its cache at startup. That is normal. The cache gauge tells you how much of that memory is actually in use.</p>
+
+<h2 id="read">6. Read the dashboards like a diagnosis</h2>
+<table>
+<thead><tr><th scope="col">What you see together</th><th scope="col">What it means</th><th scope="col">What to do</th></tr></thead>
+<tbody>
+<tr><td>Requests waiting, GPU near 100%</td><td>The GPU is the limit</td><td>More GPUs or replicas, a smaller model, or shorter answers (part 6)</td></tr>
+<tr><td>Requests waiting, GPU well below 100%, CPU high</td><td>The CPU is starving the engine</td><td>More cores; the documentation recommends at least 2 + N for N GPUs</td></tr>
+<tr><td>KV cache near 100%, preemptions rising</td><td>Memory is the limit</td><td>Lower <code>--max-num-seqs</code> or <code>--max-model-len</code>, or add GPU memory (part 5)</td></tr>
+<tr><td>Slow first token, nothing waiting</td><td>Prompts are long</td><td>Shorten prompts, or keep the shared part first so the prefix cache helps</td></tr>
+<tr><td>System memory falling day by day</td><td>Something on the host is leaking</td><td>Find the process before the machine starts swapping</td></tr>
+<tr><td>Root disk shrinking</td><td>Model downloads, images or logs</td><td>Clear unused models from the cache and old images</td></tr>
+<tr><td>GPU temperature climbing while tokens per second fall</td><td>The card may be slowing itself to stay cool</td><td>Check airflow and fans</td></tr>
+</tbody>
+</table>
+
+<h2 id="alerts">7. Six alerts to start with</h2>
+<p>Save this as <code>alerts.yaml</code>. The thresholds are starting points, not recommendations from any vendor. Adjust them after a week of watching your own numbers.</p>
+<pre><code>groups:
+  - name: llm-server
+    rules:
+      - alert: TargetDown
+        expr: up == 0
+        for: 2m
+        annotations:
+          summary: "{{ $labels.job }} is not answering"
+
+      - alert: RequestsQueueing
+        expr: vllm:num_requests_waiting > 0
+        for: 5m
+        annotations:
+          summary: "Requests have been waiting for a slot for 5 minutes"
+
+      - alert: KVCacheNearlyFull
+        expr: vllm:kv_cache_usage_perc > 0.9
+        for: 10m
+        annotations:
+          summary: "The KV cache has been over 90 percent full for 10 minutes"
+
+      - alert: RequestsPreempted
+        expr: increase(vllm:num_preemptions_total[10m]) > 0
+        annotations:
+          summary: "Requests were paused and recomputed in the last 10 minutes"
+
+      - alert: HostMemoryLow
+        expr: node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes < 0.10
+        for: 10m
+        annotations:
+          summary: "Less than 10 percent of system memory is available"
+
+      - alert: DiskNearlyFull
+        expr: node_filesystem_avail_bytes{mountpoint="/"} / node_filesystem_size_bytes{mountpoint="/"} < 0.10
+        for: 10m
+        annotations:
+          summary: "Less than 10 percent of the root disk is free"</code></pre>
+<p><code>for: 5m</code> means the condition must hold for five minutes before the alert fires, which filters out brief spikes. The cache gauge runs from 0 to 1, so 0.9 is 90 percent.</p>
+<p>After a restart of Prometheus, open <code>http://localhost:9090/alerts</code> to see each rule and its state. This setup shows alerts on that page only. To be sent a message when one fires, add Alertmanager or use Grafana's own alerting; both are separate topics.</p>
+
+<h2 id="secure">8. Keep the monitoring itself private</h2>
+<ul>
+<li>vLLM's <code>/metrics</code> endpoint needs no key, even when an API key is set. The security page lists it among the unprotected endpoints. That is convenient for Prometheus on the private network, and it is the reason the proxy in part 5 refuses the path from outside.</li>
+<li>Change Grafana's default password at first sign-in, and do not publish ports 3000 or 9090 on a public interface.</li>
+<li>Metrics reveal your model, your load and your hardware. Treat the dashboards as internal.</li>
+</ul>
+
+<h2 id="trouble">9. When a panel is empty</h2>
+<table>
+<thead><tr><th scope="col">Symptom</th><th scope="col">Check</th></tr></thead>
+<tbody>
+<tr><td>Every panel is empty</td><td>The data source URL must be <code>http://prometheus:9090</code>; use "Save and test"</td></tr>
+<tr><td>One dashboard is empty</td><td>Is its target UP on the targets page?</td></tr>
+<tr><td>Some panels of a dashboard are empty</td><td>Open the panel's query in Explore and compare the metric name with the suggestions</td></tr>
+<tr><td>vLLM latency panels are empty on a new server</td><td>Histograms have no data until requests have been served; send a few</td></tr>
+<tr><td>Disk figures look like the container's</td><td>The <code>/:/host</code> mount or <code>--path.rootfs=/host</code> is missing</td></tr>
+<tr><td>Prometheus will not start</td><td>Run <code>docker compose logs prometheus</code>; a wrong indent in a YAML file is the usual cause</td></tr>
+</tbody>
+</table>
+
+<h2 id="done">10. What you built in this series</h2>
+<p>Across seven parts you have gone from one command on a test model to a server with a container setup you can reproduce, two real models, per-user access, a sizing method and a record of how it behaves. The parts in order:</p>
+<ol>
+<li><a href="/blog/posts/vllm-first-server/">vLLM quickstart</a></li>
+<li><a href="/blog/posts/vllm-docker-nvidia-gpu/">Docker on an NVIDIA GPU</a></li>
+<li><a href="/blog/posts/vllm-serve-qwen/">Serving Qwen</a></li>
+<li><a href="/blog/posts/vllm-phind-codellama-a100/">Phind-CodeLlama-34B on A100 GPUs</a></li>
+<li><a href="/blog/posts/vllm-multi-user-serving/">Serving a team</a></li>
+<li><a href="/blog/posts/vllm-gpu-sizing/">GPU sizing</a></li>
+<li>Monitoring, this part</li>
+</ol>
+<p>The habit that matters most is the one this last part makes possible: change one setting at a time, and look at the graphs before and after.</p>

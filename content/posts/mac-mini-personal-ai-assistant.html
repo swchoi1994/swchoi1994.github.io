@@ -1,0 +1,153 @@
+<!--
+{
+  "title": "Mac mini as a personal AI assistant with Ollama",
+  "description": "Turn a Mac mini into an always-on private AI assistant: choose the memory, install Ollama, keep it awake, reach it from your phone and add a chat interface.",
+  "date": "2026-11-12T09:47:00+00:00",
+  "topic": "ai-automation",
+  "project": {
+    "needs": "A Mac mini with Apple silicon on macOS 14 or newer, 16 GB of memory or more, and your home network.",
+    "result": "A private assistant that is always on, answers in a browser on your phone and laptop, and speaks the OpenAI API to your scripts."
+  },
+  "note": "Commands and defaults come from the Ollama, Open WebUI and Apple documentation as read on November 12, 2026. No Mac was available, so nothing in this guide was run for it, and no speeds are quoted. The memory guidance in section 2 is a rule of thumb, not a measurement.",
+  "sources": [
+    {"title": "Ollama docs: macOS", "url": "https://docs.ollama.com/macos"},
+    {"title": "Ollama docs: Quickstart", "url": "https://docs.ollama.com/quickstart"},
+    {"title": "Ollama docs: FAQ", "url": "https://docs.ollama.com/faq"},
+    {"title": "Ollama docs: OpenAI compatibility", "url": "https://docs.ollama.com/api/openai-compatibility"},
+    {"title": "Apple: Mac mini technical specifications", "url": "https://www.apple.com/mac-mini/specs/"},
+    {"title": "Apple Support: Set sleep and wake settings for your Mac", "url": "https://support.apple.com/guide/mac-help/set-sleep-and-wake-settings-mchle41a6ccd/mac"},
+    {"title": "Open WebUI docs: Quick start", "url": "https://docs.openwebui.com/getting-started/quick-start/"}
+  ]
+}
+-->
+<p>A Mac mini is small, silent and built to stay on, and its memory is shared between the processor and the graphics chip, which is exactly what a language model needs. That makes it a practical home for a private assistant: one you can ask anything without the question leaving your house. This guide sets one up from an empty Mac to a chat page on your phone.</p>
+
+<h2 id="expect">1. What you get, and what you do not</h2>
+<table>
+<thead><tr><th scope="col">You get</th><th scope="col">You do not get</th></tr></thead>
+<tbody>
+<tr><td>Prompts and answers that stay on your own machine</td><td>The quality of the largest cloud models</td></tr>
+<tr><td>No charge per question</td><td>Speed that matches a datacenter GPU</td></tr>
+<tr><td>An assistant that works when the internet is down</td><td>Many people served at once</td></tr>
+<tr><td>An OpenAI-style API for your own scripts and tools</td><td>Anything maintained for you</td></tr>
+</tbody>
+</table>
+<p>A local model of the size a Mac mini can hold is good at summarizing, drafting, explaining, translating and working over your own notes. For the hardest reasoning and coding tasks, a hosted model is still stronger. Many people end up using both: the local one for anything private or routine, a hosted one for the rest.</p>
+
+<h2 id="memory">2. Choose the memory before anything else</h2>
+<p>On Apple silicon, the model lives in the same memory as macOS and your apps, and that memory cannot be added later. It is the one decision you cannot undo.</p>
+<p>Apple's specification page listed these options on the day this was written:</p>
+<table>
+<thead><tr><th scope="col">Chip</th><th scope="col">Memory</th><th scope="col">Reasonable for</th></tr></thead>
+<tbody>
+<tr><td>M6</td><td>16 GB</td><td>One small model and light use of the Mac alongside it</td></tr>
+<tr><td>M6</td><td>24 or 32 GB</td><td>A mid-sized model with a longer context, or a small one plus other work</td></tr>
+<tr><td>M5 Pro</td><td>24, 48 or 64 GB</td><td>Larger models, long contexts, or two models loaded together</td></tr>
+</tbody>
+</table>
+<p>A workable rule of thumb: the model's download size should be no more than about half of the Mac's memory. The rest goes to macOS, the conversation's context and whatever else is open. Ollama's own quickstart gives one data point: for a model whose download is about 7.2 GB, it recommends 8 GB of available memory, and notes that larger context windows need more.</p>
+<p>Storage matters too. Models are several gigabytes each and you will try more than one, so the smallest disk fills quickly.</p>
+
+<h2 id="install">3. Install Ollama and run a first model</h2>
+<p>Ollama is the program that downloads models and runs them. Its documentation asks for macOS Sonoma (version 14) or newer and an Apple M-series chip for GPU support.</p>
+<ol>
+<li>Download Ollama for macOS from ollama.com, open the disk image and drag the app to Applications.</li>
+<li>Open it. On first start it checks that the <code>ollama</code> command is available in Terminal and offers to set it up.</li>
+<li>Open Terminal and download a model. This is the one from Ollama's quickstart:</li>
+</ol>
+<pre><code>ollama pull gemma4:e2b
+ollama run gemma4:e2b</code></pre>
+<p>The second command opens a chat in the terminal. Ask something, then type <code>/bye</code> to leave. The model library on ollama.com lists other models with their sizes; apply the rule from step 2 when choosing.</p>
+<p>Check that the model runs on the graphics chip and not only the processor:</p>
+<pre><code>ollama ps</code></pre>
+<p>The PROCESSOR column should read <code>100% GPU</code>. If it shows a split with CPU, the model is too large for the free memory; close other apps or choose a smaller model.</p>
+
+<h2 id="api">4. Talk to it from a program</h2>
+<p>Ollama runs a local server on port 11434. It answers in the OpenAI format, so existing code needs only a different address:</p>
+<pre><code>curl http://localhost:11434/v1/chat/completions \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "gemma4:e2b",
+    "messages": [{"role": "user", "content": "Say hello in one sentence."}]
+  }'</code></pre>
+<pre><code>from openai import OpenAI
+
+client = OpenAI(base_url="http://localhost:11434/v1/", api_key="ollama")  # the key is required but ignored
+reply = client.chat.completions.create(
+    model="gemma4:e2b",
+    messages=[{"role": "user", "content": "Summarize in one line: the meeting moved to Friday at 3."}],
+)
+print(reply.choices[0].message.content)</code></pre>
+<p>The comment in that code is from Ollama's documentation, and it carries a warning: the local server does not check who is asking. Keep that in mind for step 7.</p>
+
+<h2 id="always-on">5. Make the Mac behave like a server</h2>
+<p>An assistant that is asleep when you need it is no assistant. In System Settings, open Energy:</p>
+<ul>
+<li>Turn on "Prevent automatic sleeping when the display is off". The screen can still switch off.</li>
+<li>Turn on "Wake for network access".</li>
+<li>Look for the option to start up automatically after a power failure, and turn it on.</li>
+</ul>
+<p>Then make sure Ollama starts with the Mac: in System Settings, under General, check Login Items and add Ollama if it is not listed. Apple notes that preventing sleep can increase power use.</p>
+
+<h2 id="tune">6. Three settings that suit an assistant</h2>
+<table>
+<thead><tr><th scope="col">Setting</th><th scope="col">Default</th><th scope="col">Why change it</th></tr></thead>
+<tbody>
+<tr><td><code>OLLAMA_CONTEXT_LENGTH</code></td><td>4,096 tokens</td><td>Long documents and long chats are cut off at the default. 8,192 or 16,384 helps, at the cost of memory.</td></tr>
+<tr><td><code>OLLAMA_KEEP_ALIVE</code></td><td>5 minutes</td><td>After five idle minutes the model is unloaded, and the next question waits for it to load again. <code>-1</code> keeps it loaded.</td></tr>
+<tr><td><code>OLLAMA_HOST</code></td><td><code>127.0.0.1:11434</code></td><td>By default only the Mac itself can connect. See step 7.</td></tr>
+</tbody>
+</table>
+<p>When Ollama runs as a Mac app, its documentation says to set these with <code>launchctl</code> and then restart the app:</p>
+<pre><code>launchctl setenv OLLAMA_CONTEXT_LENGTH 8192
+launchctl setenv OLLAMA_KEEP_ALIVE -1</code></pre>
+<p>Quit Ollama from its menu bar icon and open it again. If the settings seem to be gone after a restart of the Mac, run the commands again; values set this way belong to the current login session.</p>
+<p>Memory use grows with the context length. If <code>ollama ps</code> stops showing <code>100% GPU</code> after you raise it, you went too far for this Mac.</p>
+
+<h2 id="network">7. Reach it from your phone and laptop</h2>
+<p>To let other devices on your home network connect, change the address Ollama listens on:</p>
+<pre><code>launchctl setenv OLLAMA_HOST "0.0.0.0:11434"</code></pre>
+<p>Restart the Ollama app. Find the Mac's address in System Settings under Network; it looks like <code>192.168.1.20</code>. From another computer on the same network, repeat the request from step 4 with that address in place of <code>localhost</code>.</p>
+<p>Now the warning from step 4 applies. Anyone who can reach that port can use your model, and there is no password.</p>
+<ul>
+<li>Do this only on a network you control. Not on shared or public Wi-Fi.</li>
+<li>Do not forward port 11434 on your router to the internet.</li>
+<li>To use the assistant away from home, connect to your home network through a private VPN. Do not expose the port.</li>
+<li>Give the Mac a fixed address in your router's settings, so the address you saved on your phone keeps working.</li>
+</ul>
+
+<h2 id="chat">8. Add a chat interface</h2>
+<p>A terminal is fine for testing. For daily use, and for anyone else at home, you want a chat page. Open WebUI is an open-source one that connects to Ollama. Its documentation offers a way to run it without Docker. Install the <code>uv</code> tool as that page describes, then:</p>
+<pre><code>DATA_DIR=~/.open-webui uvx --python 3.12 open-webui@latest serve</code></pre>
+<p>It runs at <code>http://localhost:8080</code>. The first start takes a minute. The first screen offers "Create Admin Account"; that first account is the administrator, and sign-up closes once it exists. To let family members join, the documentation says to turn on new sign-ups in the admin settings, where new accounts then wait for your approval.</p>
+<p>If your models do not appear, open the avatar menu, then Settings, Admin, Connections, and set the Ollama address to <code>http://localhost:11434</code>.</p>
+<p>From your phone, open <code>http://</code> followed by the Mac's address and <code>:8080</code>. If the page does not load from another device, start the command with <code>--host 0.0.0.0</code> added. Add the page to your home screen and it behaves much like an app.</p>
+<p>Unlike the Ollama port, this page has accounts and passwords. If you use it, you can set <code>OLLAMA_HOST</code> back to its default so that only the chat page is reachable from the network.</p>
+
+<h2 id="more">9. Connect the rest of your tools</h2>
+<ul>
+<li><strong>Scripts and shortcuts:</strong> anything that can send a web request can use the API from step 4. A daily summary of a notes folder is a good first project.</li>
+<li><strong>Desktop apps:</strong> Ollama's quickstart describes an Apps section in the Mac app that connects supported desktop assistants to your local models.</li>
+<li><strong>Coding agents:</strong> the same page lists launch commands such as <code>ollama launch claude</code> that start a coding agent against a model you choose. Expect less from a small local model than from a hosted one on large coding tasks.</li>
+</ul>
+
+<h2 id="privacy">10. What stays private</h2>
+<p>Ollama's FAQ states that when you run locally, it does not see your prompts or data. Ollama also offers cloud-hosted models through the same app, and for those the FAQ says prompts are processed to provide the service. For private work, use a model you downloaded with <code>ollama pull</code>, and confirm with <code>ollama ps</code> that it is loaded on this Mac while you chat.</p>
+<p>The Mac itself is now the thing to protect. Turn on FileVault, use a strong login password, and remember that chat history in Open WebUI is stored in the data folder you set.</p>
+
+<h2 id="trouble">11. When it misbehaves</h2>
+<table>
+<thead><tr><th scope="col">Symptom</th><th scope="col">Likely cause</th><th scope="col">Fix</th></tr></thead>
+<tbody>
+<tr><td>The first answer after a break is slow</td><td>The model was unloaded after 5 idle minutes</td><td><code>OLLAMA_KEEP_ALIVE</code> in step 6</td></tr>
+<tr><td>It forgets the start of a long document</td><td>The 4,096-token default context</td><td><code>OLLAMA_CONTEXT_LENGTH</code> in step 6</td></tr>
+<tr><td>Answers are very slow and the Mac feels sluggish</td><td>The model does not fit in free memory</td><td>Check <code>ollama ps</code>; use a smaller model or a shorter context</td></tr>
+<tr><td>The phone cannot connect</td><td>Ollama still listens on 127.0.0.1, or the Mac's address changed</td><td>Step 7; restart the app after changing the setting</td></tr>
+<tr><td>It worked yesterday, not after a reboot</td><td>The <code>launchctl</code> settings were not reapplied</td><td>Run them again</td></tr>
+<tr><td>Nothing answers at night</td><td>The Mac went to sleep</td><td>Step 5</td></tr>
+</tbody>
+</table>
+<p>Ollama's logs are in <code>~/.ollama/logs</code>; <code>server.log</code> is the one to read when a model fails to load.</p>
+
+<h2 id="limit">12. Where a Mac mini stops</h2>
+<p>This setup is for one person or one household. By default Ollama answers one request at a time for each model; its <code>OLLAMA_NUM_PARALLEL</code> setting can raise that, with memory use growing to match. When a whole team needs the same model at once, the tool changes: a GPU server running vLLM batches many requests together. That is the subject of the series <a href="/series/vllm-server/">Run your own LLM server with vLLM</a>.</p>

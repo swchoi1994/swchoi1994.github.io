@@ -11,6 +11,7 @@ A quiet utility layout for a personal technology journal: a neutral canvas, whit
 - Every article shows a real byline, its sources by name, and the Korean original.
 - Personal details (mood, music, comments) appear only when the owner has actually entered or enabled them. Nothing personal is ever generated.
 - No gradients, emoji, icon-card rows, decorative status dots or placeholder content.
+- Colour carries meaning: blue is something to click, green is a label. Nothing is coloured for decoration.
 
 ## Color roles
 
@@ -28,9 +29,12 @@ Defined once as custom properties in `assets/css/journal.css`, for light and dar
 | Body `--text` | `#2B2F38` | `#D0D4DC` |
 | Secondary `--sub` | `#4A505C` | `#B4BAC5` |
 | Muted `--muted` | `#5C6370` | `#9AA2AF` |
-| Accent `--accent` | `#A64B2A` | `#E0916F` |
+| Link and action `--link` | `#0B57D0` | `#8AB4F8` |
+| Text on a filled button `--on-link` | `#FFFFFF` | `#0B1B33` |
+| Selected item `--tint` | `#E8F0FE` | `#1F2A3D` |
+| Label `--accent` | `#137333` | `#81C995` |
 
-One accent only (terracotta), used for links, the brand mark, the summary label and primary buttons. Muted text keeps at least 4.5:1 on every surface it sits on. Dark mode is deliberately not pure black and body text is not pure white.
+Two colours, used the way a search result uses them. Blue is for anything you can click: article titles, links in text, primary buttons, the selected item in the sidebar (blue text on the tint). Green is for labels: the topic above a title, page eyebrows, "At a glance", the series part line and the second half of the brand mark. Body text, cards and code stay neutral. All four colours keep at least 4.5:1 against every surface they sit on, in both themes; a true cyan was tested and rejected because it reaches only 2.3:1 on white. Dark mode is deliberately not pure black and body text is not pure white.
 
 Dark mode follows the reader's system setting until they use the toggle; the choice is stored in `localStorage` and applied by an inline script before first paint.
 
@@ -57,6 +61,8 @@ Widths are shares of the screen, not fixed pixels, so the layout fills any windo
 - **Post**: label, title, description, date and read time. The same markup is a card in the grid and a row in the list; the Cards/List toggle is remembered.
 - **Search**: one rounded field with a magnifier, no button. It lifts on hover and focus.
 - **Article**: title, byline, optional mood and music line, an "At a glance" summary, the body, named sources, then "Keep reading".
+- **Series**: an article in a series carries a collapsed box under its summary (part N of M, every part listed, the current one marked) and previous/next links where it ends. The home page shows each series as one wide card: what it is on the left, the parts in order on the right.
+- **Project facts**: two lines under the summary, "You need" and "You end up with", repeated on the projects page.
 - **Ads**: fixed slots sit at the edges only: the right rail, after the article ends, between home sections and above the footer. Never above the title, inside a paragraph or list, or between a heading and its text. A slot renders only when its ad unit ID is set.
 - **Ad blocker wall**: the owner's choice (`adblock_wall`). When ads are blocked, the page is blurred behind one centred card that explains why, gives three steps, and has a reload button and a contact link. With the setting off, a dismissible notice is shown instead. Pages without ads never show either.
 - **Share and follow**: one row of plain link buttons after each article. No third-party share scripts.
@@ -69,7 +75,7 @@ Widths are shares of the screen, not fixed pixels, so the layout fills any windo
 
 ## Avoid
 
-- A second accent colour, gradients, glass effects, drop shadows on cards.
+- A third colour, gradients, glass effects, drop shadows on cards. Do not borrow another company's multi-colour logo treatment.
 - Cover images in lists; stock or generated imagery as decoration.
 - Fake metrics, fake comments, placeholder posts, dead links.
 - Third-party scripts beyond the owner-authorised analytics, AdSense and, when enabled, giscus.
