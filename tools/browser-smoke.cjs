@@ -36,6 +36,22 @@ try { ({ chromium } = require('@playwright/test')); } catch { ({ chromium } = re
   }
   await page.setViewportSize({ width: 1360, height: 900 });
 
+  // Advertising requests stay blocked in tests; verify the supplied 320x200 slot geometry.
+  await page.goto(origin + '/blog/posts/claude-code-project-setup/');
+  assert.equal(await page.locator('.kakao_ad_area').count(), 1);
+  assert.equal(await page.locator('script[src="//t1.kakaocdn.net/kas/static/ba.min.js"]').count(), 1);
+  assert.equal(await page.getAttribute('.kakao_ad_area', 'data-ad-unit'), 'DAN-KMvit9k07zZPB25i');
+  for (const width of [320, 360, 390, 768, 1360]) {
+    await page.setViewportSize({ width, height: 900 });
+    await page.locator('.kakao_ad_area').evaluate(el => { el.style.display = 'block'; });
+    const slot = await page.locator('.kakao_ad_area').boundingBox();
+    assert.equal(slot.width, 320);
+    assert.equal(slot.height, 200);
+    assert(slot.x >= 0 && slot.x + slot.width <= width, `AdFit fits at ${width}`);
+    assert(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth));
+  }
+  await page.setViewportSize({ width: 1360, height: 900 });
+
   // Dark mode and the cards/list choice persist between pages.
   await page.goto(origin + '/');
   await page.click('.page-head [data-theme-toggle]');

@@ -204,3 +204,7 @@ Use Search Console for organic clicks and query/page performance, and AdSense fo
 ## Search Console ownership
 
 For this GitHub-owned `github.io` subdomain, use a URL-prefix property for `https://swchoi1994.github.io/`. The repository cannot set GitHub's DNS TXT records. Verify it with the Google Analytics tag that is already on every page, or obtain the HTML verification tag from that property and put its `content` value in `content/site.json` under `verification.google`; do not substitute a token copied from the Domain-property DNS screen. After deployment, verify in Search Console and submit `https://swchoi1994.github.io/sitemap.xml`.
+
+### Kakao AdFit
+
+`content/site.json` → `adfit.article_end` contains the owner-issued 320×200 banner unit. Empty it to disable the integration. The supplied script appears exactly once after article content; information pages, the home page and portfolio do not load it. Existing AdSense settings are unchanged. The privacy page discloses the integration. Browser tests block advertising requests and check placement/dimensions only, not real ad delivery or Kakao approval.
