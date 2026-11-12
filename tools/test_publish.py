@@ -189,6 +189,37 @@ class PublicationTest(unittest.TestCase):
             publish.CONFIG.clear()
             publish.CONFIG.update(saved)
 
+    def test_information_pages_keep_the_ad_free_boundary(self):
+        for name in ('about', 'contact', 'editorial', 'privacy'):
+            with self.subTest(page=name):
+                source = (publish.OUT / 'blog' / name / 'index.html').read_text()
+                self.assertNotIn('adsbygoogle', source)
+                self.assertNotIn('id="ad-note"', source)
+                self.assertIn('G-BLKN59SYTQ', source)
+
+    def test_configured_ad_slots_do_not_enable_information_page_ads(self):
+        saved_config, saved_out = dict(publish.CONFIG), publish.OUT
+        try:
+            publish.CONFIG['ads'] = {'rail': '1234567890', 'footer': '0987654321'}
+            with tempfile.TemporaryDirectory() as directory:
+                publish.OUT = Path(directory)
+                for name in ('about', 'contact', 'editorial', 'privacy'):
+                    publish.info_page(publish.ROOT / 'blog' / name / 'index.html', self.posts)
+                    source = (publish.OUT / 'blog' / name / 'index.html').read_text()
+                    with self.subTest(page=name):
+                        self.assertNotIn('adsbygoogle', source)
+                        self.assertNotIn('id="ad-note"', source)
+                        self.assertNotIn('data-ad-slot=', source)
+                editorial = publish.page('Journal', 'Articles', '/blog/', '<h1>Journal</h1>')
+                self.assertEqual(editorial.count('pagead/js/adsbygoogle.js'), 1)
+                self.assertIn('data-ad-slot="1234567890"', editorial)
+                self.assertIn('data-ad-slot="0987654321"', editorial)
+                self.assertIn('id="ad-note"', editorial)
+        finally:
+            publish.CONFIG.clear()
+            publish.CONFIG.update(saved_config)
+            publish.OUT = saved_out
+
     def test_localization_preserves_original_and_unknown_destinations(self):
         source = '<a href="https://blog.naver.com/swchoi1994/111">current</a><a href="https://blog.naver.com/swchoi1994/222">next</a><a href="https://blog.naver.com/swchoi1994/333">missing</a>'
         output = publish.localize_links(source, 'naver-111', {'naver-111', 'naver-222'})

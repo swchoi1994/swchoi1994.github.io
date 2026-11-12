@@ -285,12 +285,14 @@ def footer():
 
 
 def page(title, description, url, body, schemas=(), *, active=None, rail='', kind='website', image=None,
-         doc_title=None, head='', tabs=False, article_dates=None):
+         doc_title=None, head='', tabs=False, article_dates=None, ads=True):
     """Wrap a page body in the shared shell: metadata, structured data, navigation, rail and scripts."""
     image = image or SOCIAL
     alt = e(image.get('alt', BRAND))
     dates = ''.join(f'<meta property="article:{key}_time" content="{e(value)}">' for key, value in (article_dates or {}).items())
-    rail = rail or ad('rail')
+    rail = rail or (ad('rail') if ads else '')
+    ad_loader = (f'<meta name="google-adsense-account" content="{ADSENSE}"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client={ADSENSE}" crossorigin="anonymous" onerror="window.adsBlocked=true"></script>'
+                 if ads else '')
     rail_class = 'page-rail' if kind == 'article' else 'page-rail page-rail-wide'
     return f'''<!doctype html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
@@ -304,13 +306,13 @@ def page(title, description, url, body, schemas=(), *, active=None, rail='', kin
 <link rel="icon" href="/favicon.ico"><link rel="alternate" type="application/rss+xml" title="{BRAND}" href="/blog/feed.xml">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500&amp;display=swap" rel="stylesheet">
 <link rel="stylesheet" href="{asset('/assets/css/journal.css')}">{head}
-<meta name="google-adsense-account" content="{ADSENSE}"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client={ADSENSE}" crossorigin="anonymous" onerror="window.adsBlocked=true"></script>
+{ad_loader}
 {''.join(structured(s) for s in schemas)}</head><body><a class="skip-link" href="#main-content">Skip to content</a>
 <div class="app">
 <header class="topbar"><a class="brand" href="/">Seongwoo Choi<span> / Journal</span></a><div class="topbar-actions"><button type="button" class="icon-button" data-theme-toggle aria-pressed="false" aria-label="Dark mode">{icon('moon', 20)}</button><button type="button" class="icon-button" id="menu-toggle" aria-expanded="false" aria-controls="sidebar" aria-label="Open menu">{icon('menu', 20)}</button></div></header>
 {sidebar(active or url, url)}
 {topic_tabs(url) if tabs else ''}
-<div class="page{' page-article' if kind == 'article' else ''}"><div class="page-main"><main id="main-content">{AD_NOTE}{body}</main>{ad('footer')}{footer()}</div>{f'<aside class="{rail_class}" aria-label="Beside the page">{rail}</aside>' if rail else ''}</div>
+<div class="page{' page-article' if kind == 'article' else ''}"><div class="page-main"><main id="main-content">{AD_NOTE if ads else ''}{body}</main>{ad('footer') if ads else ''}{footer()}</div>{f'<aside class="{rail_class}" aria-label="Beside the page">{rail}</aside>' if rail else ''}</div>
 </div>
 <script src="{asset('/assets/js/journal.js')}" defer></script></body></html>'''
 
@@ -576,7 +578,7 @@ def info_page(path, posts):
         inner = re.sub(r'</div>\s*$', '<h2>Partnerships &amp; project inquiries</h2><p>For sponsorship or AI project inquiries, email <a href="mailto:swchoi1994@gmail.com?subject=Journal%20partnership%20inquiry">swchoi1994@gmail.com</a> with your organization, proposal, and timeline. Sponsorship does not purchase editorial recommendations; any sponsored material is clearly labeled.</p></div>', inner, count=1)
     url = f'/blog/{path.parent.name}/'
     crumbs = '<nav class="breadcrumbs" aria-label="Breadcrumb"><a href="/">Home</a></nav>'
-    write(url, page(title, html.unescape(description[1]), url, f'{page_head(crumbs)}<article class="reading info-page card">{inner}</article>', schemas))
+    write(url, page(title, html.unescape(description[1]), url, f'{page_head(crumbs)}<article class="reading info-page card">{inner}</article>', schemas, ads=False))
 
 
 def guide_page(path):

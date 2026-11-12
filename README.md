@@ -70,6 +70,8 @@ Selected articles also have a `reference` in their image manifest entry: an unch
 
 The existing AdSense publisher ID and `ads.txt` are preserved. Account approval, Auto ads settings and Google's consent configuration remain controlled by the owner in AdSense; the code does not invent ad-slot IDs or certify the account is approved. Fixed slots are described under Owner settings and in `DESIGN.md`: they sit at the page edges and after the article, never inside the text or navigation. Use the existing contact page for sponsorship and project inquiries.
 
+About, contact, editorial and privacy pages stay ad-free: their shared shell omits the AdSense loader, fixed slots and ad-blocker notice, including when ad units are configured. The portfolio and setup tools also retain their ad-free pages. This preserves the upstream sync validator's advertising boundary.
+
 The Amazon affiliate build step is **inactive until the owner supplies marketplace and tracking ID** in `content/affiliates.json`. No API keys are needed for ordinary product links. The ID must belong to the approved site/account and marketplace.
 
 Example format (documentation only; these are not real product recommendations):
