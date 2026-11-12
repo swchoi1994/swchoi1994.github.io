@@ -1,0 +1,103 @@
+<!--
+{
+  "title": "DeepSeek API guide: models, prices, and Claude Code setup",
+  "description": "DeepSeek's API in November 2026: two models, a 1M-token context, peak and off-peak prices, automatic caching, and the documented Claude Code settings.",
+  "date": "2026-11-12T11:00:00+00:00",
+  "topic": "ai-automation",
+  "note": "This is an overview of DeepSeek's documentation as read on November 12, 2026, not a hands-on review. No account was created and no requests were sent. Prices and limits are DeepSeek's published figures, and the cost example is arithmetic on that price table.",
+  "sources": [
+    {"title": "DeepSeek API docs: Your first API call", "url": "https://api-docs.deepseek.com/"},
+    {"title": "DeepSeek API docs: Models and pricing", "url": "https://api-docs.deepseek.com/quick_start/pricing"},
+    {"title": "DeepSeek API docs: Context caching", "url": "https://api-docs.deepseek.com/guides/kv_cache"},
+    {"title": "DeepSeek API docs: Using the Anthropic API", "url": "https://api-docs.deepseek.com/guides/anthropic_api"},
+    {"title": "DeepSeek API docs: Integrate with Claude Code", "url": "https://api-docs.deepseek.com/quick_start/agent_integrations/claude_code"}
+  ]
+}
+-->
+<p>DeepSeek sells access to its models through an API that copies the request format of both OpenAI and Anthropic. That makes it easy to try: most tools only need a different base URL and key. This guide collects what the documentation says about the models, what they cost, how caching lowers the bill, and how to point Claude Code at it.</p>
+
+<h2 id="models">1. Two model names</h2>
+<p>The API exposes two models. You call them by a stable name, and DeepSeek decides which version serves it.</p>
+<table>
+<thead><tr><th scope="col"></th><th scope="col"><code>deepseek-flash</code></th><th scope="col"><code>deepseek-v4-pro</code></th></tr></thead>
+<tbody>
+<tr><td>Served by</td><td>DeepSeek-V4.1-Flash-1017</td><td>DeepSeek-V4-Pro-0813</td></tr>
+<tr><td>Context length</td><td>1M tokens</td><td>1M tokens</td></tr>
+<tr><td>Maximum output</td><td>384K tokens</td><td>384K tokens</td></tr>
+<tr><td>Vision input</td><td>Yes</td><td>Not supported</td></tr>
+<tr><td>Concurrency limit</td><td>2,500</td><td>500</td></tr>
+</tbody>
+</table>
+<p>Both support tool calls, JSON output and a thinking mode, which is on by default. The older names <code>deepseek-v4-flash</code> and <code>deepseek-v4-flash-vision-exp</code> are still accepted, but those models have been retired. Requests using them are served by the current Flash model and billed at the Flash price. The October change is covered in <a href="/blog/posts/naver-224445184367/">DeepSeek V4.1-Flash-1017 released</a>.</p>
+
+<h2 id="prices">2. Prices change with the time of day</h2>
+<p>Prices are per one million tokens, and there are two rates. Off-peak is half of peak.</p>
+<table>
+<thead><tr><th scope="col">Per 1M tokens</th><th scope="col">Flash, off-peak</th><th scope="col">Flash, peak</th><th scope="col">V4 Pro, off-peak</th><th scope="col">V4 Pro, peak</th></tr></thead>
+<tbody>
+<tr><td>Input, cache hit</td><td>$0.003</td><td>$0.006</td><td>$0.022</td><td>$0.044</td></tr>
+<tr><td>Input, cache miss</td><td>$0.15</td><td>$0.30</td><td>$0.66</td><td>$1.32</td></tr>
+<tr><td>Output</td><td>$0.60</td><td>$1.20</td><td>$1.98</td><td>$3.96</td></tr>
+</tbody>
+</table>
+<p>Peak hours are 01:00 to 04:00 and 06:00 to 10:00 UTC, Monday to Friday, excluding Chinese public holidays. Everything else is off-peak, including weekends.</p>
+<p>A worked example on the Flash model: 10 million uncached input tokens and 2 million output tokens cost 10 × $0.15 + 2 × $0.60 = $2.70 off-peak. The same job during peak hours costs $5.40. If a batch job can wait, schedule it outside the peak windows.</p>
+<p>Two more billing facts. The separate Search and Fetch APIs cost $0.75 per 1,000 successful requests each. And usage is deducted from a balance you top up in advance, so check the balance before starting a long job.</p>
+
+<h2 id="cache">3. Caching is automatic, if your prompts start the same way</h2>
+<p>The gap between a cache hit and a miss is large: on Flash, $0.003 against $0.15 off-peak. Caching is enabled for every account with no code changes, and it matches on the beginning of the request.</p>
+<p>The rule in the documentation is that a request hits the cache only when it fully matches a prefix that has already been stored. Two examples from the same page:</p>
+<ul>
+<li>First request A + B, second request A + B + C. The second one hits the cache for A + B.</li>
+<li>First request A + B, second request A + C. The second one misses. The system then notices the shared prefix A and stores it, so a third request A + D hits the cache for A.</li>
+</ul>
+<p>In practice, put what does not change at the front: the system prompt, tool definitions, a long reference document. Put what changes, such as the user's question, at the end. Anything that varies near the top, such as a timestamp, breaks the match for everything after it.</p>
+<p>The response tells you what happened. The <code>usage</code> section includes <code>prompt_cache_hit_tokens</code> and <code>prompt_cache_miss_tokens</code>. DeepSeek describes the cache as best-effort, with no guaranteed hit rate, and says unused entries are cleared after a few hours to a few days.</p>
+
+<h2 id="call">4. Calling it</h2>
+<p>With the OpenAI SDK, change the base URL and the model name. This is the documentation's example:</p>
+<pre><code>import os
+from openai import OpenAI
+
+client = OpenAI(
+    api_key=os.environ.get('DEEPSEEK_API_KEY'),
+    base_url="https://api.deepseek.com",
+)
+
+response = client.chat.completions.create(
+    model="deepseek-flash",
+    messages=[
+        {"role": "system", "content": "You are a helpful assistant"},
+        {"role": "user", "content": "Hello"},
+    ],
+    stream=False,
+    reasoning_effort="high",
+    extra_body={"thinking": {"type": "enabled"}},
+)
+
+print(response.choices[0].message.content)</code></pre>
+<p>For tools built on Anthropic's format, the base URL is <code>https://api.deepseek.com/anthropic</code>.</p>
+
+<h2 id="claude-code">5. Using it in Claude Code</h2>
+<p>Because of that Anthropic-compatible endpoint, Claude Code can run on DeepSeek models. The documentation gives these environment variables for macOS and Linux:</p>
+<pre><code>export ANTHROPIC_BASE_URL=https://api.deepseek.com/anthropic
+export ANTHROPIC_AUTH_TOKEN=&lt;your DeepSeek API Key&gt;
+export ANTHROPIC_MODEL=deepseek-flash[1m]
+export ANTHROPIC_DEFAULT_OPUS_MODEL=deepseek-flash[1m]
+export ANTHROPIC_DEFAULT_SONNET_MODEL=deepseek-flash[1m]
+export ANTHROPIC_DEFAULT_HAIKU_MODEL=deepseek-flash
+export CLAUDE_CODE_SUBAGENT_MODEL=deepseek-flash
+export CLAUDE_CODE_EFFORT_LEVEL=max
+export CLAUDE_CODE_AUTO_COMPACT_WINDOW=786432</code></pre>
+<p>Then start <code>claude</code> in the project directory as usual.</p>
+<p>One detail affects the bill. If a tool sends a Claude model name that DeepSeek does not recognise, the API maps it: names starting with <code>claude-opus</code> go to <code>deepseek-v4-pro</code>, and other <code>claude</code> names go to <code>deepseek-flash</code>. Pro output costs 3.3 times as much as Flash, and uncached input 4.4 times. The documented settings above avoid the surprise by setting every model variable to Flash explicitly. Leave those lines out and any request that names an Opus model is billed at the Pro price.</p>
+<p>Claude Code's own project files work the same whichever model answers. They are covered in <a href="/blog/posts/claude-code-project-setup/">Claude Code project setup</a>.</p>
+
+<h2 id="before">6. Before you rely on it</h2>
+<ul>
+<li>The pricing page says prices may change and recommends checking it regularly. Treat the table above as a snapshot.</li>
+<li>Peak hours cover part of the European morning and the late evening in the Americas. Check them against when your jobs run.</li>
+<li>This guide did not review DeepSeek's privacy terms. Read them before sending confidential code or customer data.</li>
+<li>Nothing here was tested. Run your own task on both models before choosing; the cheaper one is often enough.</li>
+</ul>
+<p>For the story around the company rather than the API, Fireship's short video <a href="https://www.youtube.com/watch?v=xBByvFrqmWU">DeepSeek is back... and Silicon Valley is terrified</a> is a quick watch.</p>

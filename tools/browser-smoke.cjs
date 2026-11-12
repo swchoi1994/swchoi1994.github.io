@@ -7,14 +7,24 @@ try { ({ chromium } = require('@playwright/test')); } catch { ({ chromium } = re
 (async () => {
   const browser = await chromium.launch();
   const origin = 'http://127.0.0.1:8791';
-  const context = await browser.newContext({ viewport: { width: 1360, height: 900 } });
+  // Never let a test run reach the outside world: analytics would count it as a visit and the ad
+  // script would request ads. Only the local site and the web fonts are allowed through.
+  const offline = async (options) => {
+    const created = await browser.newContext(options);
+    await created.route('**/*', route => {
+      const url = route.request().url();
+      return url.startsWith(origin) || /^https:\/\/fonts\.(googleapis|gstatic)\.com\//.test(url) ? route.continue() : route.abort();
+    });
+    return created;
+  };
+  const context = await offline({ viewport: { width: 1360, height: 900 } });
   const page = await context.newPage();
   const errors = [];
   page.on('pageerror', error => errors.push(error.message));
 
   // Every page type renders once, with one heading and no sideways scroll at any width.
   const paths = ['/', '/topics/', '/topics/windows/', '/guides/', '/guides/ai-coding-agent-repos/', '/blog/', '/blog/page/2/', '/videos/',
-    '/blog/posts/naver-224467696426/', '/blog/posts/naver-224444722682/', '/blog/posts/claude-code-project-setup/', '/blog/posts/dockerfile-checklist/', '/blog/posts/vllm-first-server/', '/blog/posts/naver-224467587320/', '/blog/about/', '/blog/privacy/', '/portfolio/'];
+    '/blog/posts/naver-224467696426/', '/blog/posts/naver-224444722682/', '/blog/posts/claude-code-project-setup/', '/blog/posts/dockerfile-checklist/', '/blog/posts/vllm-first-server/', '/blog/posts/deepseek-api-guide/', '/blog/posts/zai-glm-coding-plan-guide/', '/blog/posts/naver-224467587320/', '/blog/about/', '/blog/privacy/', '/portfolio/'];
   for (const width of [390, 768, 1024, 1360, 1680]) {
     await page.setViewportSize({ width, height: 900 });
     for (const path of paths) {
@@ -60,7 +70,7 @@ try { ({ chromium } = require('@playwright/test')); } catch { ({ chromium } = re
   assert.equal(await page.locator('.video-space iframe').count(), 1);
 
   // Phone menu opens under the top bar and closes with Escape.
-  const phone = await (await browser.newContext({ viewport: { width: 390, height: 844 } })).newPage();
+  const phone = await (await offline({ viewport: { width: 390, height: 844 } })).newPage();
   await phone.goto(origin + '/');
   await phone.click('#menu-toggle');
   assert.equal(await phone.evaluate(() => document.getElementById('sidebar').getBoundingClientRect().top), 56);
@@ -68,9 +78,7 @@ try { ({ chromium } = require('@playwright/test')); } catch { ({ chromium } = re
   assert.equal(await phone.getAttribute('#menu-toggle', 'aria-expanded'), 'false');
 
   // A blocked ad script shows the dismissible request; dismissing it is remembered.
-  const blocked = await browser.newContext({ viewport: { width: 1360, height: 900 } });
-  await blocked.route(/googlesyndication/, route => route.abort());
-  const reader = await blocked.newPage();
+  const reader = await (await offline({ viewport: { width: 1360, height: 900 } })).newPage();
   await reader.goto(origin + '/blog/posts/naver-224444722682/', { waitUntil: 'load' });
   await reader.waitForSelector('#ad-note:not([hidden])');
   await reader.click('[data-ad-note-close]');
