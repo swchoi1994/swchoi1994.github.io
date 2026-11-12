@@ -1,0 +1,215 @@
+<!--
+{
+  "title": "Run Claude Code on your own vLLM server: what to expect",
+  "description": "Point Claude Code at a model you host with vLLM: the six settings, what Claude Code really sends, what stops working, and what Anthropic does not support.",
+  "date": "2026-11-12T13:30:00+00:00",
+  "topic": "ai-automation",
+  "cover": "terminal",
+  "project": {
+    "needs": "A vLLM server with a model that supports tool calling, and Claude Code. Section 4's test needs only Python and Claude Code.",
+    "result": "Claude Code talking to a model on your own hardware, with a clear view of what works, what does not and what it costs in context."
+  },
+  "note": "The vLLM commands, settings and limits are from vLLM's own page on Claude Code, read on November 12, 2026; no GPU was available, so no model was served for this article. The Claude Code side was tested: Claude Code 2.1.322 was run with those settings against a small stand-in server on Linux, and the request details in section 4 are what that server recorded. That test shows what Claude Code sends, not how well any model answers. Anthropic's position on non-Claude models is quoted from its gateway documentation. The token estimate is ours and is marked as an estimate. The Windows commands follow the same documentation and were not run.",
+  "sources": [
+    {
+      "title": "vLLM docs: Claude Code",
+      "url": "https://docs.vllm.ai/en/latest/serving/integrations/claude_code/"
+    },
+    {
+      "title": "vLLM docs: Online serving, Anthropic APIs",
+      "url": "https://docs.vllm.ai/en/latest/serving/online_serving/"
+    },
+    {
+      "title": "vLLM docs: Tool calling",
+      "url": "https://docs.vllm.ai/en/latest/features/tool_calling/"
+    },
+    {
+      "title": "Claude Code docs: LLM gateway",
+      "url": "https://code.claude.com/docs/en/llm-gateway"
+    },
+    {
+      "title": "Claude Code docs: Environment variables",
+      "url": "https://code.claude.com/docs/en/env-vars"
+    }
+  ]
+}
+-->
+<p>Claude Code is the terminal coding agent from Anthropic. vLLM is the open-source server for running models on your own GPUs. vLLM can speak the same API that Claude Code uses, so the two can be connected: the agent's interface, with a model on hardware you control. This guide shows how, what Claude Code actually sends to your server, and where the combination falls short. One thing first, because it decides whether you should do this at all.</p>
+<div class="callout warn"><strong>Anthropic does not support this</strong>Its documentation says it "doesn't support routing Claude Code to non-Claude models through any gateway". The settings below are documented by the vLLM project. They work at the level of the API, but Claude Code is built and tested for Claude models. Expect rough edges, and do not expect help from Anthropic when you hit one.</div>
+
+<h2 id="why">1. Why people do it, and when not to</h2>
+<table>
+<thead><tr><th scope="col">A good reason</th><th scope="col">A poor reason</th></tr></thead>
+<tbody>
+<tr><td>The code may not leave your network</td><td>"It will be as good, for free." It will not be as good, and GPUs are not free</td></tr>
+<tr><td>You already run a GPU server and want one more use for it</td><td>You have no GPU server yet. Start with <a href="/blog/posts/vllm-gpu-sizing/">the sizing guide</a></td></tr>
+<tr><td>You want to see how an open model handles agent work</td><td>You need the web search and other tools that run on Anthropic's side</td></tr>
+</tbody>
+</table>
+
+<h2 id="how">2. How the connection works</h2>
+<figure class="diagram">
+<div class="d-flow">
+<div class="d-box key"><strong>Claude Code</strong>sends requests in Anthropic's Messages format</div>
+<span class="d-arrow">→</span>
+<div class="d-box"><strong>ANTHROPIC_BASE_URL</strong>says where to send them</div>
+<span class="d-arrow">→</span>
+<div class="d-box green"><strong>vLLM</strong>accepts that format at <code>/v1/messages</code> and translates it</div>
+<span class="d-arrow">→</span>
+<div class="d-box"><strong>Your model</strong>must be able to call tools</div>
+</div>
+<figcaption>Nothing is patched or intercepted. One setting changes the address, and vLLM answers in the format Claude Code expects.</figcaption>
+</figure>
+<p>The last box is the demanding one. A coding agent works by calling tools: read a file, edit it, run a command. vLLM's page says the model needs "strong tool calling capabilities". A model that chats well and calls tools badly will read your request and then do nothing useful.</p>
+
+<h2 id="setup">3. The setup, from vLLM's documentation</h2>
+<p><strong>Start the server</strong> with tool calling switched on. This is vLLM's own example:</p>
+<pre><code>vllm serve openai/gpt-oss-120b --served-model-name my-model --enable-auto-tool-choice --tool-call-parser openai</code></pre>
+<table>
+<thead><tr><th scope="col">Flag</th><th scope="col">Why it is there</th></tr></thead>
+<tbody>
+<tr><td><code>--served-model-name my-model</code></td><td>A short name with no slash. vLLM's page warns that model names containing <code>/</code>, such as the Hugging Face name itself, cannot be used with Claude Code</td></tr>
+<tr><td><code>--enable-auto-tool-choice</code></td><td>Lets the model decide when to call a tool</td></tr>
+<tr><td><code>--tool-call-parser openai</code></td><td>How this model writes its tool calls. Other models need a different parser; vLLM's tool calling page lists them. For Qwen, see <a href="/blog/posts/vllm-serve-qwen/">part 3 of our series</a></td></tr>
+</tbody>
+</table>
+<p><strong>Start Claude Code</strong> with six settings:</p>
+<pre><code>ANTHROPIC_BASE_URL=http://localhost:8000 \
+ANTHROPIC_API_KEY=dummy \
+ANTHROPIC_AUTH_TOKEN=dummy \
+ANTHROPIC_DEFAULT_OPUS_MODEL=my-model \
+ANTHROPIC_DEFAULT_SONNET_MODEL=my-model \
+ANTHROPIC_DEFAULT_HAIKU_MODEL=my-model \
+claude</code></pre>
+<table>
+<thead><tr><th scope="col">Setting</th><th scope="col">What it does</th></tr></thead>
+<tbody>
+<tr><td><code>ANTHROPIC_BASE_URL</code></td><td>Where requests go. No <code>/v1</code> at the end; Claude Code adds the path</td></tr>
+<tr><td><code>ANTHROPIC_API_KEY</code></td><td>Any value, because vLLM asks for no key by default</td></tr>
+<tr><td><code>ANTHROPIC_AUTH_TOKEN</code></td><td>vLLM's page says it is required and can be any value. If you started vLLM with <code>--api-key</code>, set both this and the line above to that key</td></tr>
+<tr><td>The three <code>…_MODEL</code> settings</td><td>Claude Code asks for different models for different jobs. All three must point at the one name your server knows</td></tr>
+</tbody>
+</table>
+<p>On Windows PowerShell, set each one first and then start Claude Code:</p>
+<pre><code>$env:ANTHROPIC_BASE_URL = "http://localhost:8000"
+$env:ANTHROPIC_API_KEY = "dummy"
+$env:ANTHROPIC_AUTH_TOKEN = "dummy"
+$env:ANTHROPIC_DEFAULT_OPUS_MODEL = "my-model"
+$env:ANTHROPIC_DEFAULT_SONNET_MODEL = "my-model"
+$env:ANTHROPIC_DEFAULT_HAIKU_MODEL = "my-model"
+claude</code></pre>
+<p>To keep the settings, vLLM's page suggests your shell profile, a small wrapper script, or the <code>env</code> section of <code>~/.claude/settings.json</code>. A wrapper script is the safest of the three: your normal <code>claude</code> command keeps talking to Anthropic, and a second command, say <code>claude-local</code>, talks to your server.</p>
+
+<h2 id="sends">4. What Claude Code actually sends</h2>
+<p>We had no GPU for this article, so we tested the half that needs none. This small program pretends to be a model server: it records what arrives and replies with one fixed sentence. Save it as <code>stand_in.py</code> if you want to repeat the test:</p>
+<pre><code>"""stand_in.py: a stand-in for a model server. It records what a client asks for and streams back one fixed sentence.
+
+It speaks just enough of the Anthropic Messages API to answer Claude Code. It is not a model.
+"""
+import json
+from http.server import BaseHTTPRequestHandler, HTTPServer
+
+REPLY = "Hello from your own server."
+
+
+class StandIn(BaseHTTPRequestHandler):
+    def do_POST(self):
+        raw = self.rfile.read(int(self.headers.get("Content-Length", 0)))
+        body = json.loads(raw or b"{}")
+        print(json.dumps({"path": self.path.split("?")[0], "bytes": len(raw), "model": body.get("model"), "stream": body.get("stream"),
+                          "max_tokens": body.get("max_tokens"), "tools": len(body.get("tools", [])),
+                          "system_chars": len(json.dumps(body.get("system", ""))),
+                          "auth": sorted(h for h in ("authorization", "x-api-key") if self.headers.get(h))}), flush=True)
+        if self.path.startswith("/v1/messages/count_tokens"):
+            return self.send_json({"input_tokens": 10})
+        if not body.get("stream"):
+            return self.send_json({"id": "msg_1", "type": "message", "role": "assistant", "model": body.get("model"),
+                                   "content": [{"type": "text", "text": REPLY}], "stop_reason": "end_turn",
+                                   "stop_sequence": None, "usage": {"input_tokens": 10, "output_tokens": 6}})
+        self.send_response(200)
+        self.send_header("Content-Type", "text/event-stream")
+        self.end_headers()
+        events = [
+            ("message_start", {"type": "message_start", "message": {"id": "msg_1", "type": "message", "role": "assistant", "model": body.get("model"), "content": [], "stop_reason": None, "stop_sequence": None, "usage": {"input_tokens": 10, "output_tokens": 0}}}),
+            ("content_block_start", {"type": "content_block_start", "index": 0, "content_block": {"type": "text", "text": ""}}),
+            ("content_block_delta", {"type": "content_block_delta", "index": 0, "delta": {"type": "text_delta", "text": REPLY}}),
+            ("content_block_stop", {"type": "content_block_stop", "index": 0}),
+            ("message_delta", {"type": "message_delta", "delta": {"stop_reason": "end_turn", "stop_sequence": None}, "usage": {"output_tokens": 6}}),
+            ("message_stop", {"type": "message_stop"}),
+        ]
+        for name, data in events:
+            self.wfile.write(f"event: {name}\ndata: {json.dumps(data)}\n\n".encode())
+        self.wfile.flush()
+
+    def send_json(self, data):
+        payload = json.dumps(data).encode()
+        self.send_response(200)
+        self.send_header("Content-Type", "application/json")
+        self.send_header("Content-Length", str(len(payload)))
+        self.end_headers()
+        self.wfile.write(payload)
+
+    def log_message(self, *args):
+        pass
+
+
+HTTPServer(("127.0.0.1", 8000), StandIn).serve_forever()</code></pre>
+<p>With it running, we started Claude Code 2.1.322 with the six settings and one short question:</p>
+<figure class="terminal wrap">
+<pre><code><span class="c">$ ANTHROPIC_BASE_URL=http://127.0.0.1:8000 ANTHROPIC_API_KEY=dummy ANTHROPIC_AUTH_TOKEN=dummy ANTHROPIC_DEFAULT_OPUS_MODEL=my-model ANTHROPIC_DEFAULT_SONNET_MODEL=my-model ANTHROPIC_DEFAULT_HAIKU_MODEL=my-model claude -p "Say hello"</span>
+<span class="d">[claude-code:unrecognized_model] {"model":"my-model[1m]","query_source":"sdk"}</span>
+<span class="g">Hello from your own server.</span></code></pre>
+<figcaption>The sentence came from our stand-in, not from Anthropic. The grey line is Claude Code noting that it does not know this model name; the request went through regardless.</figcaption>
+</figure>
+<p>And this is what the stand-in recorded:</p>
+<figure class="terminal wrap">
+<pre><code>{"path": "/v1/messages", "bytes": 46224, "model": "my-model", "stream": true, "max_tokens": 32000, "tools": 12, "system_chars": 6132, "auth": ["authorization", "x-api-key"]}</code></pre>
+</figure>
+<table>
+<thead><tr><th scope="col">What was recorded</th><th scope="col">What it means for your server</th></tr></thead>
+<tbody>
+<tr><td><code>"model": "my-model"</code></td><td>The three model settings work. Your server must be serving exactly this name</td></tr>
+<tr><td><code>"bytes": 46224</code>, <code>"tools": 12</code></td><td>"Say hello" arrived wrapped in about 46 KB of instructions and twelve tool definitions. At a rough four characters per token, that is on the order of 11,000 tokens before Claude Code has read a single file of yours. That figure is our estimate</td></tr>
+<tr><td><code>"max_tokens": 32000</code></td><td>Claude Code asked for room to write up to 32,000 tokens</td></tr>
+<tr><td><code>"stream": true</code></td><td>Replies are streamed. Any proxy in front of vLLM must not buffer them; the nginx settings in <a href="/blog/posts/vllm-multi-user-serving/">part 5</a> cover this</td></tr>
+<tr><td>Both <code>authorization</code> and <code>x-api-key</code></td><td>The token and the key each travel in their own header. In a second run without <code>ANTHROPIC_AUTH_TOKEN</code>, only <code>x-api-key</code> was sent and the request still arrived. Set both, as vLLM's page says</td></tr>
+</tbody>
+</table>
+<div class="callout"><strong>The number to plan around</strong>The instructions and the output allowance together need tens of thousands of tokens of context before any real work. A server started with a small <code>--max-model-len</code> will not be enough. Size the context first; <a href="/blog/posts/vllm-gpu-sizing/">part 6</a> shows what each extra token of context costs in GPU memory.</div>
+<p>You can lower the output allowance. With <code>CLAUDE_CODE_MAX_OUTPUT_TOKENS=4096</code> added, the stand-in recorded <code>"max_tokens": 4096</code>. That setting is in Claude Code's list of environment variables.</p>
+
+<h2 id="breaks">5. What does not work</h2>
+<table>
+<thead><tr><th scope="col">Symptom</th><th scope="col">Cause, from vLLM's page</th><th scope="col">What to do</th></tr></thead>
+<tbody>
+<tr><td>Web search fails with "tool type 'web_search_…' is not supported"</td><td>Claude Code's web search runs on Anthropic's servers. vLLM does not run such tools and rejects the request</td><td>Add an MCP server that provides search. See <a href="/blog/posts/claude-code-plugins-mcp-terminal/">adding MCP servers</a></td></tr>
+<tr><td>The model answers but never edits or runs anything</td><td>Tool calling is off, or the parser does not match the model</td><td>Check <code>--enable-auto-tool-choice</code> and the <code>--tool-call-parser</code> for your model</td></tr>
+<tr><td>"Model not found"</td><td>The name in the settings is not the served name, or it contains a <code>/</code></td><td>Use <code>--served-model-name</code> and the same short name in all three settings</td></tr>
+<tr><td>Everything is slow, and each request seems to start from nothing</td><td>Claude Code adds a per-request fingerprint to the start of its instructions, which defeats vLLM's prefix cache. vLLM handles this in versions after 0.17.1</td><td>Upgrade vLLM, or on an older version add <code>"CLAUDE_CODE_ATTRIBUTION_HEADER": "0"</code> to the <code>env</code> section of <code>~/.claude/settings.json</code></td></tr>
+<tr><td>A request with <code>max_tokens: 0</code> is refused</td><td>Anthropic's API accepts that to warm its cache; vLLM always produces at least one token</td><td>Nothing, for normal use. A tool that sends it should send 1</td></tr>
+<tr><td>"Connection refused"</td><td>vLLM is not running, or the port is different</td><td>Check the server and the address</td></tr>
+</tbody>
+</table>
+<p>Beyond that list, expect differences that no setting fixes. Claude Code's features were built around Claude models, and some will behave differently, or not at all, with another model behind the same interface.</p>
+
+<h2 id="honest">6. What to expect from the model</h2>
+<p>We did not serve a model, so we have no results of our own to report, and we will not borrow anyone else's. What can be said from how the pieces work:</p>
+<ul>
+<li><strong>The instructions are written for Claude.</strong> Those 46 KB assume a model trained to follow them. Another model may ignore parts of them or follow them too literally.</li>
+<li><strong>Agent work punishes small mistakes.</strong> A chat answer that is 95 percent right is fine. A tool call with one wrong argument fails, and a task is many tool calls in a row.</li>
+<li><strong>Speed is yours to provide.</strong> Every step sends the whole conversation again. The prefix cache makes that affordable, which is why the fingerprint issue above matters so much.</li>
+</ul>
+<p>The fair test is a task you know well. Give the same small job, in the same repository, to Claude Code on its normal model and on your server. Compare what was done, how many steps it took and how long you waited.</p>
+
+<h2 id="choose">7. Should you do this?</h2>
+<table>
+<thead><tr><th scope="col">Your situation</th><th scope="col">Suggestion</th></tr></thead>
+<tbody>
+<tr><td>Code must stay inside your network, and you have GPUs</td><td>Worth trying. Go in knowing it is unsupported</td></tr>
+<tr><td>You want the best results on hard tasks</td><td>Use Claude Code as intended</td></tr>
+<tr><td>You are curious and already run vLLM</td><td>An afternoon well spent. Use a wrapper script so your normal setup is untouched</td></tr>
+<tr><td>You have no server yet</td><td>Build one first: <a href="/series/vllm-server/">the vLLM series</a> starts from one command</td></tr>
+<tr><td>You only want a model on your own machine to chat with</td><td>This is more than you need. See <a href="/blog/posts/vllm-vs-ollama-vs-llama-cpp/">vLLM, Ollama or llama.cpp</a></td></tr>
+</tbody>
+</table>
+<p>If you do run it for a team, the rest of the series applies unchanged: <a href="/blog/posts/vllm-multi-user-serving/">keys and a proxy</a>, <a href="/blog/posts/vllm-monitoring-prometheus-grafana/">dashboards</a> and <a href="/blog/posts/vllm-alerts-alertmanager/">alerts</a>.</p>
