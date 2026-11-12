@@ -50,7 +50,7 @@ An article written here can carry visuals without any image files:
 | The picture on its card | `"cover": "<motif>"` in the metadata. Motifs are drawn by the build in the page's own colours: `stack`, `bars`, `flow`, `chat`, `terminal`, `gauge`, `shield`, `doc`, `window`, `mail`, `check`, `plug`, `chip`. Without one, the topic's default motif is used. |
 | A tip or warning box | `<div class="callout">`, `<div class="callout warn">` or `<div class="callout ok">`, starting with a `<strong>` label. |
 | A diagram | `<figure class="diagram">` holding `d-flow` (boxes and arrows), `d-stack` (layers) or `d-bars` (proportional bars, each segment sized with `style="flex:N"`), plus a `<figcaption>`. They are plain HTML, so they wrap on phones and follow dark mode. |
-| Real command output | `<figure class="terminal"><pre><code>…</code></pre></figure>`, with `<span class="c">` for the command line and `<span class="g">` for success text. Paste only output from a real run. |
+| Real command output | `<figure class="terminal"><pre><code>…</code></pre></figure>`, with `<span class="c">` for the command line and `<span class="g">` for success text. Paste only output from a real run. Add the class `wrap` (`class="terminal wrap"`) when the lines are long and their point is at the end, such as JSON replies. |
 | A video | `{{video:VIDEO_ID\|Title}}` on its own line. It becomes a still image with a play button; the YouTube player loads only when pressed. |
 
 ### Release explainers and the daily release watch
@@ -64,6 +64,20 @@ An article about a product release adds one more metadata field:
 Those articles are listed at `/releases/`, newest announcement first, and the page appears in the sidebar as "AI releases".
 
 A scheduled task checks the release pages of Anthropic, OpenAI and other AI companies once a day and drafts an explainer for anything new, following `tools/release-pipeline.md`. The build refuses a release explainer that cites no page on the company's own site (`COMPANY_DOMAINS` in `tools/publish.py`). It opens a pull request for each one and never merges; you publish by merging. Edit that file to change what it watches or how it writes. The task itself is managed from the scheduled tasks list in Claude Code, not from this repository.
+
+### Trending in AI
+
+The home page shows a ranked list of ten AI names, and `/trending/` shows the full ranking with its numbers. Each name opens its own page, `/trending/<name>/`, with the articles here that mention it and the AI2Now videos and posts about it. A YouTube video appears as a still picture and loads only when pressed.
+
+- **The names** are a watchlist you control: `content/trend-terms.json`. Each entry has a `term`, and optionally `match` (a regular expression for titles, when the plain name is not enough), `news` (the Google News search to use), `about` (one line shown on the name's page) and `pin` (article file names to show first). Add a new product here when it starts to matter. Only names on this list can ever appear.
+- **The ranking** is made by `tools/trends.py` from two public sources that need no key. Hacker News: the points earned in the past 7 days by stories whose titles mention the name. Google News: about how many news articles a day mention it. The score is the average of the name's share of each. The script saves `content/trending.json`.
+- **Refreshing** happens in the deploy workflow, which runs `tools/trends.py` before every build and also rebuilds the site every six hours. If Google News cannot be read, the ranking uses Hacker News alone. If Hacker News cannot be read, the build uses the saved ranking, and hides the home box once that is more than four days old. The pages under `/trending/` stay.
+- **What is published** is the names and their numbers only. Story and article titles are read to count them and never appear on the site.
+- **What it is not**: a count of searches or of posts on X. X sells its trend data through a paid API, and Google's Trends API is in a closed test; either can be added to `tools/trends.py` as a third source once you have a key. Two general trending lists, Google's free list of trending searches and the list on Grokipedia's home page, cover every subject, so they are used only to tag a name that happens to be on one. Grokipedia shows no page-view numbers and asks automated readers to stay out of its data interface, so it cannot feed the ranking.
+
+When the build prints `Trending with nothing of ours yet: …`, those are names in the top ten that no article here covers: the next things worth writing about.
+
+To refresh the ranking by hand: `python3 tools/trends.py`, then build.
 
 ### Series and projects
 

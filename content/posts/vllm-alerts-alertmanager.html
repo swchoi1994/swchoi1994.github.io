@@ -1,0 +1,379 @@
+<!--
+{
+  "title": "vLLM alerts with Alertmanager: know before your users do",
+  "description": "Send your vLLM server's alerts to your phone with Alertmanager and Telegram: routing by urgency, timing, silences, and a full test without a GPU.",
+  "date": "2026-11-12T13:10:00+00:00",
+  "topic": "ai-automation",
+  "cover": "gauge",
+  "series": "vllm-server",
+  "part": 8,
+  "project": {
+    "needs": "The monitoring stack from part 7, and a Telegram account. The test in section 6 needs only Prometheus, Alertmanager and Python on any machine.",
+    "result": "Urgent alerts that ring your phone, minor ones that arrive silently, a way to pause them during maintenance, and a check that the alerting itself is alive."
+  },
+  "note": "The rule file, both Alertmanager configurations and the Compose file were validated with promtool, amtool and docker compose config. The end-to-end test in section 6 was run for this article on Linux with Prometheus 2.45.3 and Alertmanager 0.26.0: the messages shown were really delivered to a local receiver, and the silence was really applied. Delivery to Telegram itself was not tested, because that needs a real bot and chat; the Telegram settings are from Alertmanager's documentation and passed amtool's check. The Compose service was checked for syntax, not started. Thresholds and timings are starting points.",
+  "sources": [
+    {
+      "title": "Prometheus docs: Alertmanager",
+      "url": "https://prometheus.io/docs/alerting/latest/alertmanager/"
+    },
+    {
+      "title": "Prometheus docs: Alertmanager configuration",
+      "url": "https://prometheus.io/docs/alerting/latest/configuration/"
+    },
+    {
+      "title": "Prometheus docs: Alerting rules",
+      "url": "https://prometheus.io/docs/prometheus/latest/configuration/alerting_rules/"
+    },
+    {
+      "title": "Telegram: Bot features, creating a new bot",
+      "url": "https://core.telegram.org/bots/features"
+    },
+    {
+      "title": "Telegram: Bot API",
+      "url": "https://core.telegram.org/bots/api"
+    }
+  ]
+}
+-->
+<p>In <a href="/blog/posts/vllm-monitoring-prometheus-grafana/">part 7</a> you built dashboards and six alert rules. They have one weakness: an alert that fires at 3 a.m. turns a line red on a page nobody is looking at. This part sends those alerts to your phone. It also covers the three things that decide whether you keep alerting switched on after the first week: sending only what matters, pausing it during maintenance, and knowing when the alerting itself has died.</p>
+
+<h2 id="path">1. The path of an alert</h2>
+<figure class="diagram">
+<div class="d-flow">
+<div class="d-box"><strong>Prometheus</strong>checks each rule; a condition that holds long enough "fires"</div>
+<span class="d-arrow">→</span>
+<div class="d-box key"><strong>Alertmanager</strong>groups, waits, routes, silences</div>
+<span class="d-arrow">→</span>
+<div class="d-box green"><strong>A receiver</strong>Telegram, Slack, email, or any web address</div>
+<span class="d-arrow">→</span>
+<div class="d-box"><strong>You</strong>one message, not forty</div>
+</div>
+<figcaption>Prometheus decides that something is wrong. Alertmanager decides who hears about it, how soon, and how often.</figcaption>
+</figure>
+<p>The split matters. Without the middle box, one failed server produces a message per rule, per check, every 30 seconds. Alertmanager's job is to turn that stream into a small number of messages a person can act on.</p>
+
+<h2 id="severity">2. Say how urgent each alert is</h2>
+<p>Add one label to every rule: how fast a person has to react. Two levels are enough to start.</p>
+<table>
+<thead><tr><th scope="col">Severity</th><th scope="col">Meaning</th><th scope="col">Which of our alerts</th></tr></thead>
+<tbody>
+<tr><td><code>page</code></td><td>Users are affected now, or will be within minutes. Wake someone.</td><td>TargetDown, HostMemoryLow</td></tr>
+<tr><td><code>ticket</code></td><td>Something is degrading. Look at it during working hours.</td><td>RequestsQueueing, KVCacheNearlyFull, RequestsPreempted, DiskNearlyFull</td></tr>
+</tbody>
+</table>
+<p>Here is the rule file from part 7 with those labels, and one new rule at the end that section 8 explains. Replace your <code>alerts.yaml</code> with it:</p>
+<pre><code>groups:
+  - name: llm-server
+    rules:
+      - alert: TargetDown
+        expr: up == 0
+        for: 2m
+        labels:
+          severity: page
+        annotations:
+          summary: "{{ $labels.job }} is not answering"
+
+      - alert: RequestsQueueing
+        expr: vllm:num_requests_waiting &gt; 0
+        for: 5m
+        labels:
+          severity: ticket
+        annotations:
+          summary: "Requests have been waiting for a slot for 5 minutes"
+
+      - alert: KVCacheNearlyFull
+        expr: vllm:kv_cache_usage_perc &gt; 0.9
+        for: 10m
+        labels:
+          severity: ticket
+        annotations:
+          summary: "The KV cache has been over 90 percent full for 10 minutes"
+
+      - alert: RequestsPreempted
+        expr: increase(vllm:num_preemptions_total[10m]) &gt; 0
+        labels:
+          severity: ticket
+        annotations:
+          summary: "Requests were paused and recomputed in the last 10 minutes"
+
+      - alert: HostMemoryLow
+        expr: node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes &lt; 0.10
+        for: 10m
+        labels:
+          severity: page
+        annotations:
+          summary: "Less than 10 percent of system memory is available"
+
+      - alert: DiskNearlyFull
+        expr: node_filesystem_avail_bytes{mountpoint="/"} / node_filesystem_size_bytes{mountpoint="/"} &lt; 0.10
+        for: 10m
+        labels:
+          severity: ticket
+        annotations:
+          summary: "Less than 10 percent of the root disk is free"
+
+      # Always firing, on purpose. If its message stops arriving, the alerting itself is broken.
+      - alert: Watchdog
+        expr: vector(1)
+        labels:
+          severity: heartbeat
+        annotations:
+          summary: "Alerting is alive"</code></pre>
+<figure class="terminal">
+<pre><code><span class="c">$ promtool check rules alerts.yaml</span>
+Checking alerts.yaml
+<span class="g">  SUCCESS: 7 rules found</span></code></pre>
+</figure>
+
+<h2 id="telegram">3. Create a place for the messages to go</h2>
+<p>Any receiver works the same way. Telegram is used here because a bot is free, takes two minutes and rings a phone.</p>
+<ol>
+<li><strong>Create a bot.</strong> In Telegram, open a chat with <code>@BotFather</code> and send <code>/newbot</code>. It asks for a name and a username, then gives you a token. The token is a password: anyone who has it can send messages as your bot.</li>
+<li><strong>Start a chat with your bot</strong> and send it any message, such as "hello". A bot cannot write to you first.</li>
+<li><strong>Find your chat ID.</strong> Open <code>https://api.telegram.org/bot&lt;token&gt;/getUpdates</code> in a browser, with your token in place of <code>&lt;token&gt;</code>. In the reply, find <code>"chat"</code> and note the number after <code>"id"</code>.</li>
+<li><strong>Save the token in a file</strong>, not in the configuration:</li>
+</ol>
+<pre><code>printf '%s' 'PASTE-YOUR-TOKEN-HERE' &gt; telegram-token
+chmod 644 telegram-token</code></pre>
+<div class="callout warn"><strong>About that file's permissions</strong>The official Alertmanager image runs as the user <code>nobody</code>, so the file must be readable by other users on the machine. Keep it in a folder that only you can enter (<code>chmod 700</code> on the folder), keep it out of version control, and add <code>telegram-token</code> to <code>.gitignore</code> now.</div>
+
+<h2 id="config">4. Tell Alertmanager who gets what</h2>
+<p>Save this as <code>alertmanager.yaml</code>, with your own chat ID in place of <code>123456789</code>:</p>
+<pre><code>route:
+  receiver: tickets                 # anything not matched below
+  group_by: [alertname, job]
+  group_wait: 30s                   # collect related alerts before the first message
+  group_interval: 5m                # then at most one update per group every 5 minutes
+  repeat_interval: 4h               # remind while it is still firing
+  routes:
+    - matchers: [severity="page"]
+      receiver: phone
+      repeat_interval: 1h
+    - matchers: [severity="heartbeat"]
+      receiver: heartbeat
+      group_wait: 0s
+      repeat_interval: 5m
+
+receivers:
+  - name: phone
+    telegram_configs:
+      - bot_token_file: /etc/alertmanager/telegram-token
+        chat_id: 123456789
+        parse_mode: ""
+        message: |-
+          {{ if eq .Status "firing" }}🔴 FIRING{{ else }}🟢 RESOLVED{{ end }}: {{ .CommonLabels.alertname }}
+          {{ range .Alerts }}{{ .Annotations.summary }}
+          {{ end }}
+
+  - name: tickets
+    telegram_configs:
+      - bot_token_file: /etc/alertmanager/telegram-token
+        chat_id: 123456789
+        disable_notifications: true   # arrives silently
+        parse_mode: ""
+        message: |-
+          {{ if eq .Status "firing" }}🟠 {{ else }}🟢 resolved: {{ end }}{{ .CommonLabels.alertname }}
+          {{ range .Alerts }}{{ .Annotations.summary }}
+          {{ end }}
+
+  - name: heartbeat
+    webhook_configs:
+      - url: https://heartbeat.example.com/ping/your-check-id
+        send_resolved: false</code></pre>
+<p>Read it as a decision tree. Every alert enters at the top and takes the first matching branch:</p>
+<figure class="terminal">
+<pre><code><span class="c">$ amtool check-config alertmanager.yaml</span>
+Checking 'alertmanager.yaml'  <span class="g">SUCCESS</span>
+Found:
+ - global config
+ - route
+ - 0 inhibit rules
+ - 3 receivers
+ - 0 templates
+
+<span class="c">$ amtool config routes show --config.file=alertmanager.yaml</span>
+Routing tree:
+.
+└── default-route  receiver: tickets
+    ├── {severity="page"}  receiver: phone
+    └── {severity="heartbeat"}  receiver: heartbeat
+
+<span class="c">$ amtool config routes test --config.file=alertmanager.yaml severity=page alertname=TargetDown</span>
+phone
+<span class="c">$ amtool config routes test --config.file=alertmanager.yaml severity=ticket alertname=RequestsQueueing</span>
+tickets
+<span class="c">$ amtool config routes test --config.file=alertmanager.yaml alertname=SomethingNew</span>
+tickets</code></pre>
+<figcaption><code>amtool</code> ships with Alertmanager. The last test shows the safety net: an alert with no severity still reaches someone.</figcaption>
+</figure>
+<p>The two Telegram receivers differ in one line. <code>disable_notifications: true</code> makes a message arrive without a sound, so a ticket waits quietly in the chat while a page rings.</p>
+<p>For Slack, replace <code>telegram_configs</code> with <code>slack_configs</code> and give it <code>api_url_file</code>, a file holding an incoming-webhook address. For email, use <code>email_configs</code>. The route above stays the same.</p>
+
+<h2 id="wire">5. Connect it to the stack from part 7</h2>
+<p>Add this service to <code>compose.yaml</code>, next to <code>prometheus</code>, and add <code>alertmanager-data:</code> under <code>volumes:</code> at the bottom:</p>
+<pre><code>  alertmanager:
+    image: prom/alertmanager:latest
+    volumes:
+      - ./alertmanager.yaml:/etc/alertmanager/alertmanager.yml:ro
+      - ./telegram-token:/etc/alertmanager/telegram-token:ro
+      - alertmanager-data:/alertmanager
+    ports:
+      - "127.0.0.1:9093:9093"
+    restart: unless-stopped</code></pre>
+<p>Then tell Prometheus where to send what fires. Add this block to <code>prometheus.yaml</code>, at the top level:</p>
+<pre><code>alerting:
+  alertmanagers:
+    - static_configs:
+        - targets: ["alertmanager:9093"]</code></pre>
+<pre><code>docker compose config -q &amp;&amp; docker compose up -d</code></pre>
+<p>The first command prints nothing when the file is valid. Alertmanager's own page is then at <code>http://localhost:9093</code>, reachable from the server itself, like the rest of the monitoring.</p>
+
+<h2 id="test">6. Test the whole chain without breaking anything</h2>
+<p>Do not wait for a real failure to find out whether alerting works. This test runs on any machine, with no GPU and no vLLM. It needs three small files.</p>
+<p><strong>A stand-in for vLLM.</strong> It serves two metrics and reads the number of waiting requests from a file, so you can change it while it runs. Save as <code>fake_vllm.py</code>:</p>
+<pre><code>"""fake_vllm.py: pretend to be a vLLM server's /metrics page, so alerts can be tested without a GPU.
+
+The number of waiting requests is read from waiting.txt each time, so you can change it while this runs.
+"""
+from http.server import BaseHTTPRequestHandler, HTTPServer
+from pathlib import Path
+
+
+class Metrics(BaseHTTPRequestHandler):
+    def do_GET(self):
+        waiting = Path("waiting.txt").read_text().strip() if Path("waiting.txt").exists() else "0"
+        body = f"vllm:num_requests_waiting {waiting}\nvllm:kv_cache_usage_perc 0.42\n".encode()
+        self.send_response(200)
+        self.send_header("Content-Type", "text/plain; version=0.0.4")
+        self.end_headers()
+        self.wfile.write(body)
+
+    def log_message(self, *args):
+        pass
+
+
+HTTPServer(("127.0.0.1", 8000), Metrics).serve_forever()</code></pre>
+<p><strong>A stand-in for the chat app.</strong> It prints each message it is sent. Save as <code>catch.py</code>:</p>
+<pre><code>"""catch.py: stand in for a chat app. Print each alert message Alertmanager delivers to port 5001."""
+import json
+from datetime import datetime
+from http.server import BaseHTTPRequestHandler, HTTPServer
+
+
+class Catch(BaseHTTPRequestHandler):
+    def do_POST(self):
+        message = json.loads(self.rfile.read(int(self.headers["Content-Length"])))
+        for alert in message["alerts"]:
+            print(f'{datetime.now():%H:%M:%S}  to {self.path[1:]:8} {alert["status"]:9} {alert["labels"]["alertname"]}: {alert["annotations"]["summary"]}', flush=True)
+        self.send_response(200)
+        self.end_headers()
+
+    def log_message(self, *args):
+        pass
+
+
+HTTPServer(("127.0.0.1", 5001), Catch).serve_forever()</code></pre>
+<p><strong>Test configurations with short timings.</strong> Save as <code>test-alertmanager.yaml</code>:</p>
+<pre><code>route:
+  receiver: tickets
+  group_by: [alertname, job]
+  group_wait: 5s
+  group_interval: 10s
+  repeat_interval: 1h
+  routes:
+    - matchers: [severity="page"]
+      receiver: phone
+    - matchers: [severity="heartbeat"]
+      receiver: heartbeat
+
+receivers:
+  - name: phone
+    webhook_configs: [{url: "http://127.0.0.1:5001/phone"}]
+  - name: tickets
+    webhook_configs: [{url: "http://127.0.0.1:5001/tickets"}]
+  - name: heartbeat
+    webhook_configs: [{url: "http://127.0.0.1:5001/heartbeat", send_resolved: false}]</code></pre>
+<p>And as <code>test-prometheus.yaml</code>:</p>
+<pre><code>global:
+  scrape_interval: 5s
+  evaluation_interval: 5s
+
+rule_files:
+  - test-alerts.yaml
+
+alerting:
+  alertmanagers:
+    - static_configs:
+        - targets: ["127.0.0.1:9093"]
+
+scrape_configs:
+  - job_name: vllm
+    static_configs:
+      - targets: ["127.0.0.1:8000"]</code></pre>
+<p>Make a copy of your real rules in which every waiting period is 15 seconds, so you are testing the real conditions without the real patience:</p>
+<pre><code>sed 's/for: .*/for: 15s/' alerts.yaml &gt; test-alerts.yaml</code></pre>
+<p>Start the four programs, each in its own terminal. If you installed Alertmanager from Ubuntu's or Debian's packages, the command is <code>prometheus-alertmanager</code>:</p>
+<pre><code>python3 catch.py
+echo 3 &gt; waiting.txt &amp;&amp; python3 fake_vllm.py
+alertmanager --config.file=test-alertmanager.yaml --web.listen-address=127.0.0.1:9093 --cluster.listen-address=
+prometheus --config.file=test-prometheus.yaml --web.listen-address=127.0.0.1:9091</code></pre>
+<p>Now play out an incident. Three requests are "waiting" from the start. After the first message arrives, clear the queue with <code>echo 0 &gt; waiting.txt</code>. Then stop <code>fake_vllm.py</code> with Ctrl+C, as if the server had crashed. This is what <code>catch.py</code> printed in our run:</p>
+<figure class="terminal">
+<pre><code>12:18:38  to tickets  <span class="d">firing</span>    RequestsQueueing: Requests have been waiting for a slot for 5 minutes
+12:18:58  to tickets  <span class="g">resolved</span>  RequestsQueueing: Requests have been waiting for a slot for 5 minutes
+12:19:18  to heartbeat firing    Watchdog: Alerting is alive
+12:19:58  to phone    <span class="d">firing</span>    TargetDown: vllm is not answering</code></pre>
+<figcaption>We cleared the queue at 12:18:54 and stopped the server at 12:19:31. The queue alert went to the quiet channel and was withdrawn 4 seconds after the queue cleared. The crash went to the phone 27 seconds after it happened.</figcaption>
+</figure>
+<p>That one run proves five things: Prometheus reads the rules, the rules fire, Alertmanager receives them, the routing sends each severity to the right place, and "resolved" messages arrive. When it works here, the only untested link in production is the receiver itself, and you test that by stopping the real vLLM container for three minutes on a quiet afternoon.</p>
+
+<h2 id="timing">7. How long until the message arrives</h2>
+<p>Four settings add up, and it helps to know which one you are waiting for.</p>
+<table>
+<thead><tr><th scope="col">Setting</th><th scope="col">Where</th><th scope="col">What it does</th><th scope="col">Our value</th></tr></thead>
+<tbody>
+<tr><td><code>for</code></td><td>The rule</td><td>How long the condition must hold before the alert fires. Filters out brief spikes.</td><td>2 to 10 minutes</td></tr>
+<tr><td><code>group_wait</code></td><td>Alertmanager</td><td>How long to collect related alerts before the first message.</td><td>30 seconds</td></tr>
+<tr><td><code>group_interval</code></td><td>Alertmanager</td><td>The shortest gap between updates about the same group.</td><td>5 minutes</td></tr>
+<tr><td><code>repeat_interval</code></td><td>Alertmanager</td><td>How often to remind you while nothing has changed.</td><td>1 hour for pages, 4 hours for tickets</td></tr>
+</tbody>
+</table>
+<p>So with the real settings, a crashed server reaches your phone about two and a half minutes after it stops answering: 2 minutes of <code>for</code>, then 30 seconds of <code>group_wait</code>, plus up to one check interval. Shorten <code>for</code> and you are woken by restarts that fix themselves. Lengthen it and users notice first. Two minutes is a reasonable place to begin.</p>
+
+<h2 id="silence">8. Pause alerts during maintenance</h2>
+<p>When you restart the server on purpose, tell Alertmanager first. A silence mutes matching alerts for a set time and then removes itself, which is safer than switching alerting off and forgetting to switch it on again.</p>
+<figure class="terminal">
+<pre><code><span class="c">$ amtool --alertmanager.url=http://127.0.0.1:9093 silence add job=vllm --duration=2h --author=you --comment="Model reload"</span>
+d8ce8c10-f8ef-4a4f-8d3e-1bcd27933c13
+<span class="c">$ amtool --alertmanager.url=http://127.0.0.1:9093 silence query</span>
+ID                                    Matchers    Ends At                  Created By  Comment
+d8ce8c10-f8ef-4a4f-8d3e-1bcd27933c13  job="vllm"  2026-11-12 14:20:23 UTC  you         Model reload
+<span class="c">$ amtool --alertmanager.url=http://127.0.0.1:9093 alert query --silenced</span>
+Alertname   Starts At                Summary                State
+TargetDown  2026-11-12 12:19:53 UTC  vllm is not answering  <span class="d">suppressed</span></code></pre>
+<figcaption>From the same test run. The alert still exists; it is just not being sent. To end a silence early: <code>amtool silence expire</code> and its ID.</figcaption>
+</figure>
+<p>With Docker, run the same commands inside the container: <code>docker compose exec alertmanager amtool --alertmanager.url=http://localhost:9093 silence add …</code>. The web page on port 9093 has a button for it too.</p>
+
+<h2 id="watchdog">9. Who watches the watcher</h2>
+<p>The worst alerting failure is silent. If the monitoring machine loses power, no alert fires, and "no messages" looks the same as "all is well".</p>
+<p>The <code>Watchdog</code> rule at the end of the rule file is the standard answer. Its condition is always true, so it fires all the time, on purpose. The <code>heartbeat</code> route sends it every 5 minutes to a service outside your server whose only job is to notice when the pings stop, and to tell you. Several such services exist, some free for one check; search for "dead man's switch monitoring" or "heartbeat monitoring". Replace the address in the <code>heartbeat</code> receiver with the one your service gives you.</p>
+<div class="callout"><strong>Until you set one up</strong>Remove the <code>heartbeat</code> route and receiver, or the pings will go to an address that does not exist and fill Alertmanager's log with errors. The other two routes work without it.</div>
+
+<h2 id="mistakes">10. Mistakes that make people turn alerting off</h2>
+<table>
+<thead><tr><th scope="col">Mistake</th><th scope="col">What happens</th><th scope="col">Instead</th></tr></thead>
+<tbody>
+<tr><td>Everything is urgent</td><td>The phone rings for a full disk at 3 a.m. Within a week the chat is muted.</td><td>Page only when users are affected now</td></tr>
+<tr><td>No <code>for</code> on a rule</td><td>A message for every brief spike</td><td>Give every threshold rule a waiting period</td></tr>
+<tr><td>The token in the configuration file</td><td>It ends up in a repository</td><td><code>bot_token_file</code>, and the file in <code>.gitignore</code></td></tr>
+<tr><td>Alerts nobody can act on</td><td>"KV cache nearly full", and then what?</td><td>Put the first step in the annotation, or a link to <a href="/blog/posts/vllm-out-of-memory/">your notes on the fix</a></td></tr>
+<tr><td>Never testing</td><td>The first real incident is also the first test</td><td>Run section 6 after every change to the rules or routes</td></tr>
+<tr><td>Publishing port 9093</td><td>Anyone can silence your alerts</td><td>Keep it on <code>127.0.0.1</code>, as in the Compose file</td></tr>
+</tbody>
+</table>
+
+<h2 id="done">11. Where the series stands</h2>
+<p>You now have a server that tells you when it needs you, and stays quiet when it does not. The whole series, in order: <a href="/blog/posts/vllm-first-server/">a first server</a>, <a href="/blog/posts/vllm-docker-nvidia-gpu/">Docker</a>, <a href="/blog/posts/vllm-serve-qwen/">Qwen</a>, <a href="/blog/posts/vllm-phind-codellama-a100/">a coding model on A100s</a>, <a href="/blog/posts/vllm-multi-user-serving/">many users</a>, <a href="/blog/posts/vllm-gpu-sizing/">sizing</a>, <a href="/blog/posts/vllm-monitoring-prometheus-grafana/">dashboards</a>, and alerts.</p>
+<p>When an alert does fire, two guides help you answer it: <a href="/blog/posts/vllm-out-of-memory/">vLLM out of memory</a> for the cache and memory alerts, and <a href="/blog/posts/vllm-multi-user-serving/">the multi-user guide</a> for a queue that keeps growing.</p>

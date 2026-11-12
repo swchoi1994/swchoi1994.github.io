@@ -3,6 +3,7 @@
   "title": "Monitor vLLM with Prometheus, Grafana and DCGM in Docker",
   "description": "One Compose file for vLLM, node exporter, the NVIDIA DCGM exporter, Prometheus and Grafana, with the queries and alerts for CPU, RAM, GPU and the model server.",
   "date": "2026-11-12T09:45:00+00:00",
+  "updated": "2026-11-12T13:10:00+00:00",
   "topic": "ai-automation",
   "cover": "gauge",
   "series": "vllm-server",
@@ -273,7 +274,7 @@ docker compose ps</code></pre>
         annotations:
           summary: "Less than 10 percent of the root disk is free"</code></pre>
 <p><code>for: 5m</code> means the condition must hold for five minutes before the alert fires, which filters out brief spikes. The cache gauge runs from 0 to 1, so 0.9 is 90 percent.</p>
-<p>After a restart of Prometheus, open <code>http://localhost:9090/alerts</code> to see each rule and its state. This setup shows alerts on that page only. To be sent a message when one fires, add Alertmanager or use Grafana's own alerting; both are separate topics.</p>
+<p>After a restart of Prometheus, open <code>http://localhost:9090/alerts</code> to see each rule and its state. This setup shows alerts on that page only. To be sent a message when one fires, continue with <a href="/blog/posts/vllm-alerts-alertmanager/">part 8, alerts with Alertmanager</a>.</p>
 
 <h2 id="secure">8. Keep the monitoring itself private</h2>
 <ul>
@@ -296,7 +297,7 @@ docker compose ps</code></pre>
 </table>
 
 <h2 id="done">10. What you built in this series</h2>
-<p>Across seven parts you have gone from one command on a test model to a server with a container setup you can reproduce, two real models, per-user access, a sizing method and a record of how it behaves. The parts in order:</p>
+<p>Across these parts you have gone from one command on a test model to a server with a container setup you can reproduce, two real models, per-user access, a sizing method and a record of how it behaves. The parts in order:</p>
 <ol>
 <li><a href="/blog/posts/vllm-first-server/">vLLM quickstart</a></li>
 <li><a href="/blog/posts/vllm-docker-nvidia-gpu/">Docker on an NVIDIA GPU</a></li>
@@ -305,5 +306,6 @@ docker compose ps</code></pre>
 <li><a href="/blog/posts/vllm-multi-user-serving/">Serving a team</a></li>
 <li><a href="/blog/posts/vllm-gpu-sizing/">GPU sizing</a></li>
 <li>Monitoring, this part</li>
+<li><a href="/blog/posts/vllm-alerts-alertmanager/">Alerts with Alertmanager</a></li>
 </ol>
-<p>The habit that matters most is the one this last part makes possible: change one setting at a time, and look at the graphs before and after.</p>
+<p>The habit that matters most is the one this part makes possible: change one setting at a time, and look at the graphs before and after.</p>

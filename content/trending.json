@@ -1,0 +1,172 @@
+{
+  "updated": "2026-11-12T12:28:57+00:00",
+  "days": 7,
+  "sources": [
+    "Hacker News",
+    "Google News"
+  ],
+  "items": [
+    {
+      "term": "NVIDIA",
+      "points": 3089,
+      "stories": 8,
+      "also": [],
+      "news": 2400,
+      "score": 31.9
+    },
+    {
+      "term": "AI agents",
+      "points": 3190,
+      "stories": 16,
+      "also": [],
+      "news": 552,
+      "score": 13.0
+    },
+    {
+      "term": "Anthropic",
+      "points": 809,
+      "stories": 9,
+      "also": [],
+      "news": 624,
+      "score": 8.3
+    },
+    {
+      "term": "Claude Code",
+      "points": 3180,
+      "stories": 4,
+      "also": [],
+      "news": 31,
+      "score": 7.5
+    },
+    {
+      "term": "Claude Fable",
+      "points": 2924,
+      "stories": 7,
+      "also": [],
+      "news": 27,
+      "score": 6.9
+    },
+    {
+      "term": "Gemini",
+      "points": 1858,
+      "stories": 4,
+      "also": [],
+      "news": 86,
+      "score": 5.1
+    },
+    {
+      "term": "OpenAI",
+      "points": 262,
+      "stories": 3,
+      "also": [],
+      "news": 344,
+      "score": 4.2
+    },
+    {
+      "term": "Claude",
+      "points": 1380,
+      "stories": 5,
+      "also": [],
+      "news": 80,
+      "score": 4.0
+    },
+    {
+      "term": "ChatGPT",
+      "points": 351,
+      "stories": 3,
+      "also": [
+        "Grokipedia"
+      ],
+      "news": 160,
+      "score": 2.5
+    },
+    {
+      "term": "GPUs",
+      "points": 761,
+      "stories": 5,
+      "also": [],
+      "news": 53,
+      "score": 2.3
+    },
+    {
+      "term": "Claude Opus",
+      "points": 852,
+      "stories": 2,
+      "also": [],
+      "news": 24,
+      "score": 2.2
+    },
+    {
+      "term": "AI coding",
+      "points": 582,
+      "stories": 5,
+      "also": [],
+      "news": 27,
+      "score": 1.6
+    },
+    {
+      "term": "Local models",
+      "points": 679,
+      "stories": 3,
+      "also": [],
+      "news": 2,
+      "score": 1.6
+    },
+    {
+      "term": "DeepSeek",
+      "points": 483,
+      "stories": 1,
+      "also": [],
+      "news": 22,
+      "score": 1.3
+    },
+    {
+      "term": "Inference",
+      "points": 328,
+      "stories": 3,
+      "also": [],
+      "news": 55,
+      "score": 1.3
+    },
+    {
+      "term": "LLMs",
+      "points": 406,
+      "stories": 7,
+      "also": [],
+      "news": 24,
+      "score": 1.2
+    },
+    {
+      "term": "MCP",
+      "points": 404,
+      "stories": 2,
+      "also": [],
+      "news": 27,
+      "score": 1.2
+    },
+    {
+      "term": "RAG",
+      "points": 215,
+      "stories": 1,
+      "also": [],
+      "news": 11,
+      "score": 0.6
+    },
+    {
+      "term": "Quantization",
+      "points": 117,
+      "stories": 1,
+      "also": [],
+      "news": 9,
+      "score": 0.4
+    },
+    {
+      "term": "Apple Intelligence",
+      "points": 0,
+      "stories": 0,
+      "also": [],
+      "news": 31,
+      "score": 0.3
+    }
+  ]
+}

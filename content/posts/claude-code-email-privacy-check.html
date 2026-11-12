@@ -1,0 +1,261 @@
+<!--
+{
+  "title": "Claude Code and your email: what to check this week",
+  "description": "A user reported that Claude Code put their email address into web requests. What Anthropic changed, what its built-in block leaves open, and a tested hook.",
+  "date": "2026-11-12T12:50:00+00:00",
+  "topic": "ai-automation",
+  "cover": "shield",
+  "project": {
+    "needs": "Claude Code, bash and jq. On Windows, Git for Windows provides bash.",
+    "result": "A current version with the built-in protection on, one extra hook that blocks tool calls carrying your address, and a repository with no personal settings file in it."
+  },
+  "note": "The report and Anthropic's reply are from the public GitHub issue, and the description of the built-in protection is from the README Anthropic published with its source, both as read on November 12, 2026. We did not reproduce the reported behaviour and did not test the built-in protection; both need a signed-in session. The hook, its test script, the header-printing server and the git checks were run for this article on Linux with bash 5.2, jq 1.7 and git 2.43. The hook was tested by sending it sample input, not inside a live session. A security company's report on saved permission rules was widely discussed this week; its site refused our reader, so nothing here relies on it. Section 6 is our advice.",
+  "sources": [
+    {
+      "title": "GitHub: anthropics/claude-code issue 107757, Privacy violation in User-Agent header",
+      "url": "https://github.com/anthropics/claude-code/issues/107757"
+    },
+    {
+      "title": "GitHub: anthropics/claude-code, the built-in privacy mod and its README",
+      "url": "https://github.com/anthropics/claude-code/tree/main/mods/privacy"
+    },
+    {
+      "title": "Claude Code docs: Hooks reference",
+      "url": "https://code.claude.com/docs/en/hooks"
+    },
+    {
+      "title": "Claude Code docs: Settings",
+      "url": "https://code.claude.com/docs/en/settings"
+    },
+    {
+      "title": "Claude Code docs: Permissions",
+      "url": "https://code.claude.com/docs/en/permissions"
+    },
+    {
+      "title": "Wikimedia Foundation: User-Agent Policy",
+      "url": "https://foundation.wikimedia.org/wiki/Policy:Wikimedia_Foundation_User-Agent_Policy"
+    }
+  ]
+}
+-->
+<p>Claude Code was one of the most discussed names in AI this week, and not for a new feature. The story at the top was a user's report that the tool had put their email address into web requests. A second story was about saved permission rules turning up in public repositories. Both are reasons to spend ten minutes checking your own setup, and this guide is those ten minutes: what was reported, what Anthropic changed, what the change leaves open, and three things to do about it.</p>
+
+<h2 id="happened">1. What was reported</h2>
+<p>On November 5, 2026, a user opened an issue on Claude Code's public repository titled "Privacy violation in User-Agent header". They wrote that Claude Code, version 2.1.318 on macOS, had given their email address to third-party websites in the <code>User-Agent</code> header while it was doing web searches, and that they were now receiving scam email. The <code>User-Agent</code> is the line a program sends to every website it contacts to say what it is.</p>
+<p>An Anthropic contributor replied the same day. In their words, Anthropic "introduced a built-in mod called <code>cc-plugin-privacy</code> to deterministically block this behavior in v2.1.317 and later", it is on by default, and it can be switched in <code>/plugins</code>. They asked to be told of any gap.</p>
+<table>
+<thead><tr><th scope="col">Established</th><th scope="col">Not established</th></tr></thead>
+<tbody>
+<tr><td>The report exists, is public, and was still open on November 12</td><td>How often this happened, or to how many people. The report describes one account and gives no steps to reproduce it</td></tr>
+<tr><td>Anthropic says a built-in block ships in 2.1.317 and later, and has published its source</td><td>Whether the block covers the reporter's case. Their version, 2.1.318, is newer than the one named in the reply</td></tr>
+<tr><td>The published source lists what the block covers and what it does not (section 3)</td><td>A commenter's test on 2.1.319, where a shell command was not refused. It used an address on their own machine, and nobody from Anthropic has answered it on the page we read</td></tr>
+</tbody>
+</table>
+<p>We did not reproduce the behaviour. What follows relies on what Anthropic itself has published and on tests of our own safeguard.</p>
+
+<h2 id="why">2. Why an agent would do this</h2>
+<figure class="diagram">
+<div class="d-flow">
+<div class="d-box"><strong>A website asks</strong>"automated clients, say who you are and how to reach you"</div>
+<span class="d-arrow">→</span>
+<div class="d-box key"><strong>The agent knows one address</strong>the account you signed in with</div>
+<span class="d-arrow">→</span>
+<div class="d-box warn"><strong>It fills in the blank</strong>your address goes into the request</div>
+<span class="d-arrow">→</span>
+<div class="d-box"><strong>The site has it</strong>in its logs, with whatever it does with them</div>
+</div>
+<figcaption>Our reading of the mechanism, from the two documents below. No bad intent is needed at any step.</figcaption>
+</figure>
+<p>Two facts make this unsurprising.</p>
+<ul>
+<li><strong>The model is given your address.</strong> The README Anthropic published with the block says so directly: "The context hands the model the signed-in account's address to identify the user."</li>
+<li><strong>Some websites ask for exactly this.</strong> Wikimedia's policy for automated clients, for example, asks for a <code>User-Agent</code> that includes "some way of contacting you", and gives the example <code>CoolBot/0.0 (https://example.org/coolbot/; coolbot@example.org)</code>. That request is reasonable when a developer writes a bot. It is a problem when an assistant answers it for you with your personal address, without asking.</li>
+</ul>
+<p>So the question to ask of any AI tool is not only "what does the company collect?" It is also "what does the tool know about me, and where can it put that?"</p>
+
+<h2 id="builtin">3. What the built-in block covers, and what it does not</h2>
+<p>Anthropic's README is unusually plain about the limits. It describes the block as "a courtesy, not a boundary", and says "it covers one shape".</p>
+<table>
+<thead><tr><th scope="col">Refused</th><th scope="col">Not checked, by the README's own list</th></tr></thead>
+<tbody>
+<tr><td>A shell command (Bash, PowerShell or Monitor) that contains your account address <strong>and</strong> names a User-Agent, such as <code>curl -A</code>, <code>wget -U</code> or the words <code>User-Agent</code></td><td>The address with no User-Agent named: in a URL, in a request body, in a <code>From:</code> header, in <code>curl -u</code></td></tr>
+<tr><td>The address in capitals or percent-encoded</td><td>The web tools, WebFetch and WebSearch, and all MCP tools</td></tr>
+<tr><td>Refused with no prompt, in every permission mode. A saved allow rule does not clear it</td><td>An address worked out when the command runs, such as <code>$(git config user.email)</code>, a variable, or a script that holds it</td></tr>
+</tbody>
+</table>
+<p>It can be turned off with <code>/plugin disable</code>, or by setting <code>"cc-plugin-privacy@builtin": false</code> under <code>enabledPlugins</code> in your user settings. A repository's settings cannot turn it off, which is the right way round: a project you cloned should not be able to remove your protection.</p>
+
+<h2 id="check">4. Three checks to do now</h2>
+<h3>Check 1: your version</h3>
+<pre><code>claude --version</code></pre>
+<p>You want 2.1.317 or later. If it is older, run <code>claude update</code>. The commands are the same on macOS and Windows.</p>
+<h3>Check 2: the block is on</h3>
+<p>Open <code>~/.claude/settings.json</code> (on Windows, <code>%USERPROFILE%\.claude\settings.json</code>) and look for <code>cc-plugin-privacy@builtin</code>. If the line is absent, your settings have not turned it off. If it says <code>false</code>, remove the line. Inside a session, the plugin menu shows the same switch. This checks your own settings only: the README lists other things that can switch the block off, including a switch on Anthropic's side that is read once per session.</p>
+<h3>Check 3: see what a request carries</h3>
+<p>You can watch what any tool sends, without trusting anyone's description. Save this as <code>show_headers.py</code> and run it in one terminal:</p>
+<pre><code>"""show_headers.py: print what every request to http://127.0.0.1:8099/ carries."""
+from http.server import BaseHTTPRequestHandler, HTTPServer
+
+
+class Show(BaseHTTPRequestHandler):
+    def do_GET(self):
+        print(self.requestline)
+        print(self.headers, flush=True)
+        self.send_response(200)
+        self.end_headers()
+        self.wfile.write(b"ok\n")
+
+    def log_message(self, *args):
+        pass
+
+
+HTTPServer(("127.0.0.1", 8099), Show).serve_forever()</code></pre>
+<p>In a second terminal, send it a request the way a script might:</p>
+<figure class="terminal">
+<pre><code><span class="c">$ curl -s -A "research-bot (you@example.com)" http://127.0.0.1:8099/data</span>
+ok</code></pre>
+</figure>
+<p>The first terminal prints what arrived:</p>
+<figure class="terminal">
+<pre><code>GET /data HTTP/1.1
+Host: 127.0.0.1:8099
+<span class="d">User-Agent: research-bot (you@example.com)</span>
+Accept: */*</code></pre>
+<figcaption>Every site contacted this way receives that line and can store it.</figcaption>
+</figure>
+<p>Now ask your agent to fetch <code>http://127.0.0.1:8099/</code> and read the same terminal. It runs on your own machine, so nothing leaves it, and you see exactly how your tool introduces itself.</p>
+
+<h2 id="hook">5. Add your own block for the shapes left open</h2>
+<p>A hook is a script Claude Code runs before a tool call; if the script exits with code 2, the call is stopped and the script's message goes back to the model. This one stops any call that contains one of your addresses, in any tool that can reach the network. It covers three of the gaps in section 3: no User-Agent needed, web tools included, MCP tools included.</p>
+<p>Save it as <code>~/.claude/hooks/block-email.sh</code> and put your own address on the second line:</p>
+<pre><code>#!/bin/bash
+# PreToolUse on every tool: stop a call that would carry one of your email addresses.
+ADDRESSES=("you@example.com")   # put your own addresses here, separated by spaces
+
+INPUT=$(cat)
+TOOL=$(echo "$INPUT" | jq -r '.tool_name // empty')
+
+# Tools that only touch local files may mention the address freely.
+case "$TOOL" in Read|Edit|Write|Glob|Grep|NotebookEdit) exit 0 ;; esac
+
+PAYLOAD=$(echo "$INPUT" | jq -c '.tool_input // {}' | tr '[:upper:]' '[:lower:]')
+for address in "${ADDRESSES[@]}"; do
+  plain=$(echo "$address" | tr '[:upper:]' '[:lower:]')
+  encoded=${plain/@/%40}
+  if [[ "$PAYLOAD" == *"$plain"* || "$PAYLOAD" == *"$encoded"* ]]; then
+    echo "Blocked: this $TOOL call contains the email address $address. Run it again without the address. If a site asks for contact details, tell the user and let them decide." &gt;&amp;2
+    exit 2
+  fi
+done
+exit 0</code></pre>
+<pre><code>chmod +x ~/.claude/hooks/block-email.sh</code></pre>
+<p>Register it for every project by adding this to <code>~/.claude/settings.json</code>. With no <code>matcher</code>, the hook runs before every tool; the script itself lets the file tools through.</p>
+<pre><code>{
+  "hooks": {
+    "PreToolUse": [
+      {
+        "hooks": [
+          { "type": "command", "command": "~/.claude/hooks/block-email.sh" }
+        ]
+      }
+    ]
+  }
+}</code></pre>
+<p>If the file already has other settings, add the <code>hooks</code> block inside the existing braces. Then test it before you rely on it. Save this as <code>test-block-email.sh</code> in the same folder as the hook, make it executable, and run it from that folder:</p>
+<pre><code>#!/bin/bash
+# Send sample tool calls to the hook and show what it decides.
+check() {  # check &lt;expected exit code&gt; &lt;label&gt; &lt;json&gt;
+  message=$(echo "$3" | ./block-email.sh 2&gt;&amp;1); code=$?
+  [ "$code" = "$1" ] &amp;&amp; mark="ok  " || mark="FAIL"
+  printf '%s exit %s  %-34s %s\n' "$mark" "$code" "$2" "${message:0:60}"
+}
+check 2 "curl with a User-Agent"        '{"tool_name":"Bash","tool_input":{"command":"curl -A \"research-bot (you@example.com)\" https://example.org/data"}}'
+check 2 "curl with a From header"       '{"tool_name":"Bash","tool_input":{"command":"curl -H \"From: you@example.com\" https://example.org/data"}}'
+check 2 "address in capitals"           '{"tool_name":"Bash","tool_input":{"command":"wget --user-agent=\"bot You@Example.COM\" https://example.org/"}}'
+check 2 "WebFetch, address in the URL"  '{"tool_name":"WebFetch","tool_input":{"url":"https://example.org/api?contact=you%40example.com","prompt":"summarise"}}'
+check 2 "an MCP tool"                   '{"tool_name":"mcp__search__query","tool_input":{"q":"weather","contact":"you@example.com"}}'
+check 0 "curl with no address"          '{"tool_name":"Bash","tool_input":{"command":"curl -A \"research-bot\" https://example.org/data"}}'
+check 0 "reading a local file"          '{"tool_name":"Read","tool_input":{"file_path":"/home/me/notes/you@example.com.txt"}}'
+check 0 "address worked out at run time" '{"tool_name":"Bash","tool_input":{"command":"curl -A \"bot $(git config user.email)\" https://example.org/"}}'</code></pre>
+<figure class="terminal">
+<pre><code><span class="c">$ ./test-block-email.sh</span>
+<span class="g">ok  </span> exit 2  curl with a User-Agent             Blocked: this Bash call contains the email address you@examp
+<span class="g">ok  </span> exit 2  curl with a From header            Blocked: this Bash call contains the email address you@examp
+<span class="g">ok  </span> exit 2  address in capitals                Blocked: this Bash call contains the email address you@examp
+<span class="g">ok  </span> exit 2  WebFetch, address in the URL       Blocked: this WebFetch call contains the email address you@e
+<span class="g">ok  </span> exit 2  an MCP tool                        Blocked: this mcp__search__query call contains the email add
+<span class="g">ok  </span> exit 0  curl with no address
+<span class="g">ok  </span> exit 0  reading a local file
+<span class="g">ok  </span> exit 0  address worked out at run time</code></pre>
+<figcaption>Five calls stopped, three allowed. The last line is a limit, not a success: see below.</figcaption>
+</figure>
+<div class="callout warn"><strong>A seat belt, not a wall</strong>The last test passes because the address is not in the command's text; it is fetched when the command runs. No text match can catch that. The hook will also stop harmless local commands that mention your address, such as <code>git config user.email</code>; the model is told why and you can run those yourself. For how hooks work and five more of them, see <a href="/blog/posts/claude-code-hooks-tested/">Claude Code hooks, tested</a>.</div>
+
+<h2 id="alias">6. Use an address you can throw away</h2>
+<p>The lasting fix is to make the address not worth leaking. Sign in to developer tools with an address that is not your main one: an alias your mail provider lets you create, or a separate mailbox. If it starts receiving junk, you know where it came from, and you can replace it. This is our advice, and it applies to every tool that knows who you are, not to one product.</p>
+
+<h2 id="rules">7. The other story: saved permission rules</h2>
+<p>The second widely shared story was about permission rules ending up in public repositories with secrets inside. We could not read the report itself, so here is what Claude Code's own documentation says, and how to check your repositories.</p>
+<p>When Claude Code asks to run a command and you choose "Yes, and don't ask again", it saves that approval as an allow rule in <code>.claude/settings.local.json</code>, at the root of the repository. The file is meant to be personal. The documentation says Claude Code adds it to your global git excludes the first time it writes the file, so it stays out of your commits. It also says that if you created the file by hand, you must add it to <code>.gitignore</code> yourself.</p>
+<p>A saved rule contains text from the command you approved. If that text included a key, the key is in the file. Here is an invented example of what to look for; the key is made up:</p>
+<pre><code>{
+  "permissions": {
+    "allow": [
+      "Bash(npm test *)",
+      "Bash(curl -H \"Authorization: Bearer sk-test-EXAMPLE-not-a-real-key\" https://api.example.com/v1/*)",
+      "WebFetch(domain:docs.example.com)"
+    ]
+  }
+}</code></pre>
+<p>Run these four checks at the root of each repository. The output is from a sample repository where the file had been committed by mistake:</p>
+<figure class="terminal">
+<pre><code><span class="c">$ git ls-files .claude/settings.local.json</span>
+<span class="d">.claude/settings.local.json</span>
+<span class="c">$ git log --oneline --all -- .claude/settings.local.json</span>
+a1b2c3d first commit
+<span class="c">$ grep -nEi 'token|secret|password|passwd|bearer|api[_-]?key|sk-[a-z0-9]' .claude/settings.local.json</span>
+5:      "Bash(curl -H \"Authorization: Bearer sk-test-EXAMPLE-not-a-real-key\" https://api.example.com/v1/*)",
+<span class="c">$ git check-ignore -v .claude/settings.local.json</span>
+<span class="c">$</span></code></pre>
+<figcaption>Output from the first two commands means git is tracking the file and has committed it. The last command printed nothing: no ignore rule covers the file.</figcaption>
+</figure>
+<table>
+<thead><tr><th scope="col">Command</th><th scope="col">What you want to see</th></tr></thead>
+<tbody>
+<tr><td><code>git ls-files …</code></td><td>Nothing. Output means the file is tracked.</td></tr>
+<tr><td><code>git log --oneline --all -- …</code></td><td>Nothing. Output means it was committed at some point.</td></tr>
+<tr><td><code>grep -nEi …</code></td><td>Nothing. Output means a rule holds something that looks like a secret.</td></tr>
+<tr><td><code>git check-ignore -v …</code></td><td>A line naming the ignore file that covers it.</td></tr>
+</tbody>
+</table>
+<p>If the file is tracked, stop tracking it and ignore it:</p>
+<figure class="terminal">
+<pre><code><span class="c">$ git rm --cached .claude/settings.local.json</span>
+rm '.claude/settings.local.json'
+<span class="c">$ echo ".claude/settings.local.json" &gt;&gt; .gitignore</span>
+<span class="c">$ git add .gitignore &amp;&amp; git commit -m "Stop tracking personal Claude Code settings"</span>
+[main b2c3d4e] Stop tracking personal Claude Code settings
+ 2 files changed, 1 insertion(+), 9 deletions(-)
+ delete mode 100644 .claude/settings.local.json
+ create mode 100644 .gitignore
+<span class="c">$ git check-ignore -v .claude/settings.local.json</span>
+<span class="g">.gitignore:1:.claude/settings.local.json	.claude/settings.local.json</span></code></pre>
+<figcaption><code>git rm --cached</code> stops tracking the file and leaves your copy on disk.</figcaption>
+</figure>
+<div class="callout warn"><strong>Removing the file does not remove the key</strong>After that fix, <code>git log --oneline --all -- .claude/settings.local.json</code> still listed the first commit, with the file in it. If a key was ever committed and pushed, treat it as public: replace the key at the service that issued it. Do that first, and tidy the history afterwards if you need to.</div>
+<p>Two habits prevent the problem. Do not approve a command with "don't ask again" when the command has a secret written in it; put the secret in an environment variable instead. And look at the saved rules now and then, in <code>/permissions</code> or in the file itself.</p>
+
+<h2 id="summary">8. The ten-minute checklist</h2>
+<table>
+<thead><tr><th scope="col">Step</th><th scope="col">How</th></tr></thead>
+<tbody>
+<tr><td>Be on 2.1.317 or later</td><td><code>claude --version</code>, then <code>claude update</code> if needed</td></tr>
+<tr><td>Keep the built-in block on</td><td>No <code>"cc-plugin-privacy@builtin": false</code> in your settings</td></tr>
+<tr><td>See what your tools send</td><td><code>show_headers.py</code> and a request to <code>127.0.0.1:8099</code></td></tr>
+<tr><td>Cover the open shapes</td><td>The <code>block-email.sh</code> hook, tested with its script</td></tr>
+<tr><td>Limit the damage</td><td>A separate address for developer tools</td></tr>
+<tr><td>Check each repository</td><td>The four git commands in section 7</td></tr>
+<tr><td>Replace any key that was committed</td><td>At the service that issued it</td></tr>
+</tbody>
+</table>
+<p>None of this is special to one product. Any agent that knows who you are and can reach the network can make the same mistake, which is why the checks are worth keeping. For the wider habits, see <a href="/blog/posts/ai-coding-agent-tips/">AI coding agent tips</a>. For what else is being discussed this week, see <a href="/trending/claude-code/">Claude Code on our trending page</a>.</p>

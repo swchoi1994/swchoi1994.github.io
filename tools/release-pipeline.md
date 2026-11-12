@@ -98,6 +98,21 @@ One pull request per release, from the session's own branch into `main`:
 
 Never merge, approve or enable auto-merge. The owner publishes by merging.
 
-## 7. When there is nothing new
+## 7. Write about what is trending
+
+After the release check, look at the ranking the site shows under "Trending in AI".
+
+1. Refresh it: `python3 tools/trends.py`. Read the first ten names in `content/trending.json`.
+2. For each name, look at what readers would find: its page is `_site/trending/<name>/` after a build, and the build prints `Trending with nothing of ours yet: …` for names with no article at all.
+3. Pick at most one name per run where an article would help most: a name with nothing of ours, or a name whose week was driven by one event we have not explained. To see what drove it, read the Hacker News stories and news coverage for that name, then go to the primary source they point to.
+4. Write one practical article about that matter in the usual format: what happened, who is affected, and what a reader should do or check, with steps. Test the steps when they can be tested. The same rules apply as for explainers: every fact from a source you read and listed, a company's claims reported as its claims, nothing invented.
+5. Do not write about a person's private life, a rumour, or a story whose only sources are anonymous. Skip the name and take the next one.
+6. If a new product has started appearing in the news and is not on the watchlist, add it to `content/trend-terms.json` in the same pull request.
+
+One pull request per article, titled `Trend article: <subject>`. The limit of two articles per run covers explainers and trend articles together.
+
+Commit the refreshed `content/trending.json` only as part of such a pull request. The deploy workflow refreshes it on its own.
+
+## 8. When there is nothing new
 
 Change nothing and open nothing. End with one line saying which pages were checked and that no new release was found.
