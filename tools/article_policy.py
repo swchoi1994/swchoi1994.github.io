@@ -150,6 +150,20 @@ def inspect_pr(number, root=ROOT):
     return {'pr': number, 'head_sha': pr['head']['sha'], 'path': path, 'text': text}
 
 
+def trusted_automatic_peers(sha):
+    # Filter by author at GitHub, before pagination/limits. Foreign PRs sharing
+    # the SHA cannot consume this query's limit or determine its outcome.
+    result = subprocess.run(['gh', 'pr', 'list', '--repo', REPO, '--author', OWNER,
+                             '--state', 'open', '--base', 'main', '--limit', '1000',
+                             '--json', 'number,headRefOid,headRefName,isCrossRepository,labels'],
+                            check=True, capture_output=True, text=True, timeout=60)
+    peers = json.loads(result.stdout)
+    if len(peers) >= 1000:
+        raise ValueError('Owner PR inventory exceeds inspection limit')
+    return [p['number'] for p in peers if not p['isCrossRepository'] and p['headRefOid'] == sha
+            and (p['headRefName'].startswith('auto-post/') or LABEL in [x['name'] for x in p['labels']])]
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--event', type=Path)
@@ -166,27 +180,25 @@ def main():
         pr = event['pull_request']
         number = pr['number']
         sha = pr['head']['sha']
-        current = api(f'pulls/{number}')
         # Commit statuses are shared by SHA, including forks. An outsider must
         # never overwrite a trusted owner's result using a second PR at that SHA.
-        if current['user']['login'] != OWNER or (current['head'].get('repo') or {}).get('full_name') != REPO:
+        # GitHub's immutable event identity lets us reject foreign events without
+        # a network call, then invalidate prior approval before any live lookup.
+        if pr['user']['login'] != OWNER or (pr['head'].get('repo') or {}).get('full_name') != REPO:
             print('Foreign PR: no shared commit status emitted. Use an owner branch for review.')
             return
         if args.report_status:
             report_status(sha, 'pending', 'Checking trusted article policy')
         try:
+            current = api(f'pulls/{number}')
             if current['head']['sha'] != sha:
                 raise ValueError('PR changed during validation; wait for the latest run')
             if LABEL not in [x['name'] for x in current['labels']] and not current['head']['ref'].startswith('auto-post/'):
                 # Even an owner's second manual PR must not clear an automatic
                 # PR's failure on the same commit (statuses are not PR-scoped).
-                peers = api(f'commits/{sha}/pulls?per_page=100')
-                if len(peers) >= 100:
-                    raise ValueError('Too many PRs share this commit; inspect before publishing')
-                for peer in peers:
-                    if peer['state'] == 'open' and peer['head']['sha'] == sha and peer['user']['login'] == OWNER and (peer['head'].get('repo') or {}).get('full_name') == REPO and (peer['head']['ref'].startswith('auto-post/') or LABEL in [x['name'] for x in peer['labels']]):
-                        if inspect_pr(peer['number'])['head_sha'] != sha:
-                            raise ValueError('Associated automatic PR changed during validation')
+                for peer_number in trusted_automatic_peers(sha):
+                    if inspect_pr(peer_number)['head_sha'] != sha:
+                        raise ValueError('Associated automatic PR changed during validation')
                 print('Manual PR scope checked, including automatic PRs sharing this commit.')
             else:
                 result = inspect_pr(number)

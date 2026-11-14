@@ -105,3 +105,5 @@ Pause by disabling `journal-discovery.timer`, `journal-maintenance.timer` and th
 OpenClaw `github-blog-writer` cron job; disable auto-merge on any already queued
 PR as well. Queues remain intact. Raising cadence requires an owner instruction
 and a reviewed edit to `tools/editorial-config.json`.
+Label changes are checked asynchronously. To stop a queued publication, disable
+its GitHub auto-merge directly; removing a label alone is not an immediate stop.

@@ -104,9 +104,28 @@ class ArticlePolicyTests(unittest.TestCase):
         peer['head']['ref'] = 'auto-post/pending'
         event = self.root / 'event.json'
         event.write_text(json.dumps({'pull_request': self.pr}))
-        with patch.object(sys, 'argv', ['policy', '--event', str(event), '--report-status']), patch.object(policy, 'api', side_effect=[self.pr, [peer]]), patch.object(policy, 'inspect_pr', side_effect=ValueError('Automatic PR held')), patch.object(policy, 'report_status') as report:
+        with patch.object(sys, 'argv', ['policy', '--event', str(event), '--report-status']), patch.object(policy, 'api', return_value=self.pr), patch.object(policy, 'trusted_automatic_peers', return_value=[peer['number']]), patch.object(policy, 'inspect_pr', side_effect=ValueError('Automatic PR held')), patch.object(policy, 'report_status') as report:
             with self.assertRaisesRegex(ValueError, 'held'): policy.main()
             self.assertEqual([c.args[1] for c in report.call_args_list], ['pending', 'failure'])
+
+    def test_lookup_failure_invalidates_prior_approval(self):
+        self.pr.update(number=7)
+        self.pr['head'].update(sha='shared-sha')
+        self.pr['labels'] = []  # Owner removed auto-publish while other CI was pending.
+        event = self.root / 'event.json'
+        event.write_text(json.dumps({'pull_request': self.pr}))
+        with patch.object(sys, 'argv', ['policy', '--event', str(event), '--report-status']), patch.object(policy, 'api', side_effect=OSError('GitHub lookup unavailable')), patch.object(policy, 'report_status') as report:
+            with self.assertRaises(OSError): policy.main()
+            self.assertEqual([c.args[1] for c in report.call_args_list], ['pending', 'failure'])
+
+    def test_peer_lookup_filters_owner_before_pagination(self):
+        rows = [{'number': 7, 'headRefOid': 'same', 'headRefName': 'auto-post/post', 'isCrossRepository': False, 'labels': []},
+                {'number': 8, 'headRefOid': 'same', 'headRefName': 'auto-post/fork', 'isCrossRepository': True, 'labels': []}]
+        with patch.object(policy.subprocess, 'run', return_value=subprocess.CompletedProcess([], 0, stdout=json.dumps(rows))) as run:
+            self.assertEqual(policy.trusted_automatic_peers('same'), [7])
+            args = run.call_args.args[0]
+            self.assertEqual(args[args.index('--author') + 1], policy.OWNER)
+            self.assertIn('--limit', args)
 
 
 class QueueTests(unittest.TestCase):
