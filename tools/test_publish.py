@@ -76,7 +76,7 @@ class PublicationTest(unittest.TestCase):
                 continue
             source = path.read_text()
             head = source.split('</head>')[0]
-            if head.count('googletagmanager.com/gtag/js?id=G-BLKN59SYTQ') != 1 or head.count("gtag('config','G-BLKN59SYTQ')") != 1 or source.count('googletagmanager.com') != 1:
+            if head.count('googletagmanager.com/gtag/js?id=G-1QGP7VFL1G') != 1 or head.count("gtag('config','G-1QGP7VFL1G')") != 1 or source.count('googletagmanager.com') != 1:
                 wrong.append(str(path.relative_to(publish.OUT)))
         self.assertEqual(wrong, [])
 
@@ -511,7 +511,7 @@ class PublicationTest(unittest.TestCase):
                 source = (publish.OUT / 'blog' / name / 'index.html').read_text()
                 self.assertNotIn('adsbygoogle', source)
                 self.assertNotIn('id="ad-note"', source)
-                self.assertIn('G-BLKN59SYTQ', source)
+                self.assertIn('G-1QGP7VFL1G', source)
 
     def test_configured_ad_slots_do_not_enable_information_page_ads(self):
         saved_config, saved_out = dict(publish.CONFIG), publish.OUT
