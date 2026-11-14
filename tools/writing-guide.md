@@ -6,7 +6,7 @@ For whoever writes a post for this journal: the owner, OpenClaw, or any other wr
 
 1. Write one file, `content/posts/<slug>.html`. The file name becomes the address: `/blog/posts/<slug>/`.
 2. Run the checks in section 5.
-3. Open a pull request into `main`. One post per pull request. Never merge it yourself; the owner publishes by merging.
+3. Open a pull request into `main`. One post per pull request. Owner-authorized automatic new articles use `tools/automatic-publishing.md`; other changes wait for the owner to merge.
 
 The file is a block of settings followed by the body as plain HTML. The full reference, with the pictures, diagrams and terminal figures you can use, is in `README.md` under "Articles written in this repository". The shortest valid file:
 
@@ -65,7 +65,7 @@ The same goes for everything else on the page:
 
 The journal has a problem to fix: many of its posts look alike. Titles follow one formula, every post has the same skeleton, and nothing in them could only have come from the owner. These rules are the repair.
 
-**Start from material, not from a topic.** The best input is something the owner did or saw: output from his own servers, a mistake that cost him an afternoon, a number he measured, an opinion he holds. If the brief contains none of that, ask for it before writing. A post built only from public documents will read like every other page built from the same documents.
+**Start from material, not from a topic.** The best input is something the owner did or saw: output from his own servers, a mistake that cost him an afternoon, a number he measured, an opinion he holds. If the brief contains none of that, use a source-based comparison or reproducible calculation with an original conclusion under `tools/automatic-publishing.md`; otherwise ask for the missing material before writing. A post built only from public documents will read like every other page built from the same documents.
 
 **Use the first person only for what the owner did.** "I ran this on two A100s and the first load took four minutes" is good when it is true. Do not invent experience.
 
@@ -93,7 +93,7 @@ python3 tools/publish.py
 python3 -m unittest discover -s tools -p 'test_*.py'
 ```
 
-Then add the new address to the list in `tools/browser-smoke.cjs`, serve `_site` on port 8791 (`python3 -m http.server 8791 --bind 127.0.0.1 --directory _site`) and run `node tools/browser-smoke.cjs`. Open every address in `sources` once and fix any that does not show the page. Refresh the checked-in preview with `cp _site/index.html index.html`.
+For automatic article PRs, the submit helper runs `node tools/article-smoke.cjs content/posts/<slug>.html`; it discovers the page without changing test code. Do not commit a generated index in those PRs. For manual PRs, add the new address to the list in `tools/browser-smoke.cjs`, serve `_site` on port 8791 (`python3 -m http.server 8791 --bind 127.0.0.1 --directory _site`) and run `node tools/browser-smoke.cjs`. Open every address in `sources` once and fix any that does not show the page. Refresh the checked-in preview with `cp _site/index.html index.html`.
 
 In the pull request, say what the post claims, which sources you read, and what you did not verify.
 

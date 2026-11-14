@@ -1,0 +1,14 @@
+{
+  "posts_per_seven_days": 3,
+  "discovery_interval_hours": 6,
+  "feeds": [
+    {"name": "Google News: practical AI tools", "url": "https://news.google.com/rss/search?q=AI+coding+tools+when:7d&hl=en-US&gl=US&ceid=US:en"},
+    {"name": "Google News: Windows and developer tools", "url": "https://news.google.com/rss/search?q=Windows+developer+tools+when:7d&hl=en-US&gl=US&ceid=US:en"},
+    {"name": "Reddit: LocalLLaMA", "url": "https://www.reddit.com/r/LocalLLaMA/top/.rss?t=week"},
+    {"name": "Reddit: selfhosted", "url": "https://www.reddit.com/r/selfhosted/top/.rss?t=week"},
+    {"name": "Hacker News", "url": "https://hnrss.org/newest?q=AI+OR+developer+OR+python"},
+    {"name": "OpenAI announcements", "url": "https://openai.com/news/rss.xml"},
+    {"name": "Google announcements", "url": "https://blog.google/rss/"},
+    {"name": "Microsoft developer blog", "url": "https://devblogs.microsoft.com/feed/"}
+  ]
+}

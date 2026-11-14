@@ -209,4 +209,7 @@ For this GitHub-owned `github.io` subdomain, use a URL-prefix property for `http
 
 `content/site.json` → `adfit.article_end` contains the owner-issued 320×200 banner unit. Empty it to disable the integration. The supplied script appears exactly once after article content; information pages, the home page and portfolio do not load it. Existing AdSense settings are unchanged. The privacy page discloses the integration. Browser tests block advertising requests and check placement/dimensions only, not real ad delivery or Kakao approval.
 
+## Automatic new articles
+
+The owner-authorized WhatsApp queue, recurring discovery, guarded auto-merge and verified publication receipts are described in [tools/automatic-publishing.md](tools/automatic-publishing.md).
 The published GA4 tag uses `G-1QGP7VFL1G`, verified on 14 November 2026 in the existing GitHubIO property web stream for `https://swchoi1994.github.io`. The final build pass migrates the previous ID on copied pages and preserves one tag per page. After deployment, verify collection in that property before using its reports as a traffic baseline.

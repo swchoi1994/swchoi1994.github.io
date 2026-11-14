@@ -1,0 +1,32 @@
+name: Validate journal PR
+on:
+  pull_request:
+    branches: [main]
+    types: [opened, synchronize, reopened, ready_for_review]
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: journal-validation-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+jobs:
+  validate:
+    name: Journal validation
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python tools/publish.py
+      - run: python -m unittest discover -s tools -p 'test_*.py'
+      - run: git diff --check
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm ci --prefix tools/browser
+      - run: tools/browser/node_modules/.bin/playwright install --with-deps chromium
+      - run: node tools/article-smoke.cjs
