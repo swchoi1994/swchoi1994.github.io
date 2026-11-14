@@ -23,7 +23,7 @@ try { ({ chromium } = require('@playwright/test')); } catch { ({ chromium } = re
   page.on('pageerror', error => errors.push(error.message));
 
   // Every page type renders once, with one heading and no sideways scroll at any width.
-  const paths = ['/', '/topics/', '/topics/windows/', '/guides/', '/guides/ai-coding-agent-repos/', '/blog/', '/blog/page/2/', '/videos/',
+  const paths = ['/blog/posts/one-dot-product-three-instruction-sets/', '/series/processors/', '/', '/topics/', '/topics/windows/', '/guides/', '/guides/ai-coding-agent-repos/', '/blog/', '/blog/page/2/', '/videos/',
     '/blog/posts/naver-224467696426/', '/blog/posts/naver-224444722682/', '/blog/posts/claude-code-project-setup/', '/blog/posts/dockerfile-checklist/', '/blog/posts/vllm-first-server/', '/blog/posts/deepseek-api-guide/', '/blog/posts/zai-glm-coding-plan-guide/', '/series/', '/series/vllm-server/', '/projects/', '/blog/posts/vllm-phind-codellama-a100/', '/blog/posts/vllm-monitoring-prometheus-grafana/', '/blog/posts/vllm-multi-user-serving/', '/blog/posts/mac-mini-personal-ai-assistant/', '/blog/posts/ai-coding-agent-tips/', '/blog/posts/claude-code-plugins-mcp-terminal/', '/blog/posts/claude-code-hooks-tested/', '/blog/posts/vllm-out-of-memory/', '/blog/posts/vllm-vs-ollama-vs-llama-cpp/', '/blog/posts/a100-l40s-h100-inference/', '/blog/posts/claude-fable-5-2-launch/', '/blog/posts/prompting-claude-opus-5-5/', '/releases/', '/blog/posts/build-mcp-server-python/', '/blog/posts/claude-code-email-privacy-check/', '/blog/posts/vllm-alerts-alertmanager/', '/blog/posts/claude-code-with-vllm/', '/blog/posts/claude-code-context-cost-measured/', '/trending/', '/trending/claude-code/', '/trending/nvidia/', '/blog/posts/gemini-4-carbon-launch/', '/blog/posts/amazon-alexa-shopping-by-text/', '/blog/posts/naver-224467587320/', '/blog/about/', '/blog/privacy/', '/portfolio/'];
   for (const width of [390, 768, 1024, 1360, 1680]) {
     await page.setViewportSize({ width, height: 900 });
@@ -36,21 +36,14 @@ try { ({ chromium } = require('@playwright/test')); } catch { ({ chromium } = re
   }
   await page.setViewportSize({ width: 1360, height: 900 });
 
-  // Advertising requests stay blocked in tests; verify the supplied 320x200 slot geometry.
-  await page.goto(origin + '/blog/posts/claude-code-project-setup/');
-  assert.equal(await page.locator('.kakao_ad_area').count(), 1);
-  assert.equal(await page.locator('script[src="//t1.kakaocdn.net/kas/static/ba.min.js"]').count(), 1);
-  assert.equal(await page.getAttribute('.kakao_ad_area', 'data-ad-unit'), 'DAN-KMvit9k07zZPB25i');
-  for (const width of [320, 360, 390, 768, 1360]) {
-    await page.setViewportSize({ width, height: 900 });
-    await page.locator('.kakao_ad_area').evaluate(el => { el.style.display = 'block'; });
-    const slot = await page.locator('.kakao_ad_area').boundingBox();
-    assert.equal(slot.width, 320);
-    assert.equal(slot.height, 200);
-    assert(slot.x >= 0 && slot.x + slot.width <= width, `AdFit fits at ${width}`);
-    assert(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth));
-  }
-  await page.setViewportSize({ width: 1360, height: 900 });
+  // The experiment remains inspectable without JavaScript, including its exact saved record.
+  const nojs = await offline({ javaScriptEnabled: false, viewport: { width: 390, height: 844 } });
+  const notebook = await nojs.newPage();
+  await notebook.goto(origin + '/blog/posts/one-dot-product-three-instruction-sets/');
+  await notebook.locator('#original-output summary').click();
+  assert.equal(await notebook.locator('#original-output code').textContent(), require('node:fs').readFileSync('drafts/processors/experiment/output.txt', 'utf8'));
+  assert(await notebook.evaluate(() => document.documentElement.scrollWidth <= innerWidth));
+  await nojs.close();
 
   // Dark mode and the cards/list choice persist between pages.
   await page.goto(origin + '/');

@@ -1,0 +1,220 @@
+<!--
+{
+  "title": "One dot product, three instruction sets",
+  "description": "The saved x86, Arm and RISC-V experiment gives the same answer, different machine code, and no evidence of which processor is faster.",
+  "date": "2026-11-12T13:40:00+00:00",
+  "topic": "ai-automation",
+  "cover": "chip",
+  "series": "processors",
+  "part": 1,
+  "checked": {
+    "level": "read",
+    "line": "The supplied run printed 120.0 on x86 and QEMU-emulated Arm and RISC-V; its saved output was reviewed, not rerun, and contains no hardware timings."
+  },
+  "note": "Based on the supplied, unchanged experiment/output.txt and the accompanying C program and build script. The owner-provided experiment used GCC 13.3 and QEMU user-mode emulation for Arm and RISC-V. No compiler or processor experiment was rerun for this article; no timing, power or cross-machine benchmark was performed. Successful sample outputs do not establish correctness for arbitrary floating-point inputs. Article rendering checks are separate from hardware testing.",
+  "sources": [
+    {
+      "title": "Saved experiment output (unchanged, pinned revision)",
+      "url": "https://raw.githubusercontent.com/swchoi1994/swchoi1994.github.io/57da0848b1b849190d3a999030fcd4ac8b4958a6/drafts/processors/experiment/output.txt"
+    },
+    {
+      "title": "Build flags, execution and disassembly script",
+      "url": "https://raw.githubusercontent.com/swchoi1994/swchoi1994.github.io/57da0848b1b849190d3a999030fcd4ac8b4958a6/drafts/processors/experiment/run.sh"
+    },
+    {
+      "title": "C source and its input arrays",
+      "url": "https://raw.githubusercontent.com/swchoi1994/swchoi1994.github.io/57da0848b1b849190d3a999030fcd4ac8b4958a6/drafts/processors/experiment/dot.c"
+    },
+    {
+      "title": "Processor experiment notes and stated limits",
+      "url": "https://raw.githubusercontent.com/swchoi1994/swchoi1994.github.io/57da0848b1b849190d3a999030fcd4ac8b4958a6/drafts/processors/README.md"
+    }
+  ]
+}
+-->
+<style>
+.processor-notebook{--paper:#f7f7ef;--panel:#ecefe5;--green:#315e4f;background:var(--paper);color:#202820;border-radius:16px;padding:clamp(16px,3vw,32px);margin:28px 0}
+.processor-notebook h3{font-family:Georgia,serif;font-size:1.6em;line-height:1.2;color:inherit;margin:0 0 16px}
+.processor-notebook details{border-top:1px solid #b8c7b8;padding:8px 0}
+.processor-notebook summary{cursor:pointer;min-height:44px;padding:12px 8px;font-weight:600;color:var(--green);border-radius:8px}
+.processor-notebook summary:focus-visible{outline:3px solid #315e4f;outline-offset:2px}
+.processor-notebook details[open]{background:var(--panel);border-radius:8px}
+.processor-notebook details>p,.processor-notebook details>pre{margin:12px}
+.processor-notebook pre{overflow:auto;max-width:100%;white-space:pre;font-size:.8em}
+.processor-notebook a{color:#174e85}
+[data-theme=dark] .processor-notebook{--paper:#202c27;--panel:#293b32;--green:#a5d3bb;color:#edf3ec}
+[data-theme=dark] .processor-notebook a{color:#adcfff}
+</style>
+<p>The saved run ends with the same answer on x86-64, Arm and RISC-V: <code>120.0</code>. The interesting difference appears below that answer, in the instructions GCC emitted for <code>dot()</code>. The function-size labels are 64, 52 and 38 bytes respectively. There is no stopwatch in this experiment.</p>
+<p>This is part one of a processor series built around a small piece of code rather than a shopping comparison. All numbers below come from the supplied experiment files. Expand an architecture to inspect its output, or open the complete original record near the end.</p>
+<h2 id="input">Eight pairs of numbers</h2>
+<p>The C program supplies the arrays <code>{1, 2, 3, 4, 5, 6, 7, 8}</code> and <code>{8, 7, 6, 5, 4, 3, 2, 1}</code>. Its loop multiplies each pair and accumulates a floating-point sum. Here is the source exactly as supplied:</p>
+<pre><code>/* dot.c: the dot product, the small loop at the centre of most AI arithmetic. */
+#include &lt;stdio.h&gt;
+
+float dot(const float *a, const float *b, int n) {
+    float sum = 0.0f;
+    for (int i = 0; i &lt; n; i++)
+        sum += a[i] * b[i];
+    return sum;
+}
+
+int main(void) {
+    float a[8] = {1, 2, 3, 4, 5, 6, 7, 8};
+    float b[8] = {8, 7, 6, 5, 4, 3, 2, 1};
+    printf(&quot;%.1f\n&quot;, dot(a, b, 8));
+    return 0;
+}
+</code></pre>
+<p>The build script compiles this source for each target. The baseline uses <code>-O2 -static</code>. It runs the x86 binary directly and the other binaries through <code>qemu-aarch64</code> and <code>qemu-riscv64</code>. The saved tool headers identify GCC 13.3.0 and QEMU AArch64 8.2.2.</p>
+<h2 id="instructions">Open the instruction notebooks</h2>
+<div class="processor-notebook"><h3>Same source. Different encodings.</h3><p>These are excerpts from the saved disassembly, not simulated CPU execution. Each panel works with a keyboard and without JavaScript.</p><details><summary>x86-64 · 64-byte function</summary><p>The displayed instructions range from 1 to 5 bytes. In the loop, mulss and addss are separate instructions. The baseline command does not request FMA; the vector build later adds -mfma.</p><pre><code>## dot() on x86-64: 64 bytes
+4 bytes  endbr64
+2 bytes  test   %edx,%edx
+2 bytes  jle    4018d8
+3 bytes  movslq %edx,%rdx
+2 bytes  xor    %eax,%eax
+4 bytes  pxor   %xmm1,%xmm1
+4 bytes  shl    $0x2,%rdx
+3 bytes  nopl   (%rax)
+5 bytes  movss  (%rdi,%rax,1),%xmm0
+5 bytes  mulss  (%rsi,%rax,1),%xmm0
+4 bytes  add    $0x4,%rax
+4 bytes  addss  %xmm0,%xmm1
+3 bytes  cmp    %rax,%rdx
+2 bytes  jne    4018b8
+3 bytes  movaps %xmm1,%xmm0
+1 bytes  ret
+5 bytes  nopl   0x0(%rax,%rax,1)
+4 bytes  pxor   %xmm1,%xmm1
+3 bytes  movaps %xmm1,%xmm0
+1 bytes  ret</code></pre></details><details><summary>Arm AArch64 · 52-byte function</summary><p>Every displayed instruction occupies 4 bytes. The loop has two ldr instructions and an fmadd combining multiplication and addition.</p><pre><code>## dot() on Arm (AArch64): 52 bytes
+4 bytes  movi v0.2s, #0x0
+4 bytes  cmp w2, #0x0
+4 bytes  b.le 400820
+4 bytes  sbfiz x3, x2, #2, #32
+4 bytes  mov x2, #0x0
+4 bytes  nop
+4 bytes  ldr s2, [x0, x2]
+4 bytes  ldr s1, [x1, x2]
+4 bytes  add x2, x2, #0x4
+4 bytes  fmadd s0, s2, s1, s0
+4 bytes  cmp x3, x2
+4 bytes  b.ne 400808
+4 bytes  ret
+4 bytes  nop
+4 bytes  nop
+4 bytes  nop</code></pre></details><details><summary>RISC-V RV64GC · 38-byte function</summary><p>The displayed instructions occupy either 2 or 4 bytes. The loop loads each input with flw, advances both pointers and uses fmadd.s.</p><pre><code>## dot() on RISC-V (RV64GC): 38 bytes
+4 bytes  fmv.w.x fa0,zero
+4 bytes  blez a2,10650
+2 bytes  slli a2,a2,0x2
+4 bytes  add a5,a0,a2
+4 bytes  flw fa4,0(a0)
+4 bytes  flw fa5,0(a1)
+2 bytes  addi a0,a0,4
+2 bytes  addi a1,a1,4
+4 bytes  fmadd.s fa0,fa4,fa5,fa0
+4 bytes  bne a0,a5,1063a
+2 bytes  ret
+2 bytes  ret</code></pre></details></div><p>The size in each panel is the symbol size reported by <code>nm -S</code>. The script separately prints <code>objdump</code> lines until a blank line, so the listing can include trailing padding beyond that symbol. Do not add every displayed row and call the result the function size.</p>
+<p>Counting the loop bodies shown gives six instructions for each target. That count is a description of this compilation, not a measure of elapsed work or a ranking of processors. Nor does the smallest function here establish which architecture produces the smallest applications.</p>
+<h2 id="vectors">The vector build changes more than the target</h2>
+<p>The second group switches to <code>-O3 -ffast-math</code> and adds target-specific options. The saved x86 AVX2 excerpt uses <code>ymm</code> registers, with eight numbers at a time; Arm NEON uses <code>v0.4s</code>, with four. The Arm SVE excerpt instead contains <code>whilelo</code> predicates and predicated loads. The supplied notes leave SVE's width to the processor rather than assigning it a fixed lane count.</p>
+<p>These are different compilation settings, not a controlled timing comparison. In particular, do not assume this one input proves identical floating-point behaviour for every possible input under the changed flags.</p>
+<div class="callout warn"><strong>The RISC-V result is an observation about this build</strong><p>With GCC 13.3 and <code>-march=rv64gcv</code>, the supplied record reports no vector instructions for this target. It still prints <code>120.0</code>. Nothing here establishes what another compiler version would emit.</p></div>
+<h2 id="record">Keep the evidence beside the explanation</h2>
+<details class="processor-notebook" id="original-output"><summary>Open the complete, unchanged output.txt</summary><pre><code>## Tools
+gcc (Ubuntu 13.3.0-6ubuntu2~24.04.1) 13.3.0
+aarch64-linux-gnu-gcc (Ubuntu 13.3.0-6ubuntu2~24.04.1) 13.3.0
+riscv64-linux-gnu-gcc (Ubuntu 13.3.0-6ubuntu2~24.04.1) 13.3.0
+qemu-aarch64 version 8.2.2 (Debian 1:8.2.2+ds-0ubuntu1.18)
+
+## The same answer from three processors
+x86-64:  120.0
+Arm:     120.0
+RISC-V:  120.0
+
+## dot() on x86-64: 64 bytes
+4 bytes  endbr64
+2 bytes  test   %edx,%edx
+2 bytes  jle    4018d8
+3 bytes  movslq %edx,%rdx
+2 bytes  xor    %eax,%eax
+4 bytes  pxor   %xmm1,%xmm1
+4 bytes  shl    $0x2,%rdx
+3 bytes  nopl   (%rax)
+5 bytes  movss  (%rdi,%rax,1),%xmm0
+5 bytes  mulss  (%rsi,%rax,1),%xmm0
+4 bytes  add    $0x4,%rax
+4 bytes  addss  %xmm0,%xmm1
+3 bytes  cmp    %rax,%rdx
+2 bytes  jne    4018b8
+3 bytes  movaps %xmm1,%xmm0
+1 bytes  ret
+5 bytes  nopl   0x0(%rax,%rax,1)
+4 bytes  pxor   %xmm1,%xmm1
+3 bytes  movaps %xmm1,%xmm0
+1 bytes  ret
+
+## dot() on Arm (AArch64): 52 bytes
+4 bytes  movi v0.2s, #0x0
+4 bytes  cmp w2, #0x0
+4 bytes  b.le 400820
+4 bytes  sbfiz x3, x2, #2, #32
+4 bytes  mov x2, #0x0
+4 bytes  nop
+4 bytes  ldr s2, [x0, x2]
+4 bytes  ldr s1, [x1, x2]
+4 bytes  add x2, x2, #0x4
+4 bytes  fmadd s0, s2, s1, s0
+4 bytes  cmp x3, x2
+4 bytes  b.ne 400808
+4 bytes  ret
+4 bytes  nop
+4 bytes  nop
+4 bytes  nop
+
+## dot() on RISC-V (RV64GC): 38 bytes
+4 bytes  fmv.w.x fa0,zero
+4 bytes  blez a2,10650
+2 bytes  slli a2,a2,0x2
+4 bytes  add a5,a0,a2
+4 bytes  flw fa4,0(a0)
+4 bytes  flw fa5,0(a1)
+2 bytes  addi a0,a0,4
+2 bytes  addi a1,a1,4
+4 bytes  fmadd.s fa0,fa4,fa5,fa0
+4 bytes  bne a0,a5,1063a
+2 bytes  ret
+2 bytes  ret
+
+## With vector instructions switched on (-O3 -ffast-math)
+x86-64 AVX2:  120.0
+Arm NEON:     120.0
+Arm SVE:      120.0
+RISC-V V:     120.0
+
+### x86-64 with AVX2 (256-bit, 8 numbers at a time): the instructions that do the arithmetic
+vmovups (%rdi,%rax,1),%ymm4
+vmulps (%rcx,%rax,1),%ymm4,%ymm0
+vaddps %ymm0,%ymm1,%ymm1
+vextractf128 $0x1,%ymm1,%xmm3
+
+### Arm with NEON (128-bit, 4 numbers at a time): the instructions that do the arithmetic
+movi	v0.4s, #0x0
+fmla	v0.4s, v2.4s, v1.4s
+faddp	v0.4s, v0.4s, v0.4s
+faddp	v0.4s, v0.4s, v0.4s
+
+### Arm with SVE (the processor decides the width): the instructions that do the arithmetic
+whilelo	p0.s, wzr, w2
+ld1w	{z2.s}, p0/z, [x0, x3, lsl #2]
+ld1w	{z1.s}, p0/z, [x1, x3, lsl #2]
+fmla	z0.s, p0/m, z1.s, z2.s
+whilelo	p0.s, w3, w2
+
+### RISC-V with the V extension: the instructions that do the arithmetic
+(none: this compiler produced no vector instructions for this target)
+</code></pre></details>
+<p>Arm and RISC-V ran under QEMU user-mode emulation on an x86 machine, according to the supplied experiment notes. Their printed answers demonstrate this sample's result under that setup. They provide no native hardware speed, energy or thermal measurements. The experiment also does not cover arbitrary inputs or prove that every instruction shown in the standalone function was executed on the sample path.</p>
+<p>To investigate a real purchase, the missing evidence would be results from the intended workload on the actual machines. This notebook stops at the compiled code and the recorded answers; it has no fastest-processor conclusion.</p>
