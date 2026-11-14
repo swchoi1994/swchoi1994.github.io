@@ -9,7 +9,7 @@
     "keep": []
   },
   "article_cover": true,
-  "adblock_wall": true,
+  "adblock_wall": false,
   "comments": {
     "repo": "",
     "repo_id": "",

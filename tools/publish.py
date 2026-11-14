@@ -337,8 +337,8 @@ def collection(title, url, posts):
                     for i, p in enumerate(posts, 1)]}}
 
 
-ANALYTICS = '''<script async src="https://www.googletagmanager.com/gtag/js?id=G-BLKN59SYTQ"></script>
-<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-BLKN59SYTQ');</script>'''
+ANALYTICS = '''<script async src="https://www.googletagmanager.com/gtag/js?id=G-1QGP7VFL1G"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-1QGP7VFL1G');</script>'''
 # Runs before first paint so a saved or system dark preference never flashes light.
 THEME = '''<script>(function(){try{var t=localStorage.getItem('theme');if(t!=='dark'&&t!=='light')t=matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';document.documentElement.dataset.theme=t}catch(e){}})()</script>'''
 
@@ -349,9 +349,13 @@ def add_analytics():
         if path.relative_to(OUT).parts[0] == 'openclaw-setup':
             continue
         source = path.read_text()
-        if 'G-BLKN59SYTQ' not in source:
-            assert source.count('</head>') == 1, path
-            path.write_text(source.replace('</head>', ANALYTICS + '\n</head>'))
+        # Migrate copied legacy pages as well as generated pages, without adding a second tag.
+        updated = source.replace('G-BLKN59SYTQ', 'G-1QGP7VFL1G')
+        if 'G-1QGP7VFL1G' not in updated:
+            assert updated.count('</head>') == 1, path
+            updated = updated.replace('</head>', ANALYTICS + '\n</head>')
+        if updated != source:
+            path.write_text(updated)
 
 
 def sidebar(active, url):
