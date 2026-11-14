@@ -33,6 +33,7 @@ Most articles arrive through the sync. An article can also be written here: add 
   "description": "At most 160 characters",
   "date": "2026-11-12T09:00:00+00:00",
   "topic": "ai-automation",
+  "cover": "bars",
   "checked": {"level": "tested", "line": "One sentence: what was run, on what, and what was not."},
   "note": "How the article was checked, and what was not tested.",
   "sources": [{"title": "Name of the source", "url": "https://..."}]
@@ -52,7 +53,7 @@ An article written here can carry visuals without any image files:
 
 | What | How to write it |
 | --- | --- |
-| The picture on its card | `"cover": "<motif>"` in the metadata. Motifs are drawn by the build in the page's own colours: `stack`, `bars`, `flow`, `chat`, `terminal`, `gauge`, `shield`, `doc`, `window`, `mail`, `check`, `plug`, `chip`. Without one, the topic's default motif is used. |
+| The picture on its card | `"cover": "<motif>"` in the metadata. Motifs are drawn by the build in the page's own colours: `stack`, `bars`, `flow`, `chat`, `terminal`, `gauge`, `shield`, `doc`, `window`, `mail`, `check`, `plug`, `chip`. Native articles must choose one; the topic default is only a rendering fallback. |
 | A tip or warning box | `<div class="callout">`, `<div class="callout warn">` or `<div class="callout ok">`, starting with a `<strong>` label. |
 | A diagram | `<figure class="diagram">` holding `d-flow` (boxes and arrows), `d-stack` (layers) or `d-bars` (proportional bars, each segment sized with `style="flex:N"`), plus a `<figcaption>`. They are plain HTML, so they wrap on phones and follow dark mode. |
 | Real command output | `<figure class="terminal"><pre><code>…</code></pre></figure>`, with `<span class="c">` for the command line and `<span class="g">` for success text. Paste only output from a real run. Add the class `wrap` (`class="terminal wrap"`) when the lines are long and their point is at the end, such as JSON replies. |

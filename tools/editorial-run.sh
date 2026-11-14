@@ -4,6 +4,14 @@ set -euo pipefail
 editorial_state="${JOURNAL_EDITORIAL_STATE:-$HOME/.local/state/journal-editorial}"
 editorial_runtime="$editorial_state/runtime"
 mkdir -p "$editorial_state"
+# Persist owner requests even while offline, or while the runtime needs repair.
+# Installation initializes this trusted checkout before enabling the schedule.
+case "${1:-}" in
+  queue|hold|resume)
+    export JOURNAL_EDITORIAL_STATE="$editorial_state"
+    exec python3 "$editorial_runtime/tools/editorial.py" "$@"
+    ;;
+esac
 exec 9>"$editorial_state/runtime.lock"
 flock -w 300 9
 if [[ ! -d "$editorial_runtime/.git" ]]; then

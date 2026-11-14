@@ -119,7 +119,12 @@ def validate(pr, files, tree, text, root=ROOT, now=None):
         url = urlsplit(source['url'])
         if url.scheme != 'https' or not url.hostname or url.username:
             raise ValueError('Sources must be HTTPS URLs without credentials')
-    ArticleHTML(convert_charrefs=True).feed(body)
+    parser = ArticleHTML(convert_charrefs=True)
+    parser.feed(body)
+    # Appended page markup must not complete a tag that feed() left buffered.
+    if parser.rawdata:
+        raise ValueError('Article ends with incomplete HTML')
+    parser.close()
     return path
 
 
@@ -161,14 +166,28 @@ def main():
         pr = event['pull_request']
         number = pr['number']
         sha = pr['head']['sha']
+        current = api(f'pulls/{number}')
+        # Commit statuses are shared by SHA, including forks. An outsider must
+        # never overwrite a trusted owner's result using a second PR at that SHA.
+        if current['user']['login'] != OWNER or (current['head'].get('repo') or {}).get('full_name') != REPO:
+            print('Foreign PR: no shared commit status emitted. Use an owner branch for review.')
+            return
         if args.report_status:
             report_status(sha, 'pending', 'Checking trusted article policy')
         try:
-            current = api(f'pulls/{number}')
             if current['head']['sha'] != sha:
                 raise ValueError('PR changed during validation; wait for the latest run')
             if LABEL not in [x['name'] for x in current['labels']] and not current['head']['ref'].startswith('auto-post/'):
-                print('Manual PR: automatic article policy is not applicable.')
+                # Even an owner's second manual PR must not clear an automatic
+                # PR's failure on the same commit (statuses are not PR-scoped).
+                peers = api(f'commits/{sha}/pulls?per_page=100')
+                if len(peers) >= 100:
+                    raise ValueError('Too many PRs share this commit; inspect before publishing')
+                for peer in peers:
+                    if peer['state'] == 'open' and peer['head']['sha'] == sha and peer['user']['login'] == OWNER and (peer['head'].get('repo') or {}).get('full_name') == REPO and (peer['head']['ref'].startswith('auto-post/') or LABEL in [x['name'] for x in peer['labels']]):
+                        if inspect_pr(peer['number'])['head_sha'] != sha:
+                            raise ValueError('Associated automatic PR changed during validation')
+                print('Manual PR scope checked, including automatic PRs sharing this commit.')
             else:
                 result = inspect_pr(number)
                 if result['head_sha'] != sha:

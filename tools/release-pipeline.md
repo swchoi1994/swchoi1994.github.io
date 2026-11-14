@@ -107,7 +107,7 @@ For qualifying new articles, use the submit helper in `tools/automatic-publishin
 
 After the release check, look at the ranking the site shows under "Trending in AI".
 
-1. Refresh it: `python3 tools/trends.py`. Read the first ten names in `content/trending.json`.
+1. For automatic work, make a disposable scratch clone outside the managed runtime before running any generator. Refresh it there: `python3 tools/trends.py`. Never run this in the managed runtime. Read the first ten names in `content/trending.json`.
 2. For each name, look at what readers would find: its page is `_site/trending/<name>/` after a build, and the build prints `Trending with nothing of ours yet: …` for names with no article at all.
 3. Pick at most one name per run where an article would help most: a name with nothing of ours, or a name whose week was driven by one event we have not explained. To see what drove it, read the Hacker News stories and news coverage for that name, then go to the primary source they point to.
 4. Write one practical article about that matter in the usual format: what happened, who is affected, and what a reader should do or check, with steps. Test the steps when they can be tested. The same rules apply as for explainers: every fact from a source you read and listed, a company's claims reported as its claims, nothing invented.

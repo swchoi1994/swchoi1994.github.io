@@ -10,17 +10,22 @@ import os
 from pathlib import Path
 import re
 import subprocess
+import sys
 import tempfile
 import urllib.request
 import xml.etree.ElementTree as ET
 
-from article_policy import REPO, ROOT, LABEL, POST_PATH, api, inspect_pr, metadata, quota, validate
+from article_policy import OWNER, REPO, ROOT, LABEL, POST_PATH, api, inspect_pr, metadata, quota, validate
 
 STATE = Path(os.environ.get('JOURNAL_EDITORIAL_STATE', Path.home() / '.local/state/journal-editorial'))
 
 
 def run(*args, cwd=None, timeout=900):
-    return subprocess.run(args, cwd=cwd, check=True, capture_output=True, text=True, timeout=timeout).stdout.strip()
+    try:
+        return subprocess.run(args, cwd=cwd, check=True, capture_output=True, text=True, timeout=timeout).stdout.strip()
+    except subprocess.CalledProcessError as error:
+        print((error.stderr or error.stdout or 'Command failed without diagnostic output')[-4000:], file=sys.stderr)
+        raise
 
 
 def save(path, data):
@@ -98,7 +103,8 @@ def request_branch(request_id):
 
 def existing_pr(branch):
     data = json.loads(run('gh', 'pr', 'list', '--repo', REPO, '--state', 'all', '--head', branch,
-                          '--json', 'number,url,state,isDraft,autoMergeRequest', '--limit', '10'))
+                          '--json', 'number,url,state,isDraft,autoMergeRequest,isCrossRepository,author', '--limit', '100'))
+    data = [p for p in data if not p['isCrossRepository'] and p['author']['login'] == OWNER]
     if len(data) > 1:
         raise ValueError('Multiple PRs for one request; inspect before doing anything')
     return data[0] if data else None
@@ -127,6 +133,8 @@ def submit(file, request_id, evidence):
     path = 'content/posts/' + file.name
     if not POST_PATH.fullmatch(path) or not evidence.is_file() or len(evidence.read_text().strip()) < 80:
         raise ValueError('Provide a native article and a substantive source/verification report')
+    if request_id.startswith('wa:') and request_id in evidence.read_text():
+        raise ValueError('Keep private WhatsApp request IDs out of the public evidence report')
     with tempfile.TemporaryDirectory(prefix='journal-post-') as temp:
         work = Path(temp) / 'site'
         run('git', 'clone', '--quiet', '--branch', 'main', '--single-branch',
@@ -151,12 +159,13 @@ def submit(file, request_id, evidence):
         else:
             run('git', 'switch', '-c', branch, cwd=work)
             target.write_text(text)
+            run('git', 'add', '--', path, cwd=work)
         run('python3', 'tools/publish.py', cwd=work)
         run('python3', '-m', 'unittest', 'discover', '-s', 'tools', '-p', 'test_*.py', cwd=work)
-        run('git', 'diff', '--check', cwd=work)
+        run('git', 'diff', '--cached', '--check', cwd=work)
+        run('git', 'diff', '--check', 'origin/main...HEAD', cwd=work)
         run('node', 'tools/article-smoke.cjs', path, cwd=work)
         if not remote:
-            run('git', 'add', '--', path, cwd=work)
             run('git', '-c', 'user.name=Seongwoo Choi', '-c', 'user.email=15826122+swchoi1994@users.noreply.github.com',
                 'commit', '-m', 'Publish article: ' + info['title'], cwd=work)
         head = run('git', 'rev-parse', 'HEAD', cwd=work)
@@ -181,10 +190,10 @@ def submit(file, request_id, evidence):
 
 def reconcile():
     rows = json.loads(run('gh', 'pr', 'list', '--repo', REPO, '--label', LABEL, '--state', 'open',
-                          '--json', 'number,headRefName,headRefOid,isDraft', '--limit', '100'))
+                          '--json', 'number,headRefName,headRefOid,isDraft,isCrossRepository,author', '--limit', '100'))
     results = []
     for row in rows:
-        if row['isDraft'] or not row['headRefName'].startswith('auto-post/'):
+        if row['isDraft'] or row['isCrossRepository'] or row['author']['login'] != OWNER or not row['headRefName'].startswith('auto-post/'):
             continue
         try:
             remember(row['headRefName'], {'number': row['number'], 'url': f'https://github.com/{REPO}/pull/{row["number"]}', 'state': 'OPEN'})
@@ -192,8 +201,8 @@ def reconcile():
             # GitHub itself decides whether an update is needed; all new checks rerun.
             pr = api(f'pulls/{row["number"]}')
             if pr['mergeable_state'] == 'behind':
-                run('gh', 'pr', 'update-branch', str(row['number']), '--repo', REPO,
-                    '--expected-head-sha', candidate['head_sha'])
+                run('gh', 'api', '--method', 'PUT', f'repos/{REPO}/pulls/{row["number"]}/update-branch',
+                    '-f', 'expected_head_sha=' + candidate['head_sha'])
             enqueue(row['number'])
             results.append({'pr': row['number'], 'status': 'auto_merge_requested'})
         except (ValueError, subprocess.CalledProcessError) as error:
@@ -222,18 +231,32 @@ def next_topic():
     receipts = [read(p, {}) for p in (STATE / 'requests').glob('*.json')]
     pending = [r['pr'] for r in receipts if r.get('status') not in ('live', 'closed', 'merged')]
     done = {r['branch'] for r in receipts}
+    decisions = read(STATE / 'decisions.json', {})
+    done.update(key for key, decision in decisions.items() if decision['status'] == 'held')
     owners = list(read(STATE / 'owner-queue.json', {}).values())
     candidates = list(read(STATE / 'topics.json', {'topics': {}})['topics'].values())
     topics = [{'request_id': x['id'], **x} for x in reversed(candidates)]
     selected = next((x for x in owners + topics if request_branch(x['request_id']) not in done), None)
     print(json.dumps({'quota': budget, 'pending_prs': pending,
-                      'can_submit': bool(budget['available'] and not pending), 'next': selected}))
+                      'can_submit': bool(budget['available'] and not pending), 'next': selected,
+                      'held_requests': decisions}))
+
+
+def decision(request_id, reason=None):
+    path = STATE / 'decisions.json'
+    data = read(path, {})
+    key = request_branch(request_id)
+    data[key] = {'status': 'held' if reason else 'ready', 'reason': reason,
+                 'updated_at': dt.datetime.now(dt.timezone.utc).isoformat()}
+    save(path, data)
+    print(json.dumps(data[key]))
 
 
 def published_matches(document, title, body):
-    # The generated page preserves article HTML verbatim (apart from video macros,
-    # disallowed in automatic articles). A 200 response alone is not proof.
-    return '<h1' in document and html.escape(title, quote=True) in document and body.strip() in document
+    from publish import scrollable_tables
+    # Apply the same presentation transform as the site generator. A 200 alone
+    # or merely matching the title does not establish a published article.
+    return '<h1' in document and html.escape(title, quote=True) in document and scrollable_tables(body).strip() in document
 
 
 def receipts():
@@ -248,6 +271,8 @@ def receipts():
                 receipt['status'] = 'closed'
                 save(path, receipt)
             continue
+        receipt['status'] = 'merged'
+        save(path, receipt)
         try:
             files = api(f'pulls/{receipt["pr"]}/files?per_page=100')
             if len(files) != 1 or not POST_PATH.fullmatch(files[0]['filename']):
@@ -287,13 +312,19 @@ def main():
     queue_parser = commands.add_parser('queue')
     queue_parser.add_argument('--topic', required=True)
     queue_parser.add_argument('--request-id', required=True)
+    hold_parser = commands.add_parser('hold')
+    hold_parser.add_argument('--request-id', required=True)
+    hold_parser.add_argument('--reason', required=True)
+    resume_parser = commands.add_parser('resume')
+    resume_parser.add_argument('--request-id', required=True)
     submit_parser = commands.add_parser('submit')
     submit_parser.add_argument('--file', type=Path, required=True)
     submit_parser.add_argument('--request-id', required=True)
     submit_parser.add_argument('--evidence', type=Path, required=True)
     args = parser.parse_args()
     STATE.mkdir(parents=True, exist_ok=True)
-    with (STATE / 'editorial.lock').open('a') as lock:
+    local_command = args.command in ('queue', 'hold', 'resume')
+    with (STATE / ('queue.lock' if local_command else 'editorial.lock')).open('a') as lock:
         fcntl.flock(lock, fcntl.LOCK_EX)
         if args.command == 'discover':
             discover()
@@ -305,6 +336,8 @@ def main():
             next_topic()
         elif args.command == 'queue':
             queue_request(args.topic, args.request_id)
+        elif args.command in ('hold', 'resume'):
+            decision(args.request_id, args.reason if args.command == 'hold' else None)
         else:
             submit(args.file.resolve(), args.request_id, args.evidence.resolve())
 
