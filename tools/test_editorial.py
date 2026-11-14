@@ -194,10 +194,30 @@ class QueueTests(unittest.TestCase):
             self.assertEqual(len(editorial.read(state / 'owner-queue.json', {})), 1)
 
     def test_existing_pr_ignores_foreign_same_named_branches(self):
-        foreign = {'number': 1, 'isCrossRepository': True, 'author': {'login': 'outsider'}}
-        own = {'number': 2, 'isCrossRepository': False, 'author': {'login': policy.OWNER}}
-        with patch.object(editorial, 'run', return_value=json.dumps([foreign, own])):
+        foreign = {'number': 1, 'user': {'login': 'outsider'}}
+        own = {'number': 2, 'user': {'login': policy.OWNER}, 'base': {'ref': 'main'}, 'head': {'ref': 'auto-post/shared', 'repo': {'full_name': policy.REPO}}, 'html_url': 'https://github.com/pr/2', 'state': 'open', 'draft': False, 'auto_merge': None}
+        with tempfile.TemporaryDirectory() as temp, patch.object(editorial, 'STATE', Path(temp)), patch.object(editorial, 'run', return_value=json.dumps([[foreign] * 100, [own]])) as run:
             self.assertEqual(editorial.existing_pr('auto-post/shared')['number'], 2)
+            args = run.call_args.args
+            self.assertEqual(args[:4], ('gh', 'api', '--paginate', '--slurp'))
+            self.assertIn('head=swchoi1994%3Aauto-post%2Fshared', args[-1])
+
+    def test_saved_closed_request_cannot_be_replaced_by_inventory_omission(self):
+        branch = editorial.request_branch('wa:cancelled')
+        pr = {'number': 7, 'user': {'login': policy.OWNER}, 'base': {'ref': 'main'}, 'head': {'ref': branch, 'repo': {'full_name': policy.REPO}}, 'html_url': 'https://github.com/pr/7', 'state': 'closed', 'draft': False, 'auto_merge': None}
+        with tempfile.TemporaryDirectory() as temp, patch.object(editorial, 'STATE', Path(temp)), patch.object(editorial, 'api', return_value=pr) as api, patch.object(editorial, 'run') as run, patch.object(editorial, 'enqueue') as enqueue, contextlib.redirect_stdout(io.StringIO()):
+            editorial.save(editorial.receipt_path(branch), {'pr': 7, 'branch': branch, 'status': 'closed'})
+            editorial.submit(Path('not-needed.html'), 'wa:cancelled', Path('not-needed.md'))
+            api.assert_called_once_with('pulls/7')
+            run.assert_not_called()
+            enqueue.assert_not_called()
+
+    def test_saved_request_lookup_failure_never_falls_back_to_creation(self):
+        branch = editorial.request_branch('wa:uncertain')
+        with tempfile.TemporaryDirectory() as temp, patch.object(editorial, 'STATE', Path(temp)), patch.object(editorial, 'api', side_effect=OSError('Unavailable')), patch.object(editorial, 'run') as run:
+            editorial.save(editorial.receipt_path(branch), {'pr': 7, 'branch': branch})
+            with self.assertRaises(OSError): editorial.existing_pr(branch)
+            run.assert_not_called()
 
     def test_hold_keeps_later_owner_requests_moving_and_can_resume(self):
         with tempfile.TemporaryDirectory() as temp, patch.object(editorial, 'STATE', Path(temp)), patch.object(editorial, 'quota', return_value={'available': 1}):

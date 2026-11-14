@@ -13,6 +13,7 @@ import subprocess
 import sys
 import tempfile
 import urllib.request
+from urllib.parse import urlencode
 import xml.etree.ElementTree as ET
 
 from article_policy import OWNER, REPO, ROOT, LABEL, POST_PATH, api, inspect_pr, metadata, quota, validate
@@ -104,12 +105,32 @@ def request_branch(request_id):
 
 
 def existing_pr(branch):
-    data = json.loads(run('gh', 'pr', 'list', '--repo', REPO, '--state', 'all', '--head', branch,
-                          '--json', 'number,url,state,isDraft,autoMergeRequest,isCrossRepository,author', '--limit', '100'))
-    data = [p for p in data if not p['isCrossRepository'] and p['author']['login'] == OWNER]
+    def matches(pr):
+        return (pr['user']['login'] == OWNER and pr['base']['ref'] == 'main'
+                and (pr['head'].get('repo') or {}).get('full_name') == REPO and pr['head']['ref'] == branch)
+
+    saved = read(receipt_path(branch), {})
+    if saved.get('pr'):
+        # The durable receipt outranks discovery. A failed exact lookup stops;
+        # it must never turn a cancelled request into a replacement publication.
+        pr = api(f'pulls/{int(saved["pr"])}')
+        if not matches(pr):
+            raise ValueError('Saved PR identity changed; inspect without creating a replacement')
+        data = [pr]
+    else:
+        # Orphan recovery: qualify the source owner at the API and consume every
+        # page, then verify identity. Do not use a capped cross-fork inventory.
+        query = urlencode({'state': 'all', 'base': 'main', 'head': OWNER + ':' + branch, 'per_page': 100})
+        pages = json.loads(run('gh', 'api', '--paginate', '--slurp', f'repos/{REPO}/pulls?{query}'))
+        data = [p for page in pages for p in page if matches(p)]
     if len(data) > 1:
         raise ValueError('Multiple PRs for one request; inspect before doing anything')
-    return data[0] if data else None
+    if not data:
+        return None
+    pr = data[0]
+    return {'number': pr['number'], 'url': pr['html_url'], 'state': 'MERGED' if pr.get('merged_at') else pr['state'].upper(),
+            'isDraft': pr['draft'], 'autoMergeRequest': pr.get('auto_merge'),
+            'isCrossRepository': False, 'author': {'login': OWNER}}
 
 
 def enqueue(number):
