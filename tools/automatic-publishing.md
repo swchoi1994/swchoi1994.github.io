@@ -74,8 +74,14 @@ PR. The build generates the index; the article smoke test discovers articles.
 
 ## Recovery and controls
 
-`journal-editorial reconcile` rechecks eligible open PRs, updates branches that
-are behind main and requests auto-merge. `journal-editorial receipts` checks
+`journal-editorial reconcile` rechecks enrolled open PRs and updates branches that
+are behind main. It never enables auto-merge: a disabled PR stays paused, including
+after submission retries. Only the initial submission enables it automatically.
+After an explicit owner request, `journal-editorial resume-pr --pr N` revalidates
+and reenables a paused PR. Scheduled writers and maintenance must never call this
+command on their own. An interrupted initial enrollment that left auto-merge off
+is also held for explicit resumption; `next` lists paused PRs separately from
+active ones. `journal-editorial receipts` checks
 merged article bodies at the public URL and sends through `codex-openclaw notify`
 with one stable key per PR. A failed deployment never produces a live receipt.
 The bridge reconciles uncertain sending outcomes; never invent a new send key.
@@ -107,3 +113,4 @@ PR as well. Queues remain intact. Raising cadence requires an owner instruction
 and a reviewed edit to `tools/editorial-config.json`.
 Label changes are checked asynchronously. To stop a queued publication, disable
 its GitHub auto-merge directly; removing a label alone is not an immediate stop.
+Use `resume-pr` to resume it after source/date review, so current policy is checked.

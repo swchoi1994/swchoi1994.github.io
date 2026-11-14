@@ -118,14 +118,15 @@ class ArticlePolicyTests(unittest.TestCase):
             with self.assertRaises(OSError): policy.main()
             self.assertEqual([c.args[1] for c in report.call_args_list], ['pending', 'failure'])
 
-    def test_peer_lookup_filters_owner_before_pagination(self):
-        rows = [{'number': 7, 'headRefOid': 'same', 'headRefName': 'auto-post/post', 'isCrossRepository': False, 'labels': []},
-                {'number': 8, 'headRefOid': 'same', 'headRefName': 'auto-post/fork', 'isCrossRepository': True, 'labels': []}]
-        with patch.object(policy.subprocess, 'run', return_value=subprocess.CompletedProcess([], 0, stdout=json.dumps(rows))) as run:
+    def test_peer_lookup_paginates_authoritative_associations_before_owner_limit(self):
+        owner = {'number': 7, 'user': {'login': policy.OWNER}, 'state': 'open', 'head': {'sha': 'same', 'ref': 'auto-post/post', 'repo': {'full_name': policy.REPO}}, 'labels': []}
+        foreign = {'number': 8, 'user': {'login': 'outsider'}, 'state': 'open'}
+        pages = [[foreign] * 1000, [foreign, owner]]
+        with patch.object(policy.subprocess, 'run', return_value=subprocess.CompletedProcess([], 0, stdout=json.dumps(pages))) as run:
             self.assertEqual(policy.trusted_automatic_peers('same'), [7])
             args = run.call_args.args[0]
-            self.assertEqual(args[args.index('--author') + 1], policy.OWNER)
-            self.assertIn('--limit', args)
+            self.assertEqual(args[:4], ['gh', 'api', '--paginate', '--slurp'])
+            self.assertIn('/commits/same/pulls?', args[-1])
 
 
 class QueueTests(unittest.TestCase):
@@ -146,6 +147,13 @@ class QueueTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as temp, patch.object(editorial, 'STATE', Path(temp)), patch.object(editorial, 'existing_pr', return_value={'number': 99, 'url': 'https://github.com/pr/99', 'state': 'MERGED', 'isDraft': False}), patch.object(editorial, 'run') as run, contextlib.redirect_stdout(io.StringIO()):
             editorial.submit(Path('not-needed.html'), 'already-published', Path('not-needed.md'))
             run.assert_not_called()
+
+    def test_submission_retry_respects_native_stop(self):
+        pr = {'number': 7, 'url': 'https://github.com/pr/7', 'state': 'OPEN', 'isDraft': False, 'autoMergeRequest': None}
+        with tempfile.TemporaryDirectory() as temp, patch.object(editorial, 'STATE', Path(temp)), patch.object(editorial, 'existing_pr', return_value=pr), patch.object(editorial, 'enqueue') as enqueue, contextlib.redirect_stdout(io.StringIO()):
+            editorial.submit(Path('not-needed.html'), 'wa:stopped', Path('not-needed.md'))
+            enqueue.assert_not_called()
+            self.assertEqual(editorial.read(editorial.receipt_path(editorial.request_branch('wa:stopped')), {})['status'], 'paused')
 
     def test_live_receipt_requires_body(self):
         self.assertFalse(editorial.published_matches('<h1>Title</h1>', 'Title', '<p>Content</p>'))
@@ -213,10 +221,39 @@ class QueueTests(unittest.TestCase):
         self.assertIn('Title exceeds', output.getvalue())
 
     def test_branch_update_uses_api_head_lease(self):
-        row = {'number': 7, 'headRefName': 'auto-post/abc', 'isDraft': False, 'isCrossRepository': False, 'author': {'login': policy.OWNER}}
-        with tempfile.TemporaryDirectory() as temp, patch.object(editorial, 'STATE', Path(temp)), patch.object(editorial, 'run', side_effect=[json.dumps([row]), '']) as run, patch.object(editorial, 'inspect_pr', return_value={'head_sha': 'expected'}), patch.object(editorial, 'api', return_value={'mergeable_state': 'behind'}), patch.object(editorial, 'enqueue'), contextlib.redirect_stdout(io.StringIO()):
+        row = {'number': 7, 'headRefName': 'auto-post/abc', 'isDraft': False, 'isCrossRepository': False, 'author': {'login': policy.OWNER}, 'autoMergeRequest': {'enabledAt': '2026-11-15'}}
+        with tempfile.TemporaryDirectory() as temp, patch.object(editorial, 'STATE', Path(temp)), patch.object(editorial, 'run', side_effect=[json.dumps([row]), '']) as run, patch.object(editorial, 'inspect_pr', return_value={'head_sha': 'expected'}), patch.object(editorial, 'api', return_value={'mergeable_state': 'behind'}), patch.object(editorial, 'enqueue') as enqueue, contextlib.redirect_stdout(io.StringIO()):
             editorial.reconcile()
             self.assertEqual(run.call_args.args, ('gh', 'api', '--method', 'PUT', f'repos/{policy.REPO}/pulls/7/update-branch', '-f', 'expected_head_sha=expected'))
+            enqueue.assert_not_called()
+
+    def test_reconcile_does_not_reverse_a_stop(self):
+        row = {'number': 7, 'headRefName': 'auto-post/abc', 'isDraft': False, 'isCrossRepository': False, 'author': {'login': policy.OWNER}, 'autoMergeRequest': None}
+        with tempfile.TemporaryDirectory() as temp, patch.object(editorial, 'STATE', Path(temp)), patch.object(editorial, 'run', return_value=json.dumps([row])) as run, patch.object(editorial, 'inspect_pr') as inspect, patch.object(editorial, 'enqueue') as enqueue, contextlib.redirect_stdout(io.StringIO()):
+            editorial.reconcile()
+            enqueue.assert_not_called()
+            inspect.assert_not_called()
+            self.assertEqual(run.call_count, 1)
+            self.assertEqual(editorial.read(editorial.receipt_path('auto-post/abc'), {})['status'], 'paused')
+            output = io.StringIO()
+            with patch.object(editorial, 'quota', return_value={'available': 1}), contextlib.redirect_stdout(output):
+                editorial.next_topic()
+            state = json.loads(output.getvalue())
+            self.assertEqual(state['paused_prs'], [7])
+            self.assertEqual(state['pending_prs'], [])
+
+    def test_receipt_check_releases_stopped_request_even_after_label_removal(self):
+        with tempfile.TemporaryDirectory() as temp, patch.object(editorial, 'STATE', Path(temp)), patch.object(editorial, 'api', return_value={'state': 'open', 'merged_at': None, 'auto_merge': None}), contextlib.redirect_stdout(io.StringIO()):
+            path = editorial.receipt_path('auto-post/abc')
+            editorial.save(path, {'pr': 7, 'branch': 'auto-post/abc', 'status': 'auto_merge_requested'})
+            editorial.receipts()
+            self.assertEqual(editorial.read(path, {})['status'], 'paused')
+
+    def test_explicit_owner_resume_enrolls_once(self):
+        with tempfile.TemporaryDirectory() as temp, patch.object(editorial, 'STATE', Path(temp)), patch.object(editorial, 'enqueue', return_value={'head_sha': 'head', 'path': 'content/posts/post.html'}) as enqueue, patch.object(editorial, 'api', return_value={'head': {'ref': 'auto-post/abc'}, 'html_url': 'https://github.com/pr/7'}), contextlib.redirect_stdout(io.StringIO()):
+            editorial.resume_pr(7)
+            enqueue.assert_called_once_with(7)
+            self.assertEqual(editorial.read(editorial.receipt_path('auto-post/abc'), {})['status'], 'auto_merge_requested')
 
 
 if __name__ == '__main__':

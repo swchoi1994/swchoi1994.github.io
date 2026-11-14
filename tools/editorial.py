@@ -46,6 +46,8 @@ def receipt_path(branch):
 def remember(branch, pr):
     old = read(receipt_path(branch), {})
     old.update({'branch': branch, 'pr': pr['number'], 'url': pr['url'], 'status': pr['state'].lower()})
+    if pr['state'] == 'OPEN' and pr.get('autoMergeRequest') is None:
+        old['status'] = 'paused'
     save(receipt_path(branch), old)
     return old
 
@@ -124,8 +126,8 @@ def submit(file, request_id, evidence):
     if existing:
         # An uncertain earlier attempt is reconciled; never create a second post.
         remember(branch, existing)
-        if existing['state'] == 'OPEN' and not existing['isDraft']:
-            enqueue(existing['number'])
+        # A retry must not reverse a later owner stop. Only the first submission
+        # or an explicit resume-pr command may enable native auto-merge.
         print(json.dumps({'status': 'existing_request', 'pr': existing}))
         return
     text = file.read_text()
@@ -190,26 +192,40 @@ def submit(file, request_id, evidence):
 
 def reconcile():
     rows = json.loads(run('gh', 'pr', 'list', '--repo', REPO, '--label', LABEL, '--state', 'open',
-                          '--json', 'number,headRefName,headRefOid,isDraft,isCrossRepository,author', '--limit', '100'))
+                          '--json', 'number,headRefName,headRefOid,isDraft,isCrossRepository,author,autoMergeRequest', '--limit', '100'))
     results = []
     for row in rows:
-        if row['isDraft'] or row['isCrossRepository'] or row['author']['login'] != OWNER or not row['headRefName'].startswith('auto-post/'):
+        if row['isCrossRepository'] or row['author']['login'] != OWNER or not row['headRefName'].startswith('auto-post/'):
             continue
         try:
-            remember(row['headRefName'], {'number': row['number'], 'url': f'https://github.com/{REPO}/pull/{row["number"]}', 'state': 'OPEN'})
+            remember(row['headRefName'], {'number': row['number'], 'url': f'https://github.com/{REPO}/pull/{row["number"]}', 'state': 'OPEN', 'autoMergeRequest': None if row['isDraft'] else row['autoMergeRequest']})
+            if row['isDraft'] or row['autoMergeRequest'] is None:
+                results.append({'pr': row['number'], 'status': 'paused', 'reason': 'Native auto-merge is disabled; an owner request is required to resume'})
+                continue
             candidate = inspect_pr(row['number'])
             # GitHub itself decides whether an update is needed; all new checks rerun.
             pr = api(f'pulls/{row["number"]}')
             if pr['mergeable_state'] == 'behind':
                 run('gh', 'api', '--method', 'PUT', f'repos/{REPO}/pulls/{row["number"]}/update-branch',
                     '-f', 'expected_head_sha=' + candidate['head_sha'])
-            enqueue(row['number'])
-            results.append({'pr': row['number'], 'status': 'auto_merge_requested'})
+            # Updating the branch reruns CI; GitHub retains or disables its own
+            # auto-merge state. Never re-enable it during background maintenance.
+            results.append({'pr': row['number'], 'status': 'auto_merge_enabled_at_check'})
         except (ValueError, subprocess.CalledProcessError) as error:
             results.append({'pr': row['number'], 'status': 'held',
                             'reason': str(error) if isinstance(error, ValueError) else 'GitHub operation failed; inspect PR checks'})
     save(STATE / 'reconcile.json', {'checked_at': dt.datetime.now(dt.timezone.utc).isoformat(), 'results': results})
     print(json.dumps(results))
+
+
+def resume_pr(number):
+    """Explicit owner command, never called by the scheduled writer/reconciler."""
+    candidate = enqueue(number)
+    pr = api(f'pulls/{number}')
+    receipt = {'branch': pr['head']['ref'], 'pr': number, 'url': pr['html_url'],
+               'head_sha': candidate['head_sha'], 'path': candidate['path'], 'status': 'auto_merge_requested'}
+    save(receipt_path(receipt['branch']), receipt)
+    print(json.dumps(receipt))
 
 
 def queue_request(topic, request_id):
@@ -229,7 +245,7 @@ def next_topic():
     config = json.loads((ROOT / 'tools/editorial-config.json').read_text())
     budget = quota(ROOT, dt.datetime.now(dt.timezone.utc), config['posts_per_seven_days'])
     receipts = [read(p, {}) for p in (STATE / 'requests').glob('*.json')]
-    pending = [r['pr'] for r in receipts if r.get('status') not in ('live', 'closed', 'merged')]
+    pending = [r['pr'] for r in receipts if r.get('status') not in ('live', 'closed', 'merged', 'paused')]
     done = {r['branch'] for r in receipts}
     decisions = read(STATE / 'decisions.json', {})
     done.update(key for key, decision in decisions.items() if decision['status'] == 'held')
@@ -238,6 +254,7 @@ def next_topic():
     topics = [{'request_id': x['id'], **x} for x in reversed(candidates)]
     selected = next((x for x in owners + topics if request_branch(x['request_id']) not in done), None)
     print(json.dumps({'quota': budget, 'pending_prs': pending,
+                      'paused_prs': [r['pr'] for r in receipts if r.get('status') == 'paused'],
                       'can_submit': bool(budget['available'] and not pending), 'next': selected,
                       'held_requests': decisions}))
 
@@ -267,9 +284,11 @@ def receipts():
             continue
         pr = api(f'pulls/{receipt["pr"]}')
         if not pr.get('merged_at'):
-            if pr['state'] == 'closed':
-                receipt['status'] = 'closed'
-                save(path, receipt)
+            # Also reconcile records whose label was removed, so an intentional
+            # stop does not block unrelated future topics indefinitely.
+            receipt['status'] = ('closed' if pr['state'] == 'closed' else
+                                 'paused' if pr.get('draft') or pr.get('auto_merge') is None else 'open')
+            save(path, receipt)
             continue
         receipt['status'] = 'merged'
         save(path, receipt)
@@ -317,6 +336,8 @@ def main():
     hold_parser.add_argument('--reason', required=True)
     resume_parser = commands.add_parser('resume')
     resume_parser.add_argument('--request-id', required=True)
+    resume_pr_parser = commands.add_parser('resume-pr')
+    resume_pr_parser.add_argument('--pr', type=int, required=True)
     submit_parser = commands.add_parser('submit')
     submit_parser.add_argument('--file', type=Path, required=True)
     submit_parser.add_argument('--request-id', required=True)
@@ -338,6 +359,8 @@ def main():
             queue_request(args.topic, args.request_id)
         elif args.command in ('hold', 'resume'):
             decision(args.request_id, args.reason if args.command == 'hold' else None)
+        elif args.command == 'resume-pr':
+            resume_pr(args.pr)
         else:
             submit(args.file.resolve(), args.request_id, args.evidence.resolve())
 

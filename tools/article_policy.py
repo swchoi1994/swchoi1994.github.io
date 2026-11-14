@@ -151,17 +151,18 @@ def inspect_pr(number, root=ROOT):
 
 
 def trusted_automatic_peers(sha):
-    # Filter by author at GitHub, before pagination/limits. Foreign PRs sharing
-    # the SHA cannot consume this query's limit or determine its outcome.
-    result = subprocess.run(['gh', 'pr', 'list', '--repo', REPO, '--author', OWNER,
-                             '--state', 'open', '--base', 'main', '--limit', '1000',
-                             '--json', 'number,headRefOid,headRefName,isCrossRepository,labels'],
+    # Use authoritative commit associations, not GitHub's eventually indexed
+    # search. Read every page and apply the bound only to trusted owner peers.
+    result = subprocess.run(['gh', 'api', '--paginate', '--slurp',
+                             f'repos/{REPO}/commits/{sha}/pulls?per_page=100'],
                             check=True, capture_output=True, text=True, timeout=60)
-    peers = json.loads(result.stdout)
-    if len(peers) >= 1000:
+    peers = [p for page in json.loads(result.stdout) for p in page
+             if p['user']['login'] == OWNER and p['state'] == 'open'
+             and (p['head'].get('repo') or {}).get('full_name') == REPO and p['head']['sha'] == sha]
+    if len(peers) > 1000:
         raise ValueError('Owner PR inventory exceeds inspection limit')
-    return [p['number'] for p in peers if not p['isCrossRepository'] and p['headRefOid'] == sha
-            and (p['headRefName'].startswith('auto-post/') or LABEL in [x['name'] for x in p['labels']])]
+    return [p['number'] for p in peers if p['head']['ref'].startswith('auto-post/')
+            or LABEL in [x['name'] for x in p['labels']]]
 
 
 def main():
