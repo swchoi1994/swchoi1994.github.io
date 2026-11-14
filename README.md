@@ -208,3 +208,7 @@ For this GitHub-owned `github.io` subdomain, use a URL-prefix property for `http
 ### Kakao AdFit
 
 `content/site.json` → `adfit.article_end` contains the owner-issued 320×200 banner unit. Empty it to disable the integration. The supplied script appears exactly once after article content; information pages, the home page and portfolio do not load it. Existing AdSense settings are unchanged. The privacy page discloses the integration. Browser tests block advertising requests and check placement/dimensions only, not real ad delivery or Kakao approval.
+
+## Automatic new articles
+
+The owner-authorized WhatsApp queue, recurring discovery, guarded auto-merge and verified publication receipts are described in [tools/automatic-publishing.md](tools/automatic-publishing.md).

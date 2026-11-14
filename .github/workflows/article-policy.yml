@@ -1,0 +1,31 @@
+name: Article publication policy
+on:
+  pull_request_target:
+    branches: [main]
+    types: [opened, synchronize, reopened, ready_for_review, labeled, unlabeled, edited]
+permissions:
+  contents: read
+  pull-requests: read
+  statuses: write
+concurrency:
+  group: article-policy-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+jobs:
+  policy:
+    name: Evaluate trusted article policy
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      # The PR's code is never checked out or run with this trusted event.
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.base.sha }}
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      # pull_request_target checks attach to base. Publish the required status on
+      # the exact PR head explicitly, without executing any files from that head.
+      - run: python tools/article_policy.py --event "$GITHUB_EVENT_PATH" --report-status
+        env:
+          GH_TOKEN: ${{ github.token }}

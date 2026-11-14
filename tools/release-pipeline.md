@@ -1,6 +1,6 @@
 # Release pipeline
 
-Instructions for the task that watches AI companies for new releases and drafts an explainer for each one. Anthropic and OpenAI come first; other companies and open-source tools follow when there is room. The owner edits this file to change what the task does. The task opens pull requests; it never merges them.
+Instructions for the task that watches AI companies for new releases and drafts an explainer for each one. Anthropic and OpenAI come first; other companies and open-source tools follow when there is room. The owner edits this file to change what the task does. Qualifying new articles use the owner-authorized automatic flow in `tools/automatic-publishing.md`; all other changes remain manual.
 
 ## 1. What counts as a release
 
@@ -59,7 +59,7 @@ Metadata, in addition to the usual fields:
 
 `checked` says, in one line shown under the summary, what was run. Use `tested` only when everything shown was run, `partly` when some of it was, and `read` when nothing was. Never round up.
 
-`company` is the company's short name, spelled as in `COMPANY_DOMAINS` in `tools/publish.py`: `Anthropic`, `OpenAI`, `Google`, `Amazon`, `Meta`, `Microsoft`, `NVIDIA`, `xAI`, `Mistral`. The build refuses a release from one of these that cites no page on the company's own site. For a company not on that list, add it there with its domains in the same pull request. `announced` is the date on the company's own page. `date` is the time of writing, in UTC.
+`company` is the company's short name, spelled as in `COMPANY_DOMAINS` in `tools/publish.py`: `Anthropic`, `OpenAI`, `Google`, `Amazon`, `Meta`, `Microsoft`, `NVIDIA`, `xAI`, `Mistral`. The build refuses a release from one of these that cites no page on the company's own site. For a company not on that list, request a separate manual configuration PR; do not include site code in an automatic article PR. `announced` is the date on the company's own page. `date` is the time of writing, in UTC.
 
 Sections, in this order, leaving out any that do not apply:
 
@@ -90,7 +90,7 @@ python3 tools/publish.py
 python3 -m unittest discover -s tools -p 'test_*.py'
 ```
 
-Then add the new page's path to the list in `tools/browser-smoke.cjs`, serve `_site` on port 8791 and run `node tools/browser-smoke.cjs`. Fetch every URL in `sources` once and fix any that do not return the page. Refresh the checked-in preview with `cp _site/index.html index.html`.
+For automatic article PRs, follow the browser and index rules in `tools/automatic-publishing.md`. For manual PRs, add the new page's path to the list in `tools/browser-smoke.cjs`, serve `_site` on port 8791 and run `node tools/browser-smoke.cjs`. Fetch every URL in `sources` once and fix any that do not return the page. Refresh the checked-in preview with `cp _site/index.html index.html`.
 
 Do not open a pull request while a check fails.
 
@@ -101,7 +101,7 @@ One pull request per release, from the session's own branch into `main`:
 - Title: `Release explainer: <product and version>`.
 - Body: what was announced and when, the sources read, what was and was not verified, and anything the owner should double-check.
 
-Never merge, approve or enable auto-merge. The owner publishes by merging.
+For qualifying new articles, use the submit helper in `tools/automatic-publishing.md` to enable GitHub auto-merge after checks. Other PRs wait for the owner to merge. Never bypass checks or approve your own changes.
 
 ## 7. Write about what is trending
 
@@ -112,11 +112,11 @@ After the release check, look at the ranking the site shows under "Trending in A
 3. Pick at most one name per run where an article would help most: a name with nothing of ours, or a name whose week was driven by one event we have not explained. To see what drove it, read the Hacker News stories and news coverage for that name, then go to the primary source they point to.
 4. Write one practical article about that matter in the usual format: what happened, who is affected, and what a reader should do or check, with steps. Test the steps when they can be tested. The same rules apply as for explainers: every fact from a source you read and listed, a company's claims reported as its claims, nothing invented.
 5. Do not write about a person's private life, a rumour, or a story whose only sources are anonymous. Skip the name and take the next one.
-6. If a new product has started appearing in the news and is not on the watchlist, add it to `content/trend-terms.json` in the same pull request.
+6. If a new product has started appearing in the news and is not on the watchlist, propose a separate manual PR for `content/trend-terms.json`.
 
 One pull request per article, titled `Trend article: <subject>`. The limit of one article per run and three per week covers explainers and trend articles together.
 
-Commit the refreshed `content/trending.json` only as part of such a pull request. The deploy workflow refreshes it on its own.
+Do not commit `content/trending.json` in an automatic article PR. The deploy workflow refreshes it on its own.
 
 ## 8. When there is nothing new
 
