@@ -395,6 +395,23 @@ def ad(slot):
     return f'<aside class="ad ad-{slot.replace("_", "-")}" aria-label="Advertisement"><p class="ad-label">Advertisement</p><ins class="adsbygoogle" style="display:block" data-ad-client="{ADSENSE}" data-ad-slot="{e(unit)}" data-ad-format="auto" data-full-width-responsive="true"></ins></aside>'
 
 
+def adfit_article_end():
+    """Owner-issued Kakao unit, once after article content; never on information pages."""
+    unit = CONFIG.get('adfit', {}).get('article_end', '')
+    if not unit:
+        return ''
+    if not re.fullmatch(r'DAN-[A-Za-z0-9]+', unit):
+        raise ValueError('Invalid Kakao AdFit article_end unit')
+    return f'''<aside class="ad ad-kakao" aria-label="Advertisement">
+<p class="ad-label">Advertisement</p>
+<ins class="kakao_ad_area" style="display:none;"
+data-ad-unit = "{e(unit)}"
+data-ad-width = "320"
+data-ad-height = "200"></ins>
+<script type="text/javascript" src="//t1.kakaocdn.net/kas/static/ba.min.js" async></script>
+</aside>'''
+
+
 AD_NOTE = '''<aside class="ad-note" id="ad-note" aria-label="Ad blocker notice" hidden><p><strong>Ads look blocked on this page.</strong> They are what pays for the journal. If it helps you, please allow ads for this site.</p><div><button type="button" class="button button-primary" data-ad-note-help aria-expanded="false" aria-controls="ad-note-help">How to allow ads</button><button type="button" class="button" data-ad-note-close>Not now</button></div><p id="ad-note-help" hidden>Open your ad blocker’s menu while on this page, choose the option to pause it or not run on this site, then reload. In Brave, use the Shields icon in the address bar.</p></aside>'''
 
 
@@ -906,7 +923,7 @@ def article(post, posts):
     follow = f'''<section class="block card follow" aria-label="Share and follow"><p><strong>Found this useful?</strong> Share it, or follow for new guides.</p><div class="follow-links"><a class="button" href="https://x.com/intent/post?url={link}&amp;text={words}">Share on X</a><a class="button" href="https://www.linkedin.com/sharing/share-offsite/?url={link}">Share on LinkedIn</a><a class="button" href="{X_PROFILE}">Follow on X</a><a class="button" href="{YOUTUBE}">YouTube</a><a class="button" href="/blog/feed.xml">RSS</a></div></section>'''
     reading = f'''{page_head(f'<nav class="breadcrumbs" aria-label="Breadcrumb"><a href="/">Home</a><span aria-hidden="true"> / </span><a href="/topics/{post["topic"]}/">{e(name)}</a></nav>')}
 <article class="reading card">{header}{cover}<div class="reading-body">{inline_contents}{body}</div></article>
-{series_nav(post, members) if members else ''}{follow}{ad('article_end')}{comments()}
+{series_nav(post, members) if members else ''}{follow}{ad('article_end')}{adfit_article_end()}{comments()}
 <section class="block next-reading" aria-labelledby="next-title"><div class="block-head"><h2 id="next-title">Keep reading</h2><a class="more" href="/topics/{post['topic']}/">More on this topic →</a></div><div class="posts" data-view="list">{picks}</div></section>{media}'''
     rail = (f'<nav class="toc card" aria-label="In this article"><p class="eyebrow">In this article</p><ol>{links}</ol></nav>' if sections else '') + ad('rail') + f'<section class="card author-box" aria-label="About the author"><p class="author-name"><img src="{AVATAR}" width="44" height="44" alt=""><span><strong>{NAME}</strong><span>AI engineer &amp; founder</span></span></p><p>I’m Seongwoo Choi, an AI engineer and founder based in Abu Dhabi. This journal brings together practical software guides and technology analysis.</p><p><a href="/blog/about/">About the author &amp; editorial approach →</a></p></section>'
 
@@ -947,6 +964,8 @@ def info_page(path, posts):
         schemas.append({'@context': 'https://schema.org', '@type': 'ProfilePage', 'url': SITE + '/blog/about/', 'mainEntity': person})
     if path.parent.name == 'contact':
         inner = re.sub(r'</div>\s*$', '<h2>Partnerships &amp; project inquiries</h2><p>For sponsorship or AI project inquiries, email <a href="mailto:swchoi1994@gmail.com?subject=Journal%20partnership%20inquiry">swchoi1994@gmail.com</a> with your organization, proposal, and timeline. Sponsorship does not purchase editorial recommendations; any sponsored material is clearly labeled.</p></div>', inner, count=1)
+    if path.parent.name == 'privacy' and CONFIG.get('adfit', {}).get('article_end'):
+        inner = re.sub(r'</div>\s*$', '<h2>Kakao AdFit advertising</h2><p>Article pages include a Kakao AdFit banner and load Kakao’s third-party advertising script. This privacy page does not load that advertising script. See <a href="https://adfit.kakao.com/info">Kakao AdFit</a> for information about the service.</p></div>', inner, count=1)
     url = f'/blog/{path.parent.name}/'
     crumbs = '<nav class="breadcrumbs" aria-label="Breadcrumb"><a href="/">Home</a></nav>'
     write(url, page(title, html.unescape(description[1]), url, f'{page_head(crumbs)}<article class="reading info-page card">{inner}</article>', schemas, ads=False))
