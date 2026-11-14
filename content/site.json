@@ -26,5 +26,8 @@
     "google": "",
     "bing": ""
   },
-  "card_covers": true
+  "card_covers": true,
+  "adfit": {
+    "article_end": "DAN-KMvit9k07zZPB25i"
+  }
 }

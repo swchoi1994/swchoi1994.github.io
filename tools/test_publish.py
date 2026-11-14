@@ -439,6 +439,34 @@ class PublicationTest(unittest.TestCase):
             publish.CONFIG.clear()
             publish.CONFIG.update(saved)
 
+    def test_adfit_is_single_article_only_and_can_be_disabled(self):
+        for post in self.posts:
+            source = (publish.OUT / post['url'].lstrip('/') / 'index.html').read_text()
+            self.assertEqual(source.count('class="kakao_ad_area"'), 1)
+            self.assertEqual(source.count('t1.kakaocdn.net/kas/static/ba.min.js'), 1)
+            self.assertIn('data-ad-width = "320"', source)
+            self.assertIn('data-ad-height = "200"', source)
+            self.assertGreater(source.index('class="kakao_ad_area"'), source.index('</article>'))
+        for route in ('index.html', 'blog/index.html', 'portfolio/index.html',
+                      'blog/about/index.html', 'blog/contact/index.html',
+                      'blog/editorial/index.html', 'blog/privacy/index.html'):
+            source = (publish.OUT / route).read_text()
+            self.assertNotIn('class="kakao_ad_area"', source)
+            self.assertNotIn('t1.kakaocdn.net/kas/static/ba.min.js', source)
+        self.assertIn('Kakao AdFit advertising', (publish.OUT / 'blog/privacy/index.html').read_text())
+        saved = publish.CONFIG.get('adfit')
+        try:
+            publish.CONFIG['adfit'] = {}
+            self.assertEqual(publish.adfit_article_end(), '')
+            publish.CONFIG['adfit'] = {'article_end': 'bad"unit'}
+            with self.assertRaises(ValueError):
+                publish.adfit_article_end()
+        finally:
+            if saved is None:
+                publish.CONFIG.pop('adfit', None)
+            else:
+                publish.CONFIG['adfit'] = saved
+
     def test_ad_blocker_wall_follows_the_owner_setting(self):
         saved = dict(publish.CONFIG)
         try:
