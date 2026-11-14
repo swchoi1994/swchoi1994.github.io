@@ -17,6 +17,7 @@ The file is a block of settings followed by the body as plain HTML. The full ref
   "description": "At most 160 characters, shown under the title and in search results",
   "date": "2026-11-12T09:00:00+00:00",
   "topic": "ai-automation",
+  "cover": "bars",
   "checked": {"level": "read", "line": "Written from the vendor's documentation. Nothing was run."},
   "note": "The longer account of what was checked and what was not.",
   "sources": [
@@ -38,7 +39,7 @@ The build stops, and the pull request cannot go ahead, when a post has:
 
 - a title over 60 characters or a description over 160;
 - fewer than two `https` sources, or fewer than three `<h2 id="…">` sections;
-- no `note`, or no `checked` line;
+- no `note`, no `checked` line, or no valid `cover` motif;
 - a `topic` that is not one of the journal's five;
 - for a product release, no source on the company's own website.
 
