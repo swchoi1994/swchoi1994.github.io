@@ -116,8 +116,8 @@ Everything below is off until its values are filled in. No IDs are invented by t
 
 When the AdSense script fails to load, the reader sees one of two things, chosen by `adblock_wall` in `content/site.json`:
 
-- `true` (current): a wall. The page is blurred and paused until the reader allows ads and reloads. It offers a link to the contact page for false alarms.
-- `false`: a dismissible notice that never blocks reading and stays hidden for a week once dismissed.
+- `true`: a wall. The page is blurred and paused until the reader allows ads and reloads. It offers a link to the contact page for false alarms.
+- `false` (current): a dismissible notice that never blocks reading and stays hidden for a week once dismissed.
 
 Either way, the About, Contact, Editorial and Privacy pages carry no ad script and so never show it. Search crawlers and headless test browsers are recognised by their user agent and are not walled, because they never load ads. The wall cannot tell an ad blocker from a privacy setting, VPN or network filter that blocks the same script; those readers are walled too.
 
@@ -208,3 +208,5 @@ For this GitHub-owned `github.io` subdomain, use a URL-prefix property for `http
 ### Kakao AdFit
 
 `content/site.json` → `adfit.article_end` contains the owner-issued 320×200 banner unit. Empty it to disable the integration. The supplied script appears exactly once after article content; information pages, the home page and portfolio do not load it. Existing AdSense settings are unchanged. The privacy page discloses the integration. Browser tests block advertising requests and check placement/dimensions only, not real ad delivery or Kakao approval.
+
+The published GA4 tag uses `G-1QGP7VFL1G`, verified on 14 November 2026 in the existing GitHubIO property web stream for `https://swchoi1994.github.io`. The final build pass migrates the previous ID on copied pages and preserves one tag per page. After deployment, verify collection in that property before using its reports as a traffic baseline.

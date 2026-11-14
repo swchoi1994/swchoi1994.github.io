@@ -1,7 +1,7 @@
 <!--
 {
-  "title": "What your Claude Code setup costs per request, measured",
-  "description": "We recorded what Claude Code sends before you type a word. A 400-line CLAUDE.md adds 26 KB to every request; a 40-tool MCP server adds 1 KB, or 56 KB.",
+  "title": "Claude Code request size: what our local recorder measured",
+  "description": "Recorded request sizes for CLAUDE.md, skills and MCP tools in Claude Code. What the byte counts show, and why they do not measure your bill.",
   "date": "2026-11-12T14:20:00+00:00",
   "topic": "ai-automation",
   "cover": "gauge",
@@ -9,8 +9,11 @@
     "needs": "Claude Code and Python. No API key and no model: the requests go to a recorder on your own machine.",
     "result": "The size of your own setup, part by part, and a short list of what to trim."
   },
-  "checked": {"level": "tested", "line": "Every figure was measured with Claude Code 2.1.322 on Linux, in print mode, against a recorder on the same machine."},
-  "note": "Every figure is from a run on November 12, 2026 with Claude Code 2.1.322 on Linux, sending one short question in print mode (claude -p) to a recorder on the same machine. Sizes are bytes of the request as sent, not tokens; the token figures are our rough estimate at four characters per token and are marked as estimates. The requests went to a custom address with a model name Claude Code did not recognise, so a normal session with a Claude model may load a somewhat different set of tools. An interactive session also sends more than print mode does. The instruction files, skills, agents and the 40-tool server were made up for the test and are described in the text. The recorder and the runner are given in full so the measurements can be repeated.",
+  "checked": {
+    "level": "partly",
+    "line": "Request sizes were reported from Claude Code 2.1.322 on Linux. This correction reviews their interpretation; billing, latency and network isolation were not tested."
+  },
+  "note": "The original November 12, 2026 experiment reported one short question in print mode (claude -p) sent to a local recorder with Claude Code 2.1.322 on Linux. The wire sizes are bytes, not tokens or billing measurements. The system, tools and messages fields are separately reserialized estimates and do not sum to the wire size. A custom endpoint and unrecognised model name may change tool loading relative to a supported Claude session. The instruction files, skills, agents and 40-tool server were synthetic test fixtures. The recorder and an example invocation are included, but the complete fixture suite and runner are not; independent reproduction remains outstanding. The November 14 correction retains the original reported byte counts and removes unsupported cost, token, latency and privacy conclusions. No new benchmark was run.",
   "sources": [
     {
       "title": "Claude Code docs: Connect Claude Code to tools via MCP (tool search)",
@@ -27,12 +30,22 @@
     {
       "title": "Claude Platform docs: Pricing (cache reads)",
       "url": "https://platform.claude.com/docs/en/about-claude/pricing"
+    },
+    {
+      "title": "Claude Code docs: Network configuration",
+      "url": "https://code.claude.com/docs/en/network-config"
+    },
+    {
+      "title": "Claude Code docs: Costs and prompt cache statistics",
+      "url": "https://code.claude.com/docs/en/costs"
     }
-  ]
+  ],
+  "updated": "2026-11-14T12:30:00+00:00"
 }
 -->
-<p>Before Claude Code reads your question, it has already written a long message of its own: its instructions, the definition of every tool, your project notes, the names of your skills. That message goes out with every request, and everything you add to your setup makes it longer. We wanted to know by how much, so we pointed Claude Code at a small recorder on our own machine and measured what arrived.</p>
-<p>The short version: one thing you write costs its full size every single time, most things cost almost nothing, and one setting can double the bill.</p>
+<p>The original experiment sent a short question from Claude Code to a local recorder and compared request sizes after changing the project setup. The recorded payload included instructions, loaded tool definitions and project context. Deferred tools and skills need not send their complete contents upfront.</p>
+<p>In these runs, a long <code>CLAUDE.md</code> and disabling tool search increased the request size substantially. This measures serialized data, not API tokens, charges or response time.</p>
+<p class="note"><strong>Correction, November 14, 2026:</strong> The earlier wording overstated what byte counts establish about bills, latency and privacy. The reported measurements below are unchanged; no new benchmark was run.</p>
 
 <h2 id="results">The results</h2>
 <p>Each row is the size of the request Claude Code sent for the same two-word question, "Say hello", with one thing changed.</p>
@@ -66,7 +79,7 @@
 <tr><td><code>--bare</code></td><td>4,318</td><td>−41,936</td></tr>
 </tbody>
 </table>
-<p>As a rough guide, four characters make one token, so the baseline is on the order of 11,000 tokens and the largest row about 26,000. Those token figures are estimates; the byte counts are exact.</p>
+<p>These are recorded wire byte counts. JSON bytes are not character counts or model tokens; dividing them by four does not establish a token count. Use the model tokenizer or actual API usage fields to measure tokens.</p>
 
 <h2 id="baseline">What is in the baseline</h2>
 <figure class="diagram">
@@ -74,19 +87,19 @@
 <div><p><strong>One request from an empty project</strong><span>46,254 bytes</span></p><div class="d-bar"><span class="b" style="flex:6119">&nbsp;</span><span class="a" style="flex:30136">tool definitions</span><span class="c" style="flex:10081">messages</span></div></div>
 </div>
 <p class="d-legend"><span><i class="b"></i>Instructions: 6,119</span><span><i class="a"></i>Tool definitions: 30,136</span><span><i class="c"></i>Messages: 10,081</span></p>
-<figcaption>Two thirds of the request is the description of twelve tools.</figcaption>
+<figcaption>Relative sizes of separately reserialized fields. Their sum, 46,336 bytes, differs from the 46,254-byte wire request, so this is not an exact partition of the payload.</figcaption>
 </figure>
 <p>Three things stand out.</p>
 <ul>
 <li><strong>The tools are the bulk of it.</strong> Twelve tool definitions take 30,136 bytes, about 2,500 each. A tool definition is a small manual: what the tool does, when to use it, what each argument means.</li>
 <li><strong>"Say hello" was 9 bytes of a 10,081-byte message.</strong> The rest of the messages part is context Claude Code attaches for you: the date, the folder, what is available. This is also where your own additions land.</li>
-<li><strong>It is the same every time.</strong> We ran the baseline twice and got 46,254 bytes both times. That sameness is what makes caching work: an identical beginning can be reused instead of read again.</li>
+<li><strong>Two runs had the same byte count.</strong> Both reported 46,254 bytes. Equal lengths do not prove identical content, a reusable prefix or a cache hit. Cache behavior needs separate usage evidence.</li>
 </ul>
 
-<h2 id="claudemd">CLAUDE.md is the one that costs its full size</h2>
-<p>A 2,480-byte <code>CLAUDE.md</code> made the request 3,000 bytes larger. A 25,054-byte one made it 25,934 bytes larger. The whole file goes in, plus a few hundred bytes of wrapping, on every request of every session in that project.</p>
+<h2 id="claudemd">CLAUDE.md increased the initial request size</h2>
+<p>A 2,480-byte <code>CLAUDE.md</code> made the recorded request 3,000 bytes larger. A 25,054-byte one made it 25,934 bytes larger. Those deltas describe these initial requests; they do not establish identical behavior or billing for every later turn.</p>
 <p>Compare that with a skill. Each of our test skills was 2,688 bytes on disk, and ten of them added 1,844 bytes in total, about 184 each. Only a skill's name and description are sent; the body is read when the skill is used.</p>
-<div class="callout ok"><strong>The rule this suggests</strong>Keep in <code>CLAUDE.md</code> only what Claude needs on <em>every</em> task: the commands, the rules with no exceptions, where things are. Move anything that matters only sometimes, such as a release procedure or a style guide for one kind of file, into a skill. In our test that turned 2,688 bytes per request into 184.</div>
+<div class="callout ok"><strong>The rule this suggests</strong>Keep in <code>CLAUDE.md</code> only what Claude needs on <em>every</em> task: the commands, the rules with no exceptions, where things are. Move anything that matters only sometimes, such as a release procedure or a style guide for one kind of file, into a skill. In the reported skill fixture, discovery added about 184 bytes per skill. That does not include loading the skill body when it is used, and it is not a matched measurement of moving the same document.</div>
 <p>How to write the short version is in <a href="/blog/posts/claude-code-project-setup/">setting up a project for Claude Code</a>.</p>
 
 <h2 id="mcp">MCP servers: 1 KB or 56 KB, depending on one setting</h2>
@@ -100,10 +113,10 @@
 <tr><td>Tool search off, with the 40-tool server</td><td>61</td><td>101,938</td></tr>
 </tbody>
 </table>
-<p>Two costs appeared, and only one of them was expected.</p>
+<p>Two sources of additional payload appeared.</p>
 <ul>
-<li><strong>The 40 tools now cost their full size:</strong> 28,251 bytes, about 700 each.</li>
-<li><strong>Eleven tools of Claude Code's own came along too.</strong> With tool search off and no MCP server at all, the request grew by 27,433 bytes, because built-in tools that are normally looked up on demand, among them web fetch, web search and the notebook editor, were all loaded at the start.</li>
+<li><strong>The 40 tools added their definitions:</strong> 28,251 bytes, about 700 each.</li>
+<li><strong>Additional built-in tools came along too.</strong> With tool search off and no MCP server at all, the request grew by 27,433 bytes, because built-in tools that are normally looked up on demand, among them web fetch, web search and the notebook editor, were all loaded at the start.</li>
 </ul>
 <p>One more result surprised us. <code>ENABLE_TOOL_SEARCH=auto</code> sounds like the safe choice. It is a threshold mode: by the documentation, tools load upfront while their definitions total under 10 percent of the context window. Our 40 tools were under that line, so <code>auto</code> gave the largest request of the whole test, 103,647 bytes.</p>
 <div class="callout warn"><strong>If you set this variable once and forgot why</strong>Check your shell profile and the <code>env</code> section of <code>~/.claude/settings.json</code> for <code>ENABLE_TOOL_SEARCH</code>. Unset, every MCP tool is deferred. There are good reasons to load a few tools upfront, and the documentation shows how to do it per server or per tool, which is cheaper than switching deferral off for everything.</div>
@@ -118,7 +131,7 @@
 <tr><td><code>--bare</code></td><td>4,318 bytes</td><td>Almost everything automatic. The help text calls it a minimal mode that skips hooks, plugin sync, auto-memory and the automatic discovery of <code>CLAUDE.md</code>, among other things. You pass in what you want explicitly</td></tr>
 </tbody>
 </table>
-<p>This matters in two places. In a script or a CI job that runs Claude Code hundreds of times, a request a third the size is a third of the input to pay for and to wait for. And if you are <a href="/blog/posts/claude-code-with-vllm/">running Claude Code against your own model</a>, a model with a 32,000-token window cannot spare 11,000 of them for the opening message; naming three tools brings that down to roughly 3,700 by the same estimate.</p>
+<p>Smaller payloads may be useful for repeated scripts and for <a href="/blog/posts/claude-code-with-vllm/">Claude Code with a local model</a>. The size ratio is not a cost or latency ratio: tokenization, prompt caching, model pricing and serving behavior all matter. Measure token usage and task success before removing tools your workflow needs.</p>
 
 <h2 id="repeat">Measure your own setup</h2>
 <p>The recorder is a small web server that pretends to be the model. It prints one line per request with the sizes of the three parts, then answers with a fixed sentence. Save it as <code>recorder.py</code>:</p>
@@ -184,14 +197,15 @@ claude -p "Say hello"</code></pre>
 {"path": "/v1/messages", "bytes": 46254, "system": 6119, "tools": 30136, "messages": 10081, "tool_count": 12, "deferred": 1, "names": ["Agent", "Bash", "Edit", "ListAgents", "Read", "ReportFindings", "ScheduleWakeup", "Skill", "ToolSearch", "Workflow", "DeferredToolPlaceholder", "Write"], "beta": "…"}</code></pre>
 <figcaption>The baseline, as recorded. Your own project will show a larger <code>messages</code> figure; the difference is what your setup adds.</figcaption>
 </figure>
-<p>Nothing leaves your machine during this, and no key is used: the settings send the request to the recorder instead of to Anthropic. Close the second terminal afterwards, or the settings stay in force for that shell. On Windows, set the six variables with <code>$env:NAME = "value"</code> first, as shown in <a href="/blog/posts/claude-code-with-vllm/">the vLLM guide</a>.</p>
+<p>The example redirects the model request to a local recorder and supplies dummy credentials. It does not isolate Claude Code from the network: telemetry, updates, plugins, MCP servers or other enabled features can still contact external services. Use a disposable project without sensitive material and consult the <a href="https://code.claude.com/docs/en/network-config">network configuration documentation</a> before testing confidential data.</p>
+<p>In a POSIX shell, the inline variable assignments shown above apply only to that command; they do not persist afterwards. PowerShell <code>$env:NAME = "value"</code> assignments persist in that process and should be restored or removed afterwards. The recorder returns made-up usage values to satisfy the client protocol; those values cannot measure tokens or billing.</p>
 
 <h2 id="do">What to do with this</h2>
 <table>
 <thead><tr><th scope="col">If you have</th><th scope="col">Do this</th><th scope="col">Why</th></tr></thead>
 <tbody>
-<tr><td>A <code>CLAUDE.md</code> over about 100 lines</td><td>Move the occasional material into skills</td><td>It is the only thing here that costs its full size every time</td></tr>
-<tr><td>Many MCP servers</td><td>Leave them, and leave tool search on</td><td>40 tools cost about 1 KB when deferred</td></tr>
+<tr><td>A <code>CLAUDE.md</code> over about 100 lines</td><td>Move the occasional material into skills</td><td>The long fixture increased the initial wire payload by about 26 KB</td></tr>
+<tr><td>Many MCP servers</td><td>Leave them, and leave tool search on</td><td>The deferred 40-tool fixture added 1,344 wire bytes</td></tr>
 <tr><td><code>ENABLE_TOOL_SEARCH</code> set to <code>false</code> or <code>auto</code></td><td>Find out why, and unset it if the reason is gone</td><td>It was the difference between 48 KB and 102 KB</td></tr>
 <tr><td>Scripts that call <code>claude -p</code></td><td>Name the tools they need with <code>--tools</code></td><td>The request fell from 46 KB to 15 KB</td></tr>
 <tr><td>A small-context model behind Claude Code</td><td>Start from <code>--tools</code> and add back what you miss</td><td>The opening message alone can fill a small window</td></tr>
@@ -201,7 +215,7 @@ claude -p "Say hello"</code></pre>
 <h2 id="limits">What this measurement does not show</h2>
 <ul>
 <li><strong>Tokens.</strong> We counted bytes. The real token count depends on the model's tokenizer.</li>
-<li><strong>Money.</strong> On Anthropic's API a repeated beginning is served from a cache at a fraction of the normal price, so a large stable opening is cheaper than its size suggests. It still occupies the context window in full.</li>
+<li><strong>Money and latency.</strong> No paid model request or timing comparison was measured. Cache creation, cache reads and uncached input have different prices. A repeated prefix is not proof of a cache hit; inspect actual usage fields and current pricing. Cached tokens still count toward context limits.</li>
 <li><strong>An interactive session.</strong> We used print mode. A normal session carries more, and grows with every turn.</li>
 <li><strong>Your version.</strong> These are Claude Code 2.1.322's numbers. The tool list changes between releases, which is one more reason to run the recorder yourself.</li>
 </ul>
