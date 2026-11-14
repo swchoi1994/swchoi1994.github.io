@@ -202,6 +202,13 @@ class QueueTests(unittest.TestCase):
             self.assertEqual(args[:4], ('gh', 'api', '--paginate', '--slurp'))
             self.assertIn('head=swchoi1994%3Aauto-post%2Fshared', args[-1])
 
+    def test_retargeted_orphan_request_is_held_not_replaced(self):
+        pr = {'number': 7, 'user': {'login': policy.OWNER}, 'base': {'ref': 'archive'}, 'head': {'ref': 'auto-post/shared', 'repo': {'full_name': policy.REPO}}}
+        with tempfile.TemporaryDirectory() as temp, patch.object(editorial, 'STATE', Path(temp)), patch.object(editorial, 'run', return_value=json.dumps([[pr]])) as run:
+            with self.assertRaisesRegex(ValueError, 'another base'):
+                editorial.existing_pr('auto-post/shared')
+            self.assertNotIn('base=', run.call_args.args[-1])
+
     def test_saved_closed_request_cannot_be_replaced_by_inventory_omission(self):
         branch = editorial.request_branch('wa:cancelled')
         pr = {'number': 7, 'user': {'login': policy.OWNER}, 'base': {'ref': 'main'}, 'head': {'ref': branch, 'repo': {'full_name': policy.REPO}}, 'html_url': 'https://github.com/pr/7', 'state': 'closed', 'draft': False, 'auto_merge': None}

@@ -106,7 +106,7 @@ def request_branch(request_id):
 
 def existing_pr(branch):
     def matches(pr):
-        return (pr['user']['login'] == OWNER and pr['base']['ref'] == 'main'
+        return (pr['user']['login'] == OWNER
                 and (pr['head'].get('repo') or {}).get('full_name') == REPO and pr['head']['ref'] == branch)
 
     saved = read(receipt_path(branch), {})
@@ -120,7 +120,7 @@ def existing_pr(branch):
     else:
         # Orphan recovery: qualify the source owner at the API and consume every
         # page, then verify identity. Do not use a capped cross-fork inventory.
-        query = urlencode({'state': 'all', 'base': 'main', 'head': OWNER + ':' + branch, 'per_page': 100})
+        query = urlencode({'state': 'all', 'head': OWNER + ':' + branch, 'per_page': 100})
         pages = json.loads(run('gh', 'api', '--paginate', '--slurp', f'repos/{REPO}/pulls?{query}'))
         data = [p for page in pages for p in page if matches(p)]
     if len(data) > 1:
@@ -128,6 +128,8 @@ def existing_pr(branch):
     if not data:
         return None
     pr = data[0]
+    if pr['base']['ref'] != 'main':
+        raise ValueError('Existing request targets another base; inspect without creating a replacement')
     return {'number': pr['number'], 'url': pr['html_url'], 'state': 'MERGED' if pr.get('merged_at') else pr['state'].upper(),
             'isDraft': pr['draft'], 'autoMergeRequest': pr.get('auto_merge'),
             'isCrossRepository': False, 'author': {'login': OWNER}}
